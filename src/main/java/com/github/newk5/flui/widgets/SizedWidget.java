@@ -35,6 +35,11 @@ public abstract class SizedWidget extends Widget {
         children.remove(w);
     }
 
+    public void add(Widget w){
+        w.parent(this);
+        this.children.add(w);
+    }
+    
     protected void applyRelativeSize() {
 
         if (super.getParent() == null) {
@@ -64,8 +69,6 @@ public abstract class SizedWidget extends Widget {
     }
 
     protected void postRender(JImGui imgui) {
-
-      
 
         if (reapplyAlign && super.getAlign() != null) {
             reapplyAlign = false;
@@ -109,7 +112,7 @@ public abstract class SizedWidget extends Widget {
                     super.posX(0);
                     super.posY(h / 2 - height / 2);
                     break;
-                case MID_CENTER:
+                case CENTER:
                     super.posX(w / 2 - width / 2);
                     super.posY(h / 2 - height / 2);
 
@@ -131,6 +134,12 @@ public abstract class SizedWidget extends Widget {
                 case BOTTOM_RIGHT:
                     super.posX(w - width);
                     super.posY(h - height);
+                    break;
+                case CENTER_H:
+                    super.posX(w / 2 - width / 2);
+                    break;
+                case CENTER_V:
+                    super.posY(h / 2 - height / 2);
                     break;
                 default:
                     break;

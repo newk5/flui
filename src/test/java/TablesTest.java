@@ -1,9 +1,12 @@
 
+import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
+import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
+import java.util.Objects;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,13 +19,23 @@ public class TablesTest {
         UI.render(app, () -> {
 
             new Window("w").fill().children(
-                    new Table("tbl").columns(
+                    new Table("tbl").rowsPerPage(5).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age")
                     ).data(
                             Stream.of(
-                                    new User("John", 19),
-                                    new User("Steve", 29)
+                                    new User("John1", 19),
+                                    new User("Steve2", 29),
+                                    new User("John3", 19),
+                                    new User("John4", 19),
+                                    new User("John5", 19),
+                                    new User("John6", 19),
+                                    new User("John7", 19),
+                                    new User("John8", 19),
+                                    new User("John9", 19),
+                                    new User("John10", 19),
+                                    new User("John11", 19),
+                                    new User("John12", 19)
                             ).collect(Collectors.toList())
                     ).onSelect((o) -> {
                         User u = (User) o;
@@ -61,6 +74,40 @@ class User {
 
     public int getAge() {
         return age;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" + "name=" + name + ", age=" + age + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 19 * hash + Objects.hashCode(this.name);
+        hash = 19 * hash + this.age;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        if (this.age != other.age) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return true;
     }
 
 }

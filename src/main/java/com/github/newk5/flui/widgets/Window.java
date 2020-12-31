@@ -243,7 +243,7 @@ public class Window extends SizedWidget {
     @Override
     public void render(JImGui imgui) {
         if (!super.isHidden()) {
-            if (font != null ) {
+            if (font != null) {
                 imgui.pushFont(Application.fonts.get(font).getJimFont());
             }
             imgui.pushID(numId);
@@ -365,6 +365,7 @@ public class Window extends SizedWidget {
         return this;
     }
 
+    @Override
     public void add(Widget w) {
         w.parent(this);
         if (w instanceof SizedWidget) {

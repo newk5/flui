@@ -55,8 +55,8 @@ public class FilledCanvasTest {
                     )
             );
 
-            new Popup("op").title("Popup").height(250).width(400).align(Alignment.MID_CENTER).children(
-                    new Label("lbl").text("Hello").align(Alignment.MID_CENTER),
+            new Popup("op").title("Popup").height(250).width(400).align(Alignment.CENTER).children(
+                    new Label("lbl").text("Hello").align(Alignment.CENTER),
                     new Button("btn2").align(Alignment.BOTTOM_RIGHT).text("close").onClick((btn) -> {
                         Popup.withID("op").close();
 

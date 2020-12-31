@@ -387,7 +387,7 @@ public class Popup extends SizedWidget {
                     super.posX(0);
                     super.posY(h / 2 - height / 2);
                     break;
-                case MID_CENTER:
+                case CENTER:
                     super.posX(w / 2 - width / 2); //400
                     super.posY(h / 2 - height / 2); //125
 

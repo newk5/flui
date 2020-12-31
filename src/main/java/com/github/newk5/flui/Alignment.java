@@ -8,9 +8,11 @@ public enum Alignment {
     TOP_CENTER,
     TOP_RIGHT,
     MID_LEFT,
-    MID_CENTER,
+    CENTER,
     MID_RIGHT,
     BOTTOM_LEFT,
     BOTTOM_CENTER,
-    BOTTOM_RIGHT
+    BOTTOM_RIGHT,
+    CENTER_H,
+    CENTER_V
 }

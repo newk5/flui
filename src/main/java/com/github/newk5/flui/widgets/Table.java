@@ -1,5 +1,6 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.Alignment;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class Table extends SizedWidget {
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<>();
 
-    private int rowsPerPage;
+    private int rowsPerPage = -1;
     private boolean borders = true;
     private int flags;
     private List<Column> columns = new ArrayList<>();
@@ -30,6 +31,15 @@ public class Table extends SizedWidget {
     private JImStr title;
     private CellWrapper lastSelected;
     private int selectedIdx = -1;
+
+    private Button nextBtn;
+    private Button prevBtn;
+    private Label pagesLbl;
+
+    private int currentPage = 1;
+    private int totalPages;
+
+    private int offset = 0;
 
     private Consumer<Object> onSelect;
 
@@ -50,39 +60,104 @@ public class Table extends SizedWidget {
         }
     }
 
+    private void calculatePageCount() {
+        totalPages = (int) Math.ceil(Float.valueOf(this.simpleData.size() + "") / Float.valueOf(rowsPerPage + ""));
+    }
+
+    private void nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.offset += this.rowsPerPage;
+            this.currentPage++;
+            this.pagesLbl.text("Page " + currentPage + " of " + totalPages);
+
+        }
+    }
+
+    private void prevPage() {
+        if (this.currentPage + 1 >= this.totalPages) {
+            this.offset -= this.rowsPerPage;
+            this.currentPage--;
+            this.pagesLbl.text("Page " + currentPage + " of " + totalPages);
+        }
+    }
+
     @Override
     protected void render(JImGui imgui) {
         imgui.pushID(numId);
-        if (imgui.beginTable(title, columns.size(), JImTableFlags.Borders | JImTableFlags.Sortable | JImTableFlags.Hideable)) {
+        if (imgui.beginTable(title, columns.size(), flags)) {
             columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
             imgui.tableHeadersRow();
 
-            simpleData.forEach(cells -> {
-                Arrays.stream(cells).forEach(cell -> {
+            int counter = 0;
+            for (int i = offset; i < simpleData.size(); i++) {
+                if (counter == rowsPerPage) {
+                    break;
+                }
+                CellWrapper[] row = simpleData.get(i);
+
+                for (CellWrapper cell : row) {
                     imgui.tableNextColumn();
+                    imgui.pushID(i);
                     if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
                         cell.selected(true);
                         if (lastSelected != null) {
                             lastSelected.selected(false);
                         }
-                        selectedIdx = simpleData.indexOf(cells);
+                        selectedIdx = i;
 
                         if (onSelect != null) {
                             onSelect.accept(this.data.get(selectedIdx));
                         }
                         lastSelected = cell;
                     }
-                });
-
-            });
+                    imgui.popID();
+                }
+                counter++;
+            }
 
             imgui.endTable();
+            if (prevBtn == null) {
+                prevBtn = new Button(id + ":PrevBtn").text("<").align(Alignment.CENTER_H).onClick((btn) -> {
+                    this.prevPage();
+                });
+                UI.runLater(() -> {
+                    super.getParent().add(prevBtn);
+                });
+
+                prevBtn.sameLine(true);
+            } else {
+                prevBtn.posX = pagesLbl.posX - (pagesLbl.width / 2);
+            }
+
+            if (this.pagesLbl == null) {
+                this.pagesLbl = new Label(id + ":pagesLbl").align(Alignment.CENTER_H).text("Page " + currentPage + " of " + totalPages);
+                UI.runLater(() -> {
+                    super.getParent().add(pagesLbl);
+                });
+                this.pagesLbl.sameLine(true);
+            } 
+
+            if (nextBtn == null) {
+                nextBtn = new Button(id + ":NextBtn").align(Alignment.CENTER_H).text(">").onClick((btn) -> {
+                    this.nextPage();
+                });
+                UI.runLater(() -> {
+                    super.getParent().add(nextBtn);
+
+                });
+            } else {
+                nextBtn.posX = pagesLbl.posX + pagesLbl.width + 20;
+               
+            }
 
         }
         imgui.popID();
     }
 
-    
+    public Table rowsPerPage(int rows) {
+        this.rowsPerPage = rows;
+        return this;
+    }
 
     public Table onSelect(Consumer<Object> o) {
         onSelect = o;
@@ -91,6 +166,7 @@ public class Table extends SizedWidget {
 
     public Table columns(Column... cols) {
         Arrays.stream(cols).forEach(c -> columns.add(c));
+
         return this;
     }
 
@@ -121,6 +197,7 @@ public class Table extends SizedWidget {
             }
 
         });
+        calculatePageCount();
         return this;
     }
 

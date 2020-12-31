@@ -20,7 +20,7 @@ public class WindowWithAlignedCanvasTest {
                                     .children(
                                             new Label("text")
                                                     .text("label")
-                                                    .align(Alignment.MID_CENTER)
+                                                    .align(Alignment.CENTER)
                                     ),
                             new Canvas("canv3")
                                     .width("50%").height("50%")

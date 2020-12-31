@@ -20,7 +20,7 @@ public class TabviewWithAlignedCanvasTest {
             new Window("w")
                     .showTitlebar(true)
                     .width("30%").height("70%").title("HELLO")
-                    .align(Alignment.MID_CENTER).resizable(true)
+                    .align(Alignment.CENTER).resizable(true)
                     .children(
                             new Tabview("tabs").tabs(
                                     new Tab("tab").title("Title1")
