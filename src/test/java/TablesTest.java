@@ -26,7 +26,7 @@ public class TablesTest {
                     ).data(
                             Stream.of(
                                     new User("John1", 19),
-                                    new User("Steve2", 29),
+                                    new User("John2", 29),
                                     new User("John3", 19),
                                     new User("John4", 19),
                                     new User("John5", 19),
@@ -42,13 +42,19 @@ public class TablesTest {
                         User u = (User) o;
                         System.out.println(u.getName());
                     }), new Button("btn").text("add").onClick((btn)->{
-                        Table.withID("tbl").add(us);
+                      
+                        Table tbl = Table.withID("tbl");
+                        tbl.add(new User("John"+(tbl.getTotalRows()+1),19));
                     }).sameLine(true),
                     new Button("btn2").text("remove").onClick((btn)->{
                         Table.withID("tbl").remove(us);
                     }).sameLine(true),
                     new Button("btn3").text("clear").onClick((btn)->{
                         Table.withID("tbl").clear();
+                    }).sameLine(true),
+                    new Button("btn4").text("last page").onClick((btn)->{
+                        Table tbl = Table.withID("tbl");
+                        tbl.page(tbl.getTotalPages());
                     })
             );
 

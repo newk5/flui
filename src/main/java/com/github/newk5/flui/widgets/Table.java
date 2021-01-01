@@ -81,6 +81,15 @@ public class Table extends SizedWidget {
             totalPages = 1;
         }
     }
+    
+    public int getTotalPages(){
+        return totalPages;
+    }
+    
+    public int getTotalRows(){
+        return this.data.size();
+    }
+    
 
     private void nextPage() {
         if (this.currentPage < this.totalPages) {
@@ -184,6 +193,22 @@ public class Table extends SizedWidget {
 
     public Table rowsPerPage(int rows) {
         this.rowsPerPage = rows;
+        return this;
+    }
+
+    public Table page(int page) {
+        if (page != currentPage && page <= totalPages && page >= 1) {
+            if (page > currentPage) {
+                int diff = page - currentPage;
+                offset += diff * rowsPerPage;
+            } else {
+                int diff = currentPage - page;
+                offset -= diff * rowsPerPage;
+            }
+
+            currentPage = page;
+            updatePaginator();
+        }
         return this;
     }
 
