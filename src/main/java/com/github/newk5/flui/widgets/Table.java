@@ -53,6 +53,21 @@ public class Table extends SizedWidget {
         title = new JImStr(id);
     }
 
+    public static Table withID(String id) {
+        Widget w = getWidget(idIndex.get(id), instances);
+        if (w == null) {
+            return null;
+
+        }
+        return (Table) w;
+    }
+
+    public void clear() {
+        this.data.clear();
+        this.simpleData.clear();
+        updatePaginator();
+    }
+
     private void buildFlags() {
         flags = 0;
         if (borders) {
@@ -62,21 +77,33 @@ public class Table extends SizedWidget {
 
     private void calculatePageCount() {
         totalPages = (int) Math.ceil(Float.valueOf(this.simpleData.size() + "") / Float.valueOf(rowsPerPage + ""));
+        if (totalPages == 0) {
+            totalPages = 1;
+        }
     }
 
     private void nextPage() {
         if (this.currentPage < this.totalPages) {
             this.offset += this.rowsPerPage;
             this.currentPage++;
-            this.pagesLbl.text("Page " + currentPage + " of " + totalPages);
+            this.updatePaginator();
 
         }
     }
 
     private void prevPage() {
-        if (this.currentPage + 1 >= this.totalPages) {
-            this.offset -= this.rowsPerPage;
-            this.currentPage--;
+        if (currentPage > 1) {
+            if (this.currentPage + 1 >= this.totalPages) {
+                this.offset -= this.rowsPerPage;
+                this.currentPage--;
+                this.updatePaginator();
+            }
+        }
+    }
+
+    private void updatePaginator() {
+        calculatePageCount();
+        if (pagesLbl != null) {
             this.pagesLbl.text("Page " + currentPage + " of " + totalPages);
         }
     }
@@ -116,6 +143,7 @@ public class Table extends SizedWidget {
             }
 
             imgui.endTable();
+            //draw paginator widgets
             if (prevBtn == null) {
                 prevBtn = new Button(id + ":PrevBtn").text("<").align(Alignment.CENTER_H).onClick((btn) -> {
                     this.prevPage();
@@ -135,7 +163,7 @@ public class Table extends SizedWidget {
                     super.getParent().add(pagesLbl);
                 });
                 this.pagesLbl.sameLine(true);
-            } 
+            }
 
             if (nextBtn == null) {
                 nextBtn = new Button(id + ":NextBtn").align(Alignment.CENTER_H).text(">").onClick((btn) -> {
@@ -147,7 +175,7 @@ public class Table extends SizedWidget {
                 });
             } else {
                 nextBtn.posX = pagesLbl.posX + pagesLbl.width + 20;
-               
+
             }
 
         }
@@ -170,31 +198,53 @@ public class Table extends SizedWidget {
         return this;
     }
 
+    public void add(Object o) {
+        List<CellWrapper> lst = new ArrayList<>();
+        if (o instanceof String[]) {
+            for (int i = 0; i < ((String[]) o).length; i++) {
+                Column col = columns.get(i);
+                String value = ((String[]) o)[i];
+                lst.add(new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), this.simpleData.size()));
+            }
+
+            this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
+        } else {
+
+            columns.forEach(col -> {
+
+                lst.add(new CellWrapper("", new JImStr(getValue(o, col.getField())), col.getHeaderAsStr(), this.simpleData.size()));
+
+            });
+
+            this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
+        }
+        this.data.add(o);
+        updatePaginator();
+    }
+
+    public void remove(Object o) {
+        int idx = data.indexOf(o);
+
+        if (idx > -1) {
+            data.remove(idx);
+            simpleData.remove(idx);
+
+        }
+    }
+
+    public void remove(int rowIndex) {
+
+        if (rowIndex > -1) {
+            data.remove(rowIndex);
+            simpleData.remove(rowIndex);
+
+        }
+    }
+
     public Table data(List<Object> data) {
-        this.data = data;
         this.simpleData.clear();
         data.forEach(rowArray -> {
-            List<CellWrapper> lst = new ArrayList<>();
-            if (rowArray instanceof String[]) {
-                for (int i = 0; i < ((String[]) rowArray).length; i++) {
-                    Column col = columns.get(i);
-                    String value = ((String[]) rowArray)[i];
-                    lst.add(new CellWrapper("", new JImStr(value), col.getHeaderAsStr()));
-                }
-
-                this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
-            } else {
-
-                columns.forEach(col -> {
-
-                    Object obj = (Object) rowArray;
-
-                    lst.add(new CellWrapper("", new JImStr(getValue(obj, col.getField())), col.getHeaderAsStr()));
-
-                });
-
-                this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
-            }
+            this.add(rowArray);
 
         });
         calculatePageCount();

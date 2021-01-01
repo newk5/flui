@@ -16,6 +16,7 @@ public class TablesTest {
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);
 
+        User us = new User("John13", 19);
         UI.render(app, () -> {
 
             new Window("w").fill().children(
@@ -40,6 +41,14 @@ public class TablesTest {
                     ).onSelect((o) -> {
                         User u = (User) o;
                         System.out.println(u.getName());
+                    }), new Button("btn").text("add").onClick((btn)->{
+                        Table.withID("tbl").add(us);
+                    }).sameLine(true),
+                    new Button("btn2").text("remove").onClick((btn)->{
+                        Table.withID("tbl").remove(us);
+                    }).sameLine(true),
+                    new Button("btn3").text("clear").onClick((btn)->{
+                        Table.withID("tbl").clear();
                     })
             );
 

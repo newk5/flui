@@ -35,7 +35,7 @@ public abstract class SizedWidget extends Widget {
         children.remove(w);
     }
 
-    public void add(Widget w){
+    protected void add(Widget w){
         w.parent(this);
         this.children.add(w);
     }

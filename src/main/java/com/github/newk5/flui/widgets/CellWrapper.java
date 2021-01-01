@@ -8,11 +8,25 @@ public class CellWrapper {
     private JImStr value;
     private String column;
     private boolean selected;
+    private int rowIdx;
 
     public CellWrapper(String field, JImStr value, String column) {
         this.field = field;
         this.value = value;
         this.column = column;
+    }
+
+    public CellWrapper(String field, JImStr value, String column, int rowIdx) {
+        this.field = field;
+        this.value = value;
+        this.column = column;
+        this.rowIdx = rowIdx;
+    }
+
+    
+    
+    public int getRowIdx() {
+        return rowIdx;
     }
 
     public String getField() {
