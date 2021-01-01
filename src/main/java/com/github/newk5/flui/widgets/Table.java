@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +43,7 @@ public class Table extends SizedWidget {
     private int offset = 0;
 
     private Consumer<Object> onSelect;
+    private BiConsumer<Integer, Integer> pageChangeEvent;
 
     public Table(String id) {
         super(id, true);
@@ -81,19 +83,21 @@ public class Table extends SizedWidget {
             totalPages = 1;
         }
     }
-    
-    public int getTotalPages(){
+
+    public int getTotalPages() {
         return totalPages;
     }
-    
-    public int getTotalRows(){
+
+    public int getTotalRows() {
         return this.data.size();
     }
-    
 
     private void nextPage() {
         if (this.currentPage < this.totalPages) {
             this.offset += this.rowsPerPage;
+            if (pageChangeEvent != null) {
+                pageChangeEvent.accept(currentPage, currentPage + 1);
+            }
             this.currentPage++;
             this.updatePaginator();
 
@@ -104,6 +108,9 @@ public class Table extends SizedWidget {
         if (currentPage > 1) {
             if (this.currentPage + 1 >= this.totalPages) {
                 this.offset -= this.rowsPerPage;
+                if (pageChangeEvent != null) {
+                    pageChangeEvent.accept(currentPage, currentPage - 1);
+                }
                 this.currentPage--;
                 this.updatePaginator();
             }
@@ -196,6 +203,11 @@ public class Table extends SizedWidget {
         return this;
     }
 
+    public Table onPageChange(BiConsumer<Integer, Integer> e) {
+        this.pageChangeEvent = e;
+        return this;
+    }
+
     public Table page(int page) {
         if (page != currentPage && page <= totalPages && page >= 1) {
             if (page > currentPage) {
@@ -206,6 +218,9 @@ public class Table extends SizedWidget {
                 offset -= diff * rowsPerPage;
             }
 
+            if (pageChangeEvent != null) {
+                pageChangeEvent.accept(currentPage, page);
+            }
             currentPage = page;
             updatePaginator();
         }

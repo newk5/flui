@@ -41,18 +41,20 @@ public class TablesTest {
                     ).onSelect((o) -> {
                         User u = (User) o;
                         System.out.println(u.getName());
-                    }), new Button("btn").text("add").onClick((btn)->{
-                      
-                        Table tbl = Table.withID("tbl");
-                        tbl.add(new User("John"+(tbl.getTotalRows()+1),19));
-                    }).sameLine(true),
-                    new Button("btn2").text("remove").onClick((btn)->{
+                    }).onPageChange((oldPage, newPage) -> {
+                        System.out.println("Page changed from "+oldPage+" to "+newPage);
+                    }), new Button("btn").text("add").onClick((btn) -> {
+
+                Table tbl = Table.withID("tbl");
+                tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19));
+            }).sameLine(true),
+                    new Button("btn2").text("remove").onClick((btn) -> {
                         Table.withID("tbl").remove(us);
                     }).sameLine(true),
-                    new Button("btn3").text("clear").onClick((btn)->{
+                    new Button("btn3").text("clear").onClick((btn) -> {
                         Table.withID("tbl").clear();
                     }).sameLine(true),
-                    new Button("btn4").text("last page").onClick((btn)->{
+                    new Button("btn4").text("last page").onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
                         tbl.page(tbl.getTotalPages());
                     })
