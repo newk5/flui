@@ -1,6 +1,7 @@
 package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.util.SerializableConsumer;
@@ -65,6 +66,7 @@ public class InputText extends SizedWidget {
 
     public InputText font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

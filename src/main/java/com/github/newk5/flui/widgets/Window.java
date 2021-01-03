@@ -92,6 +92,7 @@ public class Window extends SizedWidget {
 
     public Window font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 
@@ -382,7 +383,7 @@ public class Window extends SizedWidget {
                 tbl.prevBtnParentIdx = this.children.size() + 1;
                 tbl.pagesLblParentIdx = this.children.size() + 2;
                 tbl.nextBtnParentIdx = this.children.size() + 3;
-            } 
+            }
         }
         this.children.add(w);
     }

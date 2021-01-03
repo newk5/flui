@@ -53,8 +53,6 @@ public class Table extends SizedWidget {
 
     private int currentPage = 1;
     private int totalPages;
-    private String fontName;
-    private Font font;
 
     private int offset = 0;
     Kryo kryo;
@@ -179,10 +177,8 @@ public class Table extends SizedWidget {
 
     @Override
     protected void render(JImGui imgui) {
-        imgui.pushID(numId);
-        if (font != null && font.getJimFont() != null) {
-            imgui.pushFont(font.getJimFont());
-        }
+        super.preRender(imgui);
+
         if (imgui.beginTable(title, columns.size(), flags)) {
             columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
             imgui.tableHeadersRow();
@@ -266,10 +262,8 @@ public class Table extends SizedWidget {
             }
 
         }
-        if (font != null && font.getJimFont() != null) {
-            imgui.popFont();
-        }
-        imgui.popID();
+
+        super.postRender(imgui);
     }
 
     public Table rowsPerPage(int rows) {
@@ -307,8 +301,8 @@ public class Table extends SizedWidget {
     }
 
     public Table font(String fontName) {
-        this.fontName = fontName;
-        this.font = Application.fonts.get(fontName);
+        super.font = fontName;
+        super.fontObj = Application.fonts.get(fontName);
         return this;
 
     }

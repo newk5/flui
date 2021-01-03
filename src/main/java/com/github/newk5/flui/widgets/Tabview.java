@@ -1,6 +1,7 @@
 package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Tabview extends SizedWidget {
     protected float tabHeight;
 
     public Tabview(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
     }
 
@@ -131,7 +132,6 @@ public class Tabview extends SizedWidget {
         });
     }
 
-
     @Override
     public String toString() {
         return "Tabview{ id= " + id + " }";
@@ -139,6 +139,7 @@ public class Tabview extends SizedWidget {
 
     public Tabview font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

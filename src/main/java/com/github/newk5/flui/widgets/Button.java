@@ -2,6 +2,7 @@ package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
 import java.io.Serializable;
@@ -13,8 +14,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImVec4;
 import vlsi.utils.CompactHashMap;
 
-
-public class Button extends SizedWidget implements Serializable{
+public class Button extends SizedWidget implements Serializable {
 
     private static long btnCounter = 0;
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
@@ -80,6 +80,7 @@ public class Button extends SizedWidget implements Serializable{
 
     public Button font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

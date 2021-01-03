@@ -1,5 +1,6 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +107,7 @@ public class Tab extends SizedWidget {
 
     public Tab font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

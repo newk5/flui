@@ -36,6 +36,7 @@ public abstract class Widget {
     protected String font;
     protected boolean deleteFlag;
     private Map<String, Object> data;
+    protected Font fontObj;
 
     public Widget(String id) {
         this.id = id;
@@ -141,9 +142,7 @@ public abstract class Widget {
     }
 
     protected void applyGeneralMove(JImGui imgui) {
-        if (this.id.equals("op")) {
-            System.out.println("");
-        }
+
         if (move != null) {
             if (move.getLeft() > 0) {
                 imgui.setCursorPosX(imgui.getCursorPosX() - move.getLeft());
@@ -199,11 +198,10 @@ public abstract class Widget {
 
     protected void preRender(JImGui imgui) {
 
-        if (font != null) {
-            Font f = Application.fonts.get(font);
+        if (fontObj != null) {
 
-            if (f != null && f.getJimFont() != null) {
-                imgui.pushFont(f.getJimFont());
+            if (fontObj.getJimFont() != null) {
+                imgui.pushFont(fontObj.getJimFont());
             }
         }
 
@@ -233,7 +231,7 @@ public abstract class Widget {
         imgui.popStyleVar();
         imgui.popID();
         firstRenderLoop = false;
-        if (font != null) {
+        if (fontObj != null) {
             imgui.popFont();
         }
     }

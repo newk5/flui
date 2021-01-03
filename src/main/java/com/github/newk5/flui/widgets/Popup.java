@@ -226,15 +226,13 @@ public class Popup extends SizedWidget {
 
     protected void preRender(JImGui imgui) {
 
-        if (font != null) {
-            Font f = Application.fonts.get(font);
+        imgui.pushID(numId);
+        if (super.fontObj != null) {
 
-            if (f != null) {
-                imgui.pushFont(f.getJimFont());
+            if (fontObj.getJimFont() != null) {
+                imgui.pushFont(fontObj.getJimFont());
             }
         }
-
-        imgui.pushID(numId);
 
         // applyGeneralMove(imgui);
         imgui.pushStyleVar(JImStyleVars.Alpha, super.getAlpha());
@@ -296,10 +294,10 @@ public class Popup extends SizedWidget {
 
             if (open) {
                 if (reapplyPos) {
-                    //w 400 250
+
                     imgui.setNextWindowSize(width + offsetX, height + offsetY);
                     applyAlignment();
-                    imgui.setNextWindowPos(super.getPosX(), super.getPosY()); //400,125
+                    imgui.setNextWindowPos(super.getPosX(), super.getPosY());
                     this.applyMove(imgui);
                     reapplyPos = false;
                 }
@@ -333,8 +331,6 @@ public class Popup extends SizedWidget {
                     applyRelativeSizeToChildren();
                 }
 
-           
-
                 for (Widget w : children) {
                     w.render(imgui);
                 }
@@ -359,7 +355,12 @@ public class Popup extends SizedWidget {
         reapplyPos = true;
         }*/
         imgui.popStyleVar();
+        if (super.fontObj != null && super.fontObj.getJimFont() != null) {
+            imgui.popFont();
+            
+        }
         imgui.popID();
+
         firstRenderLoop = false;
 
     }
@@ -389,8 +390,8 @@ public class Popup extends SizedWidget {
                     super.posY(h / 2 - height / 2);
                     break;
                 case CENTER:
-                    super.posX(w / 2 - width / 2); //400
-                    super.posY(h / 2 - height / 2); //125
+                    super.posX(w / 2 - width / 2);
+                    super.posY(h / 2 - height / 2);
 
                     break;
                 case MID_RIGHT:
@@ -456,6 +457,7 @@ public class Popup extends SizedWidget {
 
     public Popup font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

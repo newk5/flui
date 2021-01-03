@@ -1,11 +1,11 @@
 package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
@@ -71,6 +71,7 @@ public class SliderInt extends SizedWidget {
 
     public SliderInt font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

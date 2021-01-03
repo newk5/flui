@@ -1,6 +1,7 @@
 package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.util.SerializableConsumer;
@@ -44,7 +45,7 @@ public class Checkbox extends SizedWidget {
     private JImStr label = new JImStr("");
 
     public Checkbox(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
@@ -73,7 +74,6 @@ public class Checkbox extends SizedWidget {
 
     }
 
-
     public static Checkbox withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {
@@ -85,14 +85,15 @@ public class Checkbox extends SizedWidget {
 
     public Checkbox font(String font) {
         super.font = font;
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 
     public String getFont() {
         return super.font;
     }
-    
-     public Checkbox sameLine(final boolean value) {
+
+    public Checkbox sameLine(final boolean value) {
         this.sameLine = value;
         return this;
     }
