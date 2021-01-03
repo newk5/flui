@@ -71,10 +71,10 @@ public class TablesTest {
                                     new User("John12", 19),
                                     us
                             ).collect(Collectors.toList())
-                    ).onSelect((o) -> {
+                    ).onSelect((o) -> { //when a row is selected (clicked on)
                         User u = (User) o;
                         System.out.println(u.getName());
-                    }).onPageChange((oldPage, newPage) -> {
+                    }).onPageChange((oldPage, newPage) -> { //when a table page is changed (programatically or when the next/prev button is used)
                         System.out.println("Page changed from " + oldPage + " to " + newPage);
                     }),
                     new Button("btn").text("add").sameLine(true).onClick((btn) -> {
@@ -99,7 +99,7 @@ public class TablesTest {
     }
 }
 
-class User implements Serializable {
+class User  {
 
     private String name;
     private int age;
