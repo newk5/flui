@@ -21,11 +21,13 @@ public class TablesTest {
         UI.render(app, () -> {
 
             new Window("w").fill().children(
-                    new Table("tbl").rowsPerPage(5).columns(
+                    new Table("tbl")
+                            .rowsPerPage(5).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
                             //instead of binding properties from your object you can also render any widget you want inside table cells
                             new Column("Options").widgets(
+                                    //when creating widgets inside tables you must not specify any ID, the ID's will be generated automatically
                                     new Button().text("OK").onClick((btn) -> {
                                         
                                         //get the data binded to this row

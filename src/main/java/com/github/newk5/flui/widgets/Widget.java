@@ -202,7 +202,7 @@ public abstract class Widget {
         if (font != null) {
             Font f = Application.fonts.get(font);
 
-            if (f != null) {
+            if (f != null && f.getJimFont() != null) {
                 imgui.pushFont(f.getJimFont());
             }
         }

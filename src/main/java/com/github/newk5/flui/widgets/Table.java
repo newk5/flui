@@ -6,6 +6,8 @@ import com.esotericsoftware.kryo.serializers.ClosureSerializer;
 import com.esotericsoftware.kryo.serializers.ClosureSerializer.Closure;
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableBiConsumer;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
@@ -17,6 +19,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
@@ -50,6 +53,8 @@ public class Table extends SizedWidget {
 
     private int currentPage = 1;
     private int totalPages;
+    private String fontName;
+    private Font font;
 
     private int offset = 0;
     Kryo kryo;
@@ -175,6 +180,9 @@ public class Table extends SizedWidget {
     @Override
     protected void render(JImGui imgui) {
         imgui.pushID(numId);
+        if (font != null && font.getJimFont() != null) {
+            imgui.pushFont(font.getJimFont());
+        }
         if (imgui.beginTable(title, columns.size(), flags)) {
             columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
             imgui.tableHeadersRow();
@@ -258,6 +266,9 @@ public class Table extends SizedWidget {
             }
 
         }
+        if (font != null && font.getJimFont() != null) {
+            imgui.popFont();
+        }
         imgui.popID();
     }
 
@@ -293,6 +304,13 @@ public class Table extends SizedWidget {
     public Table onSelect(SerializableConsumer<Object> o) {
         onSelect = o;
         return this;
+    }
+
+    public Table font(String fontName) {
+        this.fontName = fontName;
+        this.font = Application.fonts.get(fontName);
+        return this;
+
     }
 
     public Table columns(Column... cols) {
