@@ -36,7 +36,8 @@ public class Popup extends SizedWidget {
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         popupCounter++;
         this.index(popupCounter);
         idIndex.put(id, popupCounter);

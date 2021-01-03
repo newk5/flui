@@ -3,6 +3,7 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.widgets.Widget;
 import java.io.File;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class Image extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<Image> onHover;
+    SerializableConsumer<Image> onHover;
     private File sourceFile;
     private byte[] sourceBytes;
     private Path sourcePath;
@@ -40,7 +41,8 @@ public class Image extends SizedWidget {
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         imgCounter++;
         this.index(imgCounter);
         idIndex.put(id, imgCounter);
@@ -61,6 +63,11 @@ public class Image extends SizedWidget {
             }
         });
 
+    }
+    
+     public Image sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public static Image withID(String id) {
@@ -224,7 +231,7 @@ public class Image extends SizedWidget {
         return this;
     }
 
-    public Image onHover(Consumer<Image> c) {
+    public Image onHover(SerializableConsumer<Image> c) {
         this.onHover = c;
         return this;
     }

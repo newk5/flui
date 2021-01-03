@@ -3,6 +3,7 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
@@ -37,18 +38,19 @@ public class InputDouble extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<InputDouble> onChange;
-    Consumer<InputDouble> onHover;
+    SerializableConsumer<InputDouble> onChange;
+    SerializableConsumer<InputDouble> onHover;
     NativeDouble value;
     private JImStr label = new JImStr("");
 
     public InputDouble(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         inputCounter++;
         this.index(inputCounter);
         idIndex.put(id, inputCounter);
@@ -71,7 +73,11 @@ public class InputDouble extends SizedWidget {
 
     }
 
-  
+    public InputDouble sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
+    }
+
     public static InputDouble withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {
@@ -320,12 +326,12 @@ public class InputDouble extends SizedWidget {
         return this;
     }
 
-    public InputDouble onChange(Consumer<InputDouble> c) {
+    public InputDouble onChange(SerializableConsumer<InputDouble> c) {
         this.onChange = c;
         return this;
     }
 
-    public InputDouble onHover(Consumer<InputDouble> c) {
+    public InputDouble onHover(SerializableConsumer<InputDouble> c) {
         this.onHover = c;
         return this;
     }

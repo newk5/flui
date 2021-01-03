@@ -3,8 +3,9 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
@@ -37,8 +38,8 @@ public class SliderFloat extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<SliderFloat> onChange;
-    Consumer<SliderFloat> onHover;
+    SerializableConsumer<SliderFloat> onChange;
+    SerializableConsumer<SliderFloat> onHover;
     NativeFloat value;
 
     private JImStr label = new JImStr("");
@@ -47,12 +48,13 @@ public class SliderFloat extends SizedWidget {
     private float max;
 
     public SliderFloat(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         sliderCounter++;
         this.index(sliderCounter);
         idIndex.put(id, sliderCounter);
@@ -60,7 +62,11 @@ public class SliderFloat extends SizedWidget {
         value = new NativeFloat();
     }
 
-   
+    public SliderFloat sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
+    }
+
     public SliderFloat value(float f) {
         value.modifyValue(f);
         return this;
@@ -316,12 +322,12 @@ public class SliderFloat extends SizedWidget {
         return this;
     }
 
-    public SliderFloat onChange(Consumer<SliderFloat> c) {
+    public SliderFloat onChange(SerializableConsumer<SliderFloat> c) {
         this.onChange = c;
         return this;
     }
 
-    public SliderFloat onHover(Consumer<SliderFloat> c) {
+    public SliderFloat onHover(SerializableConsumer<SliderFloat> c) {
         this.onHover = c;
         return this;
     }

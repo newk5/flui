@@ -39,10 +39,11 @@ public class Window extends SizedWidget {
 
     public Window(String id) {
         super(id);
-        this.init();
+        init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         windowsCounter++;
         this.index(windowsCounter);
         idIndex.put(id, windowsCounter);
@@ -376,9 +377,30 @@ public class Window extends SizedWidget {
                 Tabview t = (Tabview) sw;
                 t.size(getWidth(), getHeight() - t.getYOffset());
 
-            }
+            } else if (sw instanceof Table) {
+                Table tbl = (Table) sw;
+                tbl.prevBtnParentIdx = this.children.size() + 1;
+                tbl.pagesLblParentIdx = this.children.size() + 2;
+                tbl.nextBtnParentIdx = this.children.size() + 3;
+            } 
         }
         this.children.add(w);
+    }
+
+    @Override
+    protected void addAtIndex(Widget w, int idx) {
+        w.parent(this);
+        if (w instanceof SizedWidget) {
+            SizedWidget sw = ((SizedWidget) w);
+            sw.applyRelativeSize();
+            sw.applyAlignment();
+            if (sw instanceof Tabview) {
+                Tabview t = (Tabview) sw;
+                t.size(getWidth(), getHeight() - t.getYOffset());
+
+            }
+        }
+        this.children.add(idx, w);
     }
 
     public Window width(final float value) {

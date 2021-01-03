@@ -3,8 +3,9 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImVec4;
@@ -18,8 +19,8 @@ public class Label extends SizedWidget {
 
     private String text;
     private JImStr jtext;
-    private Consumer<Label> onClick;
-    private Consumer<Label> onHover;
+    private SerializableConsumer<Label> onClick;
+    private SerializableConsumer<Label> onHover;
 
     private JImVec4 color;
     private JImVec4 hoverColor;
@@ -28,12 +29,12 @@ public class Label extends SizedWidget {
     private boolean wrap;
 
     public Label(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
     }
 
- 
-    private void init() {
+    @Override
+    protected void init() {
         counter++;
         this.index(counter);
         idIndex.put(id, counter);
@@ -62,6 +63,11 @@ public class Label extends SizedWidget {
 
     public String getFont() {
         return super.font;
+    }
+
+    public Label sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public static Label withID(String id) {
@@ -175,7 +181,7 @@ public class Label extends SizedWidget {
         return this;
     }
 
-    public Label onHover(final Consumer<Label> value) {
+    public Label onHover(final SerializableConsumer<Label> value) {
         this.onHover = value;
         return this;
     }

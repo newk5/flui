@@ -6,6 +6,7 @@ import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
+import java.io.Serializable;
 import java.util.Objects;
 
 import java.util.stream.Collectors;
@@ -22,7 +23,38 @@ public class TablesTest {
             new Window("w").fill().children(
                     new Table("tbl").rowsPerPage(5).columns(
                             new Column("Name").field("name"),
-                            new Column("Age").field("age")
+                            new Column("Age").field("age"),
+                            //instead of binding properties from your object you can also render any widget you want inside table cells
+                            new Column("Options").widgets(
+                                    new Button().text("OK").onClick((btn) -> {
+                                        
+                                        //get the data binded to this row
+                                        User user = (User) btn.getData("rowData");
+
+                                        //change the btn text to the user name
+                                        btn.text(user.getName());
+
+                                        /*
+                                        when changing any of the data that is binded to the table,
+                                        we must update the table UI by updating the row the data
+                                        is connected to, you can pass your data(object) to the .updateRow(object)
+                                        function and the corresponding row will be automatically updated
+                                         */
+                                        user.name("Changed name");
+                                        Table.withID("tbl").updateRow(user);
+
+                                    }).onTableAdd((btn) -> { //event called when the widget is added to the table
+
+                                        //could be useful to conditionally change something about the widget based on the row data
+                                        Button b = (Button) btn;
+                                        User u = b.getData("rowData");
+                                        if (u.getName().equals("John4")) {
+                                            b.text("Changed");
+
+                                        }
+
+                                    })
+                            )
                     ).data(
                             Stream.of(
                                     new User("John1", 19),
@@ -36,24 +68,26 @@ public class TablesTest {
                                     new User("John9", 19),
                                     new User("John10", 19),
                                     new User("John11", 19),
-                                    new User("John12", 19)
+                                    new User("John12", 19),
+                                    us
                             ).collect(Collectors.toList())
                     ).onSelect((o) -> {
                         User u = (User) o;
                         System.out.println(u.getName());
                     }).onPageChange((oldPage, newPage) -> {
-                        System.out.println("Page changed from "+oldPage+" to "+newPage);
-                    }), new Button("btn").text("add").onClick((btn) -> {
+                        System.out.println("Page changed from " + oldPage + " to " + newPage);
+                    }),
+                    new Button("btn").text("add").sameLine(true).onClick((btn) -> {
+                        Table tbl = Table.withID("tbl");
+                        tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19));
 
-                Table tbl = Table.withID("tbl");
-                tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19));
-            }).sameLine(true),
-                    new Button("btn2").text("remove").onClick((btn) -> {
+                    }),
+                    new Button("btn2").text("remove").sameLine(true).onClick((btn) -> {
                         Table.withID("tbl").remove(us);
-                    }).sameLine(true),
-                    new Button("btn3").text("clear").onClick((btn) -> {
+                    }),
+                    new Button("btn3").text("clear").sameLine(true).onClick((btn) -> {
                         Table.withID("tbl").clear();
-                    }).sameLine(true),
+                    }),
                     new Button("btn4").text("last page").onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
                         tbl.page(tbl.getTotalPages());
@@ -65,7 +99,7 @@ public class TablesTest {
     }
 }
 
-class User {
+class User implements Serializable {
 
     private String name;
     private int age;

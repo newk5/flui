@@ -3,8 +3,9 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
@@ -37,18 +38,19 @@ public class InputInt extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<InputInt> onChange;
-    Consumer<InputInt> onHover;
+    SerializableConsumer<InputInt> onChange;
+    SerializableConsumer<InputInt> onHover;
     NativeInt value;
     JImStr label = new JImStr("");
 
     public InputInt(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         inputCounter++;
         this.index(inputCounter);
         idIndex.put(id, inputCounter);
@@ -57,7 +59,6 @@ public class InputInt extends SizedWidget {
 
     }
 
-  
     public void delete() {
         UI.runLater(() -> {
 
@@ -70,6 +71,11 @@ public class InputInt extends SizedWidget {
             }
         });
 
+    }
+
+    public InputInt sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public static InputInt withID(String id) {
@@ -318,12 +324,12 @@ public class InputInt extends SizedWidget {
         return this;
     }
 
-    public InputInt onChange(Consumer<InputInt> c) {
+    public InputInt onChange(SerializableConsumer<InputInt> c) {
         this.onChange = c;
         return this;
     }
 
-    public InputInt onHover(Consumer<InputInt> c) {
+    public InputInt onHover(SerializableConsumer<InputInt> c) {
         this.onHover = c;
         return this;
     }

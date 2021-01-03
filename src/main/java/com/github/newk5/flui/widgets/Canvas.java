@@ -25,11 +25,12 @@ public class Canvas extends SizedWidget {
     private boolean border;
 
     public Canvas(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         canvasCounter++;
         this.index(canvasCounter);
         idIndex.put(id, canvasCounter);
@@ -67,6 +68,11 @@ public class Canvas extends SizedWidget {
 
         });
 
+    }
+
+    public Canvas sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public Canvas fill() {
@@ -129,7 +135,6 @@ public class Canvas extends SizedWidget {
             }
         });
     }
-
 
     @Override
     public String toString() {
@@ -278,7 +283,32 @@ public class Canvas extends SizedWidget {
         return super.font;
     }
 
+    @Override
     public void add(Widget w) {
+        w.parent(this);
+        if (w instanceof SizedWidget) {
+            SizedWidget sw = ((SizedWidget) w);
+            sw.applyRelativeSize();
+            sw.applyAlignment();
+            if (sw instanceof Tabview) {
+                Tabview tv = (Tabview) sw;
+
+                tv.size(getWidth(), getHeight() - tv.getYOffset());
+
+            } else if (sw instanceof Canvas) {
+                Canvas c = (Canvas) sw;
+                c.applyRelativeSizeToChildren();
+            } else if (sw instanceof Table) {
+                Table tbl = (Table) sw;
+                tbl.prevBtnParentIdx = this.children.size() + 1;
+                tbl.pagesLblParentIdx = this.children.size() + 2;
+                tbl.nextBtnParentIdx = this.children.size() + 3;
+            }
+        }
+        this.children.add(w);
+    }
+
+    public void addAtIndex(Widget w, int idx) {
         w.parent(this);
         if (w instanceof SizedWidget) {
             SizedWidget sw = ((SizedWidget) w);
@@ -291,7 +321,7 @@ public class Canvas extends SizedWidget {
 
             }
         }
-        this.children.add(w);
+        this.children.add(idx, w);
     }
 
     public Canvas width(final float value) {

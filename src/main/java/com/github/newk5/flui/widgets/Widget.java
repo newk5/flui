@@ -4,6 +4,10 @@ import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImFontAtlas;
@@ -20,7 +24,7 @@ public abstract class Widget {
     private boolean hasSetPos;
     private boolean hasSetPosX;
     private boolean hasSetPosY;
-    private boolean sameLine;
+    protected boolean sameLine;
     private SizedWidget parent;
     private Alignment align;
     private boolean hidden;
@@ -31,11 +35,59 @@ public abstract class Widget {
     protected boolean firstRenderLoop = true;
     protected String font;
     protected boolean deleteFlag;
+    private Map<String, Object> data;
 
     public Widget(String id) {
         this.id = id;
         this.buildID();
         UI.add(this);
+    }
+
+    public Widget() {
+
+    }
+
+    public void setData(String name, Object value) {
+        if (data == null) {
+            data = new HashMap<>();
+        }
+
+        data.put(name, value);
+
+    }
+
+    public <T> T getData(String name) {
+        if (data == null) {
+            return null;
+        }
+
+        Object value = data.get(name);
+
+        try {
+            return (T) value;
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    public <T> T getData(String name, Object defaultValue) {
+        if (data == null) {
+            return (T) defaultValue;
+        }
+
+        Object value = data.get(name);
+
+        if (value == null) {
+            return (T) defaultValue;
+        } else {
+            try {
+                return (T) value;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
     }
 
     private void buildID() {
@@ -50,6 +102,16 @@ public abstract class Widget {
         if (!child) {
             UI.add(this);
         }
+    }
+
+    protected void init() {
+        this.buildID();
+        UI.add(this);
+    }
+
+    public List<Widget> getChildren() {
+
+        return new ArrayList<>();
     }
 
     protected static Widget getWidget(long index, CopyOnWriteArrayList<Widget> list) {

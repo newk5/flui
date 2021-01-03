@@ -34,7 +34,8 @@ public class Tab extends SizedWidget {
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         tabCounter++;
         this.index(tabCounter);
         idIndex.put(id, tabCounter);
@@ -197,7 +198,34 @@ public class Tab extends SizedWidget {
         return this;
     }
 
+    @Override
     public void add(Widget w) {
+        w.parent(this);
+        w.isInTab = true;
+        if (w instanceof SizedWidget) {
+            SizedWidget sw = ((SizedWidget) w);
+            sw.applyRelativeSize();
+            sw.applyAlignment();
+            if (sw instanceof Tabview) {
+                Tabview tv = (Tabview) sw;
+
+                tv.size(getWidth(), getHeight() - tv.getYOffset());
+
+            } else if (sw instanceof Canvas) {
+                Canvas c = (Canvas) sw;
+                c.applyRelativeSizeToChildren();
+            } else if (sw instanceof Table) {
+                Table tbl = (Table) sw;
+                tbl.prevBtnParentIdx = this.children.size() + 1;
+                tbl.pagesLblParentIdx = this.children.size() + 2;
+                tbl.nextBtnParentIdx = this.children.size() + 3;
+            }
+        }
+        this.children.add(w);
+    }
+
+    @Override
+    public void addAtIndex(Widget w, int idx) {
         w.parent(this);
         w.isInTab = true;
         if (w instanceof SizedWidget) {
@@ -209,7 +237,7 @@ public class Tab extends SizedWidget {
                 c.applyRelativeSizeToChildren();
             }
         }
-        this.children.add(w);
+        this.children.add(idx, w);
     }
 
     public Tab hidden(final boolean value) {

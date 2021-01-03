@@ -2,12 +2,13 @@ package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.events.WindowResizeEvent;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImFontAtlas;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.util.JniLoader;
@@ -33,7 +34,7 @@ public class UI {
 
     private static ConcurrentLinkedQueue<String> ids = new ConcurrentLinkedQueue<>();
 
-    private static Consumer<WindowResizeEvent> resizeEventConsumer;
+    private static SerializableConsumer<WindowResizeEvent> resizeEventSerializableConsumer;
 
     private static void init(Application app, Runnable r) {
         JniLoader.load();
@@ -51,7 +52,7 @@ public class UI {
             r.run();
 
             app.setupTheme(jimgui);
-
+            jimgui.initBeforeMainLoop();
             while (!jimgui.windowShouldClose()) {
               
                 float newY = jimgui.getPlatformWindowSizeY();
@@ -69,9 +70,9 @@ public class UI {
                     UI.windowWidth = jimgui.getPlatformWindowSizeX();
                     Window.reApplyRelativeSize();
                     Popup.reApplyRelativeSize();
-                    if (resizeEventConsumer != null) {
+                    if (resizeEventSerializableConsumer != null) {
 
-                        resizeEventConsumer.accept(resizeEvent);
+                        resizeEventSerializableConsumer.accept(resizeEvent);
                     }
                 }
                 //window size programatically changed
@@ -148,8 +149,8 @@ public class UI {
         }
     }
 
-    public static void onWindowResize(Consumer<WindowResizeEvent> e) {
-        resizeEventConsumer = e;
+    public static void onWindowResize(SerializableConsumer<WindowResizeEvent> e) {
+        resizeEventSerializableConsumer = e;
 
     }
 

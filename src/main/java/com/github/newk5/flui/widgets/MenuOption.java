@@ -1,11 +1,12 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.NativeBool;
@@ -15,7 +16,7 @@ public class MenuOption {
 
     private JImStr option;
 
-    private Consumer<MenuOption> onClick;
+    private SerializableConsumer<MenuOption> onClick;
     private List<MenuOption> options = new ArrayList<>();
 
     private NativeBool selected = new NativeBool();
@@ -73,7 +74,7 @@ public class MenuOption {
         return this;
     }
 
-    public MenuOption onClick(final Consumer<MenuOption> value) {
+    public MenuOption onClick(final SerializableConsumer<MenuOption> value) {
         this.onClick = value;
         return this;
     }

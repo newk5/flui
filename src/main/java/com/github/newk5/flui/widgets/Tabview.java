@@ -34,7 +34,8 @@ public class Tabview extends SizedWidget {
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         tabviewCounter++;
         this.index(tabviewCounter);
         idIndex.put(id, tabviewCounter);

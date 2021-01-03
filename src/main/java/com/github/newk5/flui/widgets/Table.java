@@ -1,6 +1,13 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.util.SerializableConsumer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.ClosureSerializer;
+import com.esotericsoftware.kryo.serializers.ClosureSerializer.Closure;
+import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import com.github.newk5.flui.Alignment;
+import com.github.newk5.flui.util.SerializableBiConsumer;
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +21,7 @@ import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
 import org.ice1000.jimgui.flag.JImTableFlags;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 import vlsi.utils.CompactHashMap;
 
 public class Table extends SizedWidget {
@@ -34,16 +42,20 @@ public class Table extends SizedWidget {
     private int selectedIdx = -1;
 
     private Button nextBtn;
+    protected int nextBtnParentIdx = -1;
     private Button prevBtn;
+    protected int prevBtnParentIdx = -1;
     private Label pagesLbl;
+    protected int pagesLblParentIdx = -1;
 
     private int currentPage = 1;
     private int totalPages;
 
     private int offset = 0;
+    Kryo kryo;
 
-    private Consumer<Object> onSelect;
-    private BiConsumer<Integer, Integer> pageChangeEvent;
+    private SerializableConsumer<Object> onSelect;
+    private SerializableBiConsumer<Integer, Integer> pageChangeEvent;
 
     public Table(String id) {
         super(id, true);
@@ -53,6 +65,13 @@ public class Table extends SizedWidget {
         instances.add(this);
         buildFlags();
         title = new JImStr(id);
+
+        kryo = new Kryo();
+        kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
+        kryo.setRegistrationRequired(false);
+        kryo.register(SerializedLambda.class);
+        kryo.register(SerializableConsumer.class);
+        kryo.register(Closure.class, new ClosureSerializer());
     }
 
     public static Table withID(String id) {
@@ -62,6 +81,35 @@ public class Table extends SizedWidget {
 
         }
         return (Table) w;
+    }
+
+    public void updateRow(Object o) {
+        int idx = this.data.indexOf(o);
+
+        if (idx > -1) {
+            CellWrapper[] cellW = simpleData.get(idx);
+            if (o instanceof String[]) {
+                for (int i = 0; i < ((String[]) o).length; i++) {
+
+                    String value = ((String[]) o)[i];
+                    cellW[i].value(new JImStr(value));
+                }
+
+            } else {
+
+                columns.forEach(col -> {
+                    String value = getValue(o, col.getField());
+                    cellW[columns.indexOf(col)].value(new JImStr(value));
+                    CellWrapper cell = new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o);
+                    if (col.hasWidgets()) {
+                        col.getWidgets().clear();
+                        col.getWidgets().forEach(w -> cell.addWidget(id, w, kryo));
+                    }
+
+                });
+
+            }
+        }
     }
 
     public void clear() {
@@ -141,18 +189,25 @@ public class Table extends SizedWidget {
                 for (CellWrapper cell : row) {
                     imgui.tableNextColumn();
                     imgui.pushID(i);
-                    if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
-                        cell.selected(true);
-                        if (lastSelected != null) {
-                            lastSelected.selected(false);
-                        }
-                        selectedIdx = i;
+                    if (cell.hasWidgets()) {
+                        cell.renderWidgets(imgui);
+                    } else {
+                        if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
+                            cell.selected(true);
+                            if (lastSelected != null) {
+                                lastSelected.selected(false);
+                            }
+                            selectedIdx = i;
 
-                        if (onSelect != null) {
-                            onSelect.accept(this.data.get(selectedIdx));
+                            if (onSelect != null) {
+                                onSelect.accept(this.data.get(selectedIdx));
+                            }
+                            lastSelected = cell;
                         }
-                        lastSelected = cell;
+
                     }
+                    imgui.setItemAllowOverlap();
+
                     imgui.popID();
                 }
                 counter++;
@@ -164,9 +219,11 @@ public class Table extends SizedWidget {
                 prevBtn = new Button(id + ":PrevBtn").text("<").align(Alignment.CENTER_H).onClick((btn) -> {
                     this.prevPage();
                 });
-                UI.runLater(() -> {
-                    super.getParent().add(prevBtn);
-                });
+                if (prevBtnParentIdx > -1) {
+                    UI.runLater(() -> {
+                        super.getParent().addAtIndex(prevBtn, prevBtnParentIdx);
+                    });
+                }
 
                 prevBtn.sameLine(true);
             } else {
@@ -175,9 +232,12 @@ public class Table extends SizedWidget {
 
             if (this.pagesLbl == null) {
                 this.pagesLbl = new Label(id + ":pagesLbl").align(Alignment.CENTER_H).text("Page " + currentPage + " of " + totalPages);
-                UI.runLater(() -> {
-                    super.getParent().add(pagesLbl);
-                });
+
+                if (pagesLblParentIdx > -1) {
+                    UI.runLater(() -> {
+                        super.getParent().addAtIndex(pagesLbl, pagesLblParentIdx);
+                    });
+                }
                 this.pagesLbl.sameLine(true);
             }
 
@@ -185,10 +245,13 @@ public class Table extends SizedWidget {
                 nextBtn = new Button(id + ":NextBtn").align(Alignment.CENTER_H).text(">").onClick((btn) -> {
                     this.nextPage();
                 });
-                UI.runLater(() -> {
-                    super.getParent().add(nextBtn);
 
-                });
+                if (nextBtnParentIdx > -1) {
+                    UI.runLater(() -> {
+                        super.getParent().addAtIndex(nextBtn, nextBtnParentIdx);
+
+                    });
+                }
             } else {
                 nextBtn.posX = pagesLbl.posX + pagesLbl.width + 20;
 
@@ -203,7 +266,7 @@ public class Table extends SizedWidget {
         return this;
     }
 
-    public Table onPageChange(BiConsumer<Integer, Integer> e) {
+    public Table onPageChange(SerializableBiConsumer<Integer, Integer> e) {
         this.pageChangeEvent = e;
         return this;
     }
@@ -227,7 +290,7 @@ public class Table extends SizedWidget {
         return this;
     }
 
-    public Table onSelect(Consumer<Object> o) {
+    public Table onSelect(SerializableConsumer<Object> o) {
         onSelect = o;
         return this;
     }
@@ -238,21 +301,30 @@ public class Table extends SizedWidget {
         return this;
     }
 
+    public <T> T getRowData(int idx) {
+        return (T) data.get(idx);
+    }
+
     public void add(Object o) {
         List<CellWrapper> lst = new ArrayList<>();
         if (o instanceof String[]) {
             for (int i = 0; i < ((String[]) o).length; i++) {
                 Column col = columns.get(i);
                 String value = ((String[]) o)[i];
-                lst.add(new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), this.simpleData.size()));
+                lst.add(new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o));
             }
 
             this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
         } else {
 
             columns.forEach(col -> {
+                String value = getValue(o, col.getField());
+                CellWrapper cell = new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o);
+                if (col.hasWidgets()) {
+                    col.getWidgets().forEach(w -> cell.addWidget(id, w, kryo));
+                }
 
-                lst.add(new CellWrapper("", new JImStr(getValue(o, col.getField())), col.getHeaderAsStr(), this.simpleData.size()));
+                lst.add(cell);
 
             });
 
@@ -296,21 +368,16 @@ public class Table extends SizedWidget {
         Field field;
         String value = "";
         try {
-            field = obj.getClass().getDeclaredField(f);
+            field = fields.get("f") == null ? obj.getClass().getDeclaredField(f) : fields.get(f);
+            fields.putIfAbsent(f, field);
 
             field.setAccessible(true);
             if (field != null) {
                 Object v = field.get(obj);
                 value = v != null ? v + "" : "";
             }
-        } catch (NoSuchFieldException ex) {
-            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            // Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
         }
         return value;
     }

@@ -3,8 +3,9 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
@@ -33,15 +34,16 @@ public class ProgressBar extends SizedWidget {
     private float value;
 
     private JImVec4 borderColorV;
-    Consumer<ProgressBar> onChange;
-    Consumer<ProgressBar> onHover;
+    SerializableConsumer<ProgressBar> onChange;
+    SerializableConsumer<ProgressBar> onHover;
 
     public ProgressBar(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         progbarCounter++;
         this.index(progbarCounter);
         idIndex.put(id, progbarCounter);
@@ -49,7 +51,10 @@ public class ProgressBar extends SizedWidget {
 
     }
 
- 
+    public ProgressBar sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
+    }
 
     public ProgressBar font(String font) {
         super.font = font;
@@ -264,12 +269,12 @@ public class ProgressBar extends SizedWidget {
         return this;
     }
 
-    public ProgressBar onChange(Consumer<ProgressBar> c) {
+    public ProgressBar onChange(SerializableConsumer<ProgressBar> c) {
         this.onChange = c;
         return this;
     }
 
-    public ProgressBar onHover(Consumer<ProgressBar> c) {
+    public ProgressBar onHover(SerializableConsumer<ProgressBar> c) {
         this.onHover = c;
         return this;
     }

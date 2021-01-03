@@ -3,12 +3,13 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.widgets.Widget;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
@@ -40,14 +41,14 @@ public class RadioGroup extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<RadioGroup> onChange;
-    Consumer<RadioGroup> onHover;
+    SerializableConsumer<RadioGroup> onChange;
+    SerializableConsumer<RadioGroup> onHover;
     NativeInt value;
     List<JImStr> labels = new ArrayList<>();
     private boolean[] values;
 
     public RadioGroup(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
@@ -59,6 +60,11 @@ public class RadioGroup extends SizedWidget {
             return "";
         }
         return new String(labels.get(i).bytes);
+    }
+
+    public RadioGroup sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public RadioGroup font(String font) {
@@ -110,7 +116,8 @@ public class RadioGroup extends SizedWidget {
         return -1;
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         radioGroupCounter++;
         this.index(radioGroupCounter);
         idIndex.put(id, radioGroupCounter);
@@ -360,12 +367,12 @@ public class RadioGroup extends SizedWidget {
         return this;
     }
 
-    public RadioGroup onChange(Consumer<RadioGroup> c) {
+    public RadioGroup onChange(SerializableConsumer<RadioGroup> c) {
         this.onChange = c;
         return this;
     }
 
-    public RadioGroup onHover(Consumer<RadioGroup> c) {
+    public RadioGroup onHover(SerializableConsumer<RadioGroup> c) {
         this.onHover = c;
         return this;
     }

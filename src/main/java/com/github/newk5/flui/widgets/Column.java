@@ -1,12 +1,17 @@
 package com.github.newk5.flui.widgets;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.ice1000.jimgui.JImStr;
 
 public class Column {
 
     private JImStr header;
     private String field;
+    private List<SizedWidget> widgets = new ArrayList<>();
+    
 
     public Column(String header) {
         this.header = new JImStr(header);
@@ -27,11 +32,25 @@ public class Column {
         this.field = field;
     }
 
+    public boolean hasWidgets() {
+        return !this.widgets.isEmpty();
+    }
+    
+    public List<SizedWidget> getWidgets(){
+        return widgets;
+    }
+
+    public Column widgets(SizedWidget... w) {
+        widgets.clear();
+        Arrays.stream(w).forEach(sw -> widgets.add(sw));
+        return this;
+    }
+
     public JImStr getHeader() {
         return header;
     }
-    
-       public String getHeaderAsStr() {
+
+    public String getHeaderAsStr() {
         return new String(header.bytes, StandardCharsets.UTF_8);
     }
 

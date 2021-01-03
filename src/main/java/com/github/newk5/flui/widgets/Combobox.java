@@ -3,6 +3,8 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableBiConsumer;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,18 +42,19 @@ public class Combobox extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    BiConsumer<Combobox, String> onChange;
-    Consumer<Combobox> onHover;
+    SerializableBiConsumer<Combobox, String> onChange;
+    SerializableConsumer<Combobox> onHover;
     private JImStr jtext;
     private JImStr value = new JImStr("");
     private List<JImStr> items = new ArrayList<>();
 
     public Combobox(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         comboCounter++;
         this.index(comboCounter);
         idIndex.put(id, comboCounter);
@@ -73,6 +76,10 @@ public class Combobox extends SizedWidget {
 
     }
 
+    public Combobox sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
+    }
 
     public Combobox items(String... items) {
         Arrays.stream(items).forEach(i -> this.items.add(new JImStr(i)));
@@ -324,12 +331,12 @@ public class Combobox extends SizedWidget {
         return this;
     }
 
-    public Combobox onChange(BiConsumer<Combobox, String> c) {
+    public Combobox onChange(SerializableBiConsumer<Combobox, String> c) {
         this.onChange = c;
         return this;
     }
 
-    public Combobox onHover(Consumer<Combobox> c) {
+    public Combobox onHover(SerializableConsumer<Combobox> c) {
         this.onHover = c;
         return this;
     }

@@ -1,8 +1,10 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import java.io.Serializable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
@@ -11,7 +13,8 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImVec4;
 import vlsi.utils.CompactHashMap;
 
-public class Button extends SizedWidget {
+
+public class Button extends SizedWidget implements Serializable{
 
     private static long btnCounter = 0;
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
@@ -27,21 +30,24 @@ public class Button extends SizedWidget {
     private Color activeC;
 
     Consumer<Button> onHover;
-    Consumer<Button> actionClick;
+    SerializableConsumer<Button> actionClick;
+
+    public Button() {
+        super();
+    }
 
     public Button(String id) {
         super(id, true);
         this.init();
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         btnCounter++;
         this.index(btnCounter);
         idIndex.put(id, btnCounter);
         instances.add(this);
     }
-
-    
 
     public void delete() {
         UI.runLater(() -> {
@@ -65,6 +71,11 @@ public class Button extends SizedWidget {
 
         }
         return (Button) w;
+    }
+
+    public Button sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public Button font(String font) {
@@ -195,7 +206,7 @@ public class Button extends SizedWidget {
         return this;
     }
 
-    public Button onClick(final Consumer<Button> value) {
+    public Button onClick(final SerializableConsumer<Button> value) {
         this.actionClick = value;
         return this;
     }

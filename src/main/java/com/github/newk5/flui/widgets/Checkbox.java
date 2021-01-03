@@ -3,6 +3,7 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.widgets.Widget;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -37,8 +38,8 @@ public class Checkbox extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<Checkbox> onChange;
-    Consumer<Checkbox> onHover;
+    SerializableConsumer<Checkbox> onChange;
+    SerializableConsumer<Checkbox> onHover;
     NativeBool value;
     private JImStr label = new JImStr("");
 
@@ -48,7 +49,8 @@ public class Checkbox extends SizedWidget {
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         chkCounter++;
         this.index(chkCounter);
         idIndex.put(id, chkCounter);
@@ -88,6 +90,11 @@ public class Checkbox extends SizedWidget {
 
     public String getFont() {
         return super.font;
+    }
+    
+     public Checkbox sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
     }
 
     public Checkbox align(Alignment a) {
@@ -293,12 +300,12 @@ public class Checkbox extends SizedWidget {
         return this;
     }
 
-    public Checkbox onChange(Consumer<Checkbox> c) {
+    public Checkbox onChange(SerializableConsumer<Checkbox> c) {
         this.onChange = c;
         return this;
     }
 
-    public Checkbox onHover(Consumer<Checkbox> c) {
+    public Checkbox onHover(SerializableConsumer<Checkbox> c) {
         this.onHover = c;
         return this;
     }

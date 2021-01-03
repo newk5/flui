@@ -17,7 +17,7 @@ import com.github.newk5.flui.widgets.Topbar;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
 
-public class FilledCanvasTest {
+public class FilledWindowWithCanvas {
 
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);

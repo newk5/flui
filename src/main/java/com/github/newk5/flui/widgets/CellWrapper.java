@@ -1,5 +1,9 @@
 package com.github.newk5.flui.widgets;
 
+import com.esotericsoftware.kryo.Kryo;
+import java.util.ArrayList;
+import java.util.List;
+import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 
 public class CellWrapper {
@@ -8,7 +12,10 @@ public class CellWrapper {
     private JImStr value;
     private String column;
     private boolean selected;
-    private int rowIdx;
+   
+
+    private Object o;
+    private List<SizedWidget> widgets = new ArrayList<>();
 
     public CellWrapper(String field, JImStr value, String column) {
         this.field = field;
@@ -16,17 +23,34 @@ public class CellWrapper {
         this.column = column;
     }
 
-    public CellWrapper(String field, JImStr value, String column, int rowIdx) {
+    public CellWrapper(String field, JImStr value, String column, Object o) {
         this.field = field;
         this.value = value;
         this.column = column;
-        this.rowIdx = rowIdx;
+        this.o = o;
+
     }
 
-    
-    
-    public int getRowIdx() {
-        return rowIdx;
+    public void addWidget(String tableID, SizedWidget w, Kryo k) {
+        SizedWidget sw = k.copy(w);
+        sw.id = tableID + ":widget:" + column + ":" + System.currentTimeMillis();
+        sw.child = true;
+        sw.setData("rowData", o);
+        widgets.add(sw);
+    }
+
+    public void renderWidgets(JImGui imgui) {
+        widgets.forEach(w -> {
+            w.render(imgui);
+            if (!w.tableAddedEventFired && w.onTableAdd != null){
+                w.onTableAdd.accept(w);
+                w.tableAddedEventFired=true;
+            }
+        });
+    }
+
+    public boolean hasWidgets() {
+        return !this.widgets.isEmpty();
     }
 
     public String getField() {

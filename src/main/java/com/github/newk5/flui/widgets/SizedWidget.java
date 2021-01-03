@@ -1,8 +1,10 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.util.SerializableConsumer;
 import com.github.newk5.flui.Alignment;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
 
 public abstract class SizedWidget extends Widget {
@@ -16,6 +18,11 @@ public abstract class SizedWidget extends Widget {
     protected boolean reapplyAlign;
     protected boolean reapplyPos;
     protected List<Widget> children = new ArrayList<>();
+    protected boolean tableAddedEventFired;
+    SerializableConsumer<SizedWidget> onTableAdd;
+
+    public SizedWidget() {
+    }
 
     public SizedWidget(String id) {
         super(id);
@@ -35,11 +42,26 @@ public abstract class SizedWidget extends Widget {
         children.remove(w);
     }
 
-    protected void add(Widget w){
+    public SizedWidget onTableAdd(SerializableConsumer<SizedWidget> e) {
+        this.onTableAdd = e;
+        return this;
+    }
+
+    protected void add(Widget w) {
         w.parent(this);
         this.children.add(w);
     }
-    
+
+    public List<Widget> getChildren() {
+
+        return this.children;
+    }
+
+    protected void addAtIndex(Widget w, int idx) {
+        w.parent(this);
+        this.children.add(idx, w);
+    }
+
     protected void applyRelativeSize() {
 
         if (super.getParent() == null) {

@@ -3,8 +3,8 @@ package com.github.newk5.flui.widgets;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
@@ -37,18 +37,19 @@ public class InputFloat extends SizedWidget {
     private float borderSize;
     private Color borderColor;
     private JImVec4 borderColorV;
-    Consumer<InputFloat> onChange;
-    Consumer<InputFloat> onHover;
+    SerializableConsumer<InputFloat> onChange;
+    SerializableConsumer<InputFloat> onHover;
     NativeFloat value;
     JImStr label = new JImStr("");
 
     public InputFloat(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
     }
 
-    private void init() {
+    @Override
+    protected void init() {
         inputCounter++;
         this.index(inputCounter);
         idIndex.put(id, inputCounter);
@@ -57,6 +58,10 @@ public class InputFloat extends SizedWidget {
 
     }
 
+    public InputFloat sameLine(final boolean value) {
+        this.sameLine = value;
+        return this;
+    }
 
     public void delete() {
         UI.runLater(() -> {
@@ -321,12 +326,12 @@ public class InputFloat extends SizedWidget {
         return this;
     }
 
-    public InputFloat onChange(Consumer<InputFloat> c) {
+    public InputFloat onChange(SerializableConsumer<InputFloat> c) {
         this.onChange = c;
         return this;
     }
 
-    public InputFloat onHover(Consumer<InputFloat> c) {
+    public InputFloat onHover(SerializableConsumer<InputFloat> c) {
         this.onHover = c;
         return this;
     }
