@@ -14,7 +14,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImVec4;
 import vlsi.utils.CompactHashMap;
 
-public class Button extends SizedWidget implements Serializable {
+public class Button extends SizedWidget {
 
     private static long btnCounter = 0;
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
