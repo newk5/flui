@@ -12,7 +12,7 @@ public class CellWrapper {
     private JImStr value;
     private String column;
     private boolean selected;
-    private int columnIdx = 1;
+    private int columnIdx=-1;
 
     private Object o;
     private List<SizedWidget> widgets = new ArrayList<>();
