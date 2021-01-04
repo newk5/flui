@@ -12,7 +12,7 @@ public class CellWrapper {
     private JImStr value;
     private String column;
     private boolean selected;
-   
+    private int columnIdx = 1;
 
     private Object o;
     private List<SizedWidget> widgets = new ArrayList<>();
@@ -31,6 +31,10 @@ public class CellWrapper {
 
     }
 
+    public int getWidgetsCount() {
+        return widgets.size();
+    }
+
     public void addWidget(String tableID, SizedWidget w, Kryo k) {
         SizedWidget sw = k.copy(w);
         sw.id = tableID + ":widget:" + column + ":" + System.currentTimeMillis();
@@ -42,11 +46,20 @@ public class CellWrapper {
     public void renderWidgets(JImGui imgui) {
         widgets.forEach(w -> {
             w.render(imgui);
-            if (!w.tableAddedEventFired && w.onTableAdd != null){
+            if (!w.tableAddedEventFired && w.onTableAdd != null) {
                 w.onTableAdd.accept(w);
-                w.tableAddedEventFired=true;
+                w.tableAddedEventFired = true;
             }
         });
+    }
+
+    public int getColumnIdx() {
+        return columnIdx;
+    }
+
+    public CellWrapper columnIdx(int idx) {
+        columnIdx = idx;
+        return this;
     }
 
     public boolean hasWidgets() {

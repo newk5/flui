@@ -4,6 +4,7 @@ import com.github.newk5.flui.Application;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;
+import com.github.newk5.flui.widgets.Table;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
 import java.io.Serializable;
@@ -13,13 +14,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TablesTest {
-    
+
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);
-        
+
         User us = new User("John13", 19);
         UI.render(app, () -> {
-            
+
             new Window("w").fill().children(
                     new Table("tbl")
                             .rowsPerPage(5).columns(
@@ -44,7 +45,7 @@ public class TablesTest {
                                          */
                                         user.name("Changed name");
                                         Table.withID("tbl").updateRow(user);
-                                        
+
                                     }).onTableAdd((btn) -> { //event called when the widget is added to the table
 
                                         //could be useful to conditionally change something about the widget based on the row data
@@ -52,9 +53,9 @@ public class TablesTest {
                                         User u = b.getData("rowData");
                                         if (u.getName().equals("John4")) {
                                             b.text("Changed");
-                                            
+
                                         }
-                                        
+
                                     })
                             )
                     ).data(
@@ -82,7 +83,7 @@ public class TablesTest {
                     new Button("btn").text("add").sameLine(true).onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
                         tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19));
-                        
+
                     }),
                     new Button("btn2").text("remove").sameLine(true).onClick((btn) -> {
                         Table.withID("tbl").remove(us);
@@ -95,45 +96,45 @@ public class TablesTest {
                         tbl.page(tbl.getTotalPages());
                     })
             );
-            
+
         });
-        
+
     }
 }
 
 class User {
-    
+
     private String name;
     private int age;
-    
+
     public User(String name, int age) {
         this.name = name;
         this.age = age;
     }
-    
+
     public User name(final String value) {
         this.name = value;
         return this;
     }
-    
+
     public User age(final int value) {
         this.age = value;
         return this;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public int getAge() {
         return age;
     }
-    
+
     @Override
     public String toString() {
         return "User{" + "name=" + name + ", age=" + age + '}';
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -141,7 +142,7 @@ class User {
         hash = 19 * hash + this.age;
         return hash;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -162,5 +163,5 @@ class User {
         }
         return true;
     }
-    
+
 }

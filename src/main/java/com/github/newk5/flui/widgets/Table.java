@@ -100,16 +100,22 @@ public class Table extends SizedWidget {
 
             } else {
 
+                List<CellWrapper> cells = new ArrayList<>();
                 columns.forEach(col -> {
                     String value = getValue(o, col.getField());
-                    cellW[columns.indexOf(col)].value(new JImStr(value));
+                    int colIdx = columns.indexOf(col);
                     CellWrapper cell = new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o);
+                    cell.columnIdx(colIdx);
                     if (col.hasWidgets()) {
-                        col.getWidgets().clear();
-                        col.getWidgets().forEach(w -> cell.addWidget(id, w, kryo));
+                        //avoid recreating the widgets and just copy them from the old row
+                        cell = Arrays.stream(cellW).filter(c -> c.getColumnIdx() == colIdx).findFirst().get();
                     }
+                    cells.add(cell);
 
                 });
+                CellWrapper[] row = cells.toArray(new CellWrapper[cells.size()]);
+                this.sortCells(row);
+                simpleData.set(idx, row);
 
             }
         }
@@ -189,12 +195,17 @@ public class Table extends SizedWidget {
                     break;
                 }
                 CellWrapper[] row = simpleData.get(i);
+                imgui.tableNextRow();
+                for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
+                    CellWrapper cell = row[cellIdx];
 
-                for (CellWrapper cell : row) {
-                    imgui.tableNextColumn();
+                    imgui.tableSetColumnIndex(cell.getColumnIdx());
+
                     imgui.pushID(i);
                     if (cell.hasWidgets()) {
+                        imgui.setItemAllowOverlap();
                         cell.renderWidgets(imgui);
+
                     } else {
                         if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
                             cell.selected(true);
@@ -210,7 +221,6 @@ public class Table extends SizedWidget {
                         }
 
                     }
-                    imgui.setItemAllowOverlap();
 
                     imgui.popID();
                 }
@@ -276,6 +286,16 @@ public class Table extends SizedWidget {
         return this;
     }
 
+    private void sortCells(CellWrapper[] cells) {
+        /*
+                we need to sort our cells so that we render the ones with widgets first,
+                so that when we submit the selectable last, it will be the same height
+                as the cell with the tallest height
+            
+         */
+        Arrays.sort(cells, (cell1, cell2) -> (cell1.getWidgetsCount() > cell2.getWidgetsCount() ? -1 : 1));
+    }
+
     public Table page(int page) {
         if (page != currentPage && page <= totalPages && page >= 1) {
             if (page > currentPage) {
@@ -331,7 +351,9 @@ public class Table extends SizedWidget {
 
             columns.forEach(col -> {
                 String value = getValue(o, col.getField());
+                int idx = columns.indexOf(col);
                 CellWrapper cell = new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o);
+                cell.columnIdx(idx);
                 if (col.hasWidgets()) {
                     col.getWidgets().forEach(w -> cell.addWidget(id, w, kryo));
                 }
@@ -339,8 +361,10 @@ public class Table extends SizedWidget {
                 lst.add(cell);
 
             });
+            CellWrapper[] row = lst.toArray(new CellWrapper[lst.size()]);
 
-            this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
+            this.sortCells(row);
+            this.simpleData.add(row);
         }
         this.data.add(o);
         updatePaginator();
@@ -371,6 +395,7 @@ public class Table extends SizedWidget {
             this.add(rowArray);
 
         });
+
         calculatePageCount();
         return this;
     }
