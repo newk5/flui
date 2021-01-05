@@ -1,6 +1,7 @@
 
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Color;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;

@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.serializers.ClosureSerializer.Closure;
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableBiConsumer;
 import java.lang.invoke.SerializedLambda;
@@ -22,6 +23,9 @@ import java.util.logging.Logger;
 import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
+import org.ice1000.jimgui.JImStyleColors;
+import org.ice1000.jimgui.JImStyleVar;
+import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
 import org.ice1000.jimgui.flag.JImTableFlags;
 import org.objenesis.strategy.StdInstantiatorStrategy;
@@ -53,6 +57,14 @@ public class Table extends SizedWidget {
 
     private int currentPage = 1;
     private int totalPages;
+    private Font headerFont;
+    private Font rowFont;
+
+    private JImVec4 headerTextColor;
+    private JImVec4 rowTextColor;
+
+    private Color headerTextCol;
+    private Color rowTextCol;
 
     private int offset = 0;
     Kryo kryo;
@@ -72,9 +84,7 @@ public class Table extends SizedWidget {
         kryo = new Kryo();
         kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
         kryo.setRegistrationRequired(false);
-        kryo.register(SerializedLambda.class);
-        kryo.register(SerializableConsumer.class);
-        kryo.register(Closure.class, new ClosureSerializer());
+  
     }
 
     public static Table withID(String id) {
@@ -186,10 +196,23 @@ public class Table extends SizedWidget {
         super.preRender(imgui);
 
         if (imgui.beginTable(title, columns.size(), flags)) {
+            if (headerFont != null) {
+                imgui.pushFont(headerFont.getJimFont());
+            }
+            if (headerTextCol != null) {
+                imgui.pushStyleColor(JImStyleColors.Text, headerTextCol.asVec4(headerTextColor));
+            }
             columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
             imgui.tableHeadersRow();
+            if (headerFont != null) {
+                imgui.popFont();
+            }
+            if (headerTextCol != null) {
+                imgui.popStyleColor();
+            }
 
             int counter = 0;
+
             for (int i = offset; i < simpleData.size(); i++) {
                 if (counter == rowsPerPage) {
                     break;
@@ -207,6 +230,12 @@ public class Table extends SizedWidget {
                         cell.renderWidgets(imgui);
 
                     } else {
+                        if (rowFont != null) {
+                            imgui.pushFont(rowFont.getJimFont());
+                        }
+                        if (rowTextCol != null) {
+                            imgui.pushStyleColor(JImStyleColors.Text, rowTextCol.asVec4(rowTextColor));
+                        }
                         if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
                             cell.selected(true);
                             if (lastSelected != null) {
@@ -218,6 +247,12 @@ public class Table extends SizedWidget {
                                 onSelect.accept(this.data.get(selectedIdx));
                             }
                             lastSelected = cell;
+                        }
+                        if (rowFont != null) {
+                            imgui.popFont();
+                        }
+                        if (rowTextCol != null) {
+                            imgui.popStyleColor();
                         }
 
                     }
@@ -281,6 +316,16 @@ public class Table extends SizedWidget {
         return this;
     }
 
+    public Table headerTextColor(Color c) {
+        this.headerTextCol = c;
+        return this;
+    }
+
+    public Table rowsTextColor(Color c) {
+        this.rowTextCol = c;
+        return this;
+    }
+
     public Table onPageChange(SerializableBiConsumer<Integer, Integer> e) {
         this.pageChangeEvent = e;
         return this;
@@ -323,6 +368,18 @@ public class Table extends SizedWidget {
     public Table font(String fontName) {
         super.font = fontName;
         super.fontObj = Application.fonts.get(fontName);
+        return this;
+
+    }
+
+    public Table headerFont(String fontName) {
+        this.headerFont = Application.fonts.get(fontName);
+        return this;
+
+    }
+
+    public Table rowsFont(String fontName) {
+        this.rowFont = Application.fonts.get(fontName);
         return this;
 
     }
