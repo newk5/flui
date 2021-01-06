@@ -140,8 +140,9 @@ public class Table extends SizedWidget {
     private void buildFlags() {
         flags = 0;
         if (borders) {
-            flags |= JImTableFlags.RowBg | JImTableFlags.Borders;
+            flags |= JImTableFlags.Borders;
         }
+        flags |= JImTableFlags.RowBg;
     }
 
     private void calculatePageCount() {
