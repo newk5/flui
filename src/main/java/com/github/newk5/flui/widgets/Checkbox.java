@@ -50,6 +50,10 @@ public class Checkbox extends SizedWidget {
 
     }
 
+    public Checkbox() {
+        super();
+    }
+
     @Override
     protected void init() {
         chkCounter++;

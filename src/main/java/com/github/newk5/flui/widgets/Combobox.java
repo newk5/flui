@@ -54,6 +54,10 @@ public class Combobox extends SizedWidget {
         this.init();
     }
 
+    public Combobox(){
+        super();
+    }
+    
     @Override
     protected void init() {
         comboCounter++;

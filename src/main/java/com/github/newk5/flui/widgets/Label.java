@@ -34,6 +34,10 @@ public class Label extends SizedWidget {
         this.init();
     }
 
+    public Label() {
+        super();
+    }
+
     @Override
     protected void init() {
         counter++;

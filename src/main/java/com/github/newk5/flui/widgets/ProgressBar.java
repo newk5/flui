@@ -43,6 +43,10 @@ public class ProgressBar extends SizedWidget {
         this.init();
     }
 
+    public ProgressBar() {
+        super();
+    }
+
     @Override
     protected void init() {
         progbarCounter++;

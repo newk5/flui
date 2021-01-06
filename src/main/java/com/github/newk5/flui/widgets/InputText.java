@@ -49,6 +49,10 @@ public class InputText extends SizedWidget {
         this.init();
     }
 
+    public InputText() {
+        super();
+    }
+
     @Override
     protected void init() {
         inputCounter++;

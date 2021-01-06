@@ -29,7 +29,7 @@ public class Button extends SizedWidget {
     private Color hC;
     private Color activeC;
 
-    Consumer<Button> onHover;
+    SerializableConsumer<Button> onHover;
     SerializableConsumer<Button> actionClick;
 
     public Button() {
@@ -212,7 +212,7 @@ public class Button extends SizedWidget {
         return this;
     }
 
-    public Button onHover(final Consumer<Button> value) {
+    public Button onHover(final SerializableConsumer<Button> value) {
         this.onHover = value;
         return this;
     }

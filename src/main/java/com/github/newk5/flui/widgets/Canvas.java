@@ -4,7 +4,6 @@ import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.ice1000.jimgui.JImGui;
@@ -28,6 +27,10 @@ public class Canvas extends SizedWidget {
     public Canvas(String id) {
         super(id, true);
         this.init();
+    }
+
+    public Canvas() {
+        super();
     }
 
     @Override
@@ -277,7 +280,7 @@ public class Canvas extends SizedWidget {
 
     public Canvas font(String font) {
         super.font = font;
-           super.fontObj = Application.fonts.get(font);
+        super.fontObj = Application.fonts.get(font);
         return this;
     }
 

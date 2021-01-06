@@ -54,6 +54,10 @@ public class RadioGroup extends SizedWidget {
 
     }
 
+    public RadioGroup() {
+        super();
+    }
+
     public String getSelectedLabel() {
 
         int i = getIndexOfSelectedValue();

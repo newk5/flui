@@ -36,9 +36,13 @@ public class Image extends SizedWidget {
     private Path sourcePath;
 
     public Image(String id) {
-        super(id,true);
+        super(id, true);
         this.init();
 
+    }
+
+    public Image() {
+        super();
     }
 
     @Override
@@ -48,8 +52,6 @@ public class Image extends SizedWidget {
         idIndex.put(id, imgCounter);
         instances.add(this);
     }
-
-   
 
     public void delete() {
         UI.runLater(() -> {
@@ -64,8 +66,8 @@ public class Image extends SizedWidget {
         });
 
     }
-    
-     public Image sameLine(final boolean value) {
+
+    public Image sameLine(final boolean value) {
         this.sameLine = value;
         return this;
     }

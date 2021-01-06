@@ -28,7 +28,7 @@ public class InputDouble extends SizedWidget {
     private Color c;
     private Color hC;
     private Color activeC;
-    private byte[] b = new byte[100];
+
     private int flags;
     private boolean readOnly;
     private boolean multiline;
@@ -47,6 +47,11 @@ public class InputDouble extends SizedWidget {
     public InputDouble(String id) {
         super(id, true);
         this.init();
+
+    }
+
+    public InputDouble() {
+        super();
 
     }
 

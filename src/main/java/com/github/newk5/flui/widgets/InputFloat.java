@@ -27,7 +27,7 @@ public class InputFloat extends SizedWidget {
     private Color c;
     private Color hC;
     private Color activeC;
-    private byte[] b = new byte[100];
+
     private int flags;
     private boolean readOnly;
     private boolean multiline;
@@ -47,6 +47,10 @@ public class InputFloat extends SizedWidget {
         super(id, true);
         this.init();
 
+    }
+
+    public InputFloat() {
+        super();
     }
 
     @Override

@@ -55,6 +55,10 @@ public class SliderInt extends SizedWidget {
 
     }
 
+    public SliderInt() {
+        super();
+    }
+
     @Override
     protected void init() {
         sliderCounter++;
