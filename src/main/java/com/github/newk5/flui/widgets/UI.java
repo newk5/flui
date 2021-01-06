@@ -52,7 +52,7 @@ public class UI {
             r.run();
 
             app.setupTheme(jimgui);
-            jimgui.initBeforeMainLoop();
+
             while (!jimgui.windowShouldClose()) {
               
                 float newY = jimgui.getPlatformWindowSizeY();

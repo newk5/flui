@@ -34,6 +34,7 @@ public class Image extends SizedWidget {
     private File sourceFile;
     private byte[] sourceBytes;
     private Path sourcePath;
+    private JImTextureID img;
 
     public Image(String id) {
         super(id, true);
@@ -106,12 +107,8 @@ public class Image extends SizedWidget {
             if (borderColor != null) {
                 imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4(borderColorV));
             }
-            if (sourceFile != null) {
-                imgui.image(JImTextureID.fromFile(sourceFile), super.getWidth(), super.getHeight());
-            } else if (sourceBytes != null) {
-                imgui.image(JImTextureID.fromBytes(sourceBytes), super.getWidth(), super.getHeight());
-            } else if (sourcePath != null) {
-                imgui.image(JImTextureID.fromPath(sourcePath), super.getWidth(), super.getHeight());
+            if (img != null) {
+                imgui.image(img, super.getWidth(), super.getHeight());
 
             }
 
@@ -188,16 +185,19 @@ public class Image extends SizedWidget {
 
     public Image source(final File f) {
         this.sourceFile = f;
+        img = JImTextureID.fromFile(sourceFile);
         return this;
     }
 
     public Image source(final Path p) {
         this.sourcePath = p;
+        img = JImTextureID.fromPath(sourcePath);
         return this;
     }
 
     public Image source(final byte[] b) {
         this.sourceBytes = b;
+        img = JImTextureID.fromBytes(sourceBytes);
         return this;
     }
 
