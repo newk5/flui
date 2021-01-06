@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
     <repositories>
         <repository>
-            <id>jcenter</id>
+            <id>bintray</id>
             <url>https://dl.bintray.com/ice1000/ice1000</url>
         </repository>
     </repositories>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.ice1000.jimgui</groupId>
             <artifactId>core</artifactId>
-            <version>v0.14.0</version>
+            <version>v0.14.1</version>
         </dependency>
         <dependency>
             <groupId>com.esotericsoftware</groupId>

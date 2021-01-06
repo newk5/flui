@@ -1,5 +1,7 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableConsumer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,8 @@ public class Menu {
     private SerializableConsumer<Menu> onClick;
 
     private List<MenuOption> options = new ArrayList<>();
+    private Font fontObj;
+    private String font;
 
     public Menu(String menu) {
 
@@ -21,12 +25,24 @@ public class Menu {
 
     }
 
+    public Menu font(String font) {
+        this.font = font;
+        fontObj = Application.fonts.get(font);
+        return this;
+    }
+
     protected void render(JImGui imgui) {
-        if (imgui.beginMenu(option)) {
+        if (fontObj != null) {
+            imgui.pushFont(fontObj.getJimFont());
+        }
+        if (imgui.beginMenu(option, enabled)) {
 
             options.forEach(opt -> opt.render(imgui));
 
             imgui.endMenu();
+        }
+        if (fontObj != null) {
+            imgui.popFont();
         }
     }
 

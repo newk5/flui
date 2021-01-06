@@ -84,7 +84,7 @@ public class Table extends SizedWidget {
         kryo = new Kryo();
         kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
         kryo.setRegistrationRequired(false);
-  
+
     }
 
     public static Table withID(String id) {
@@ -140,7 +140,7 @@ public class Table extends SizedWidget {
     private void buildFlags() {
         flags = 0;
         if (borders) {
-            flags |= JImTableFlags.Borders;
+            flags |= JImTableFlags.RowBg | JImTableFlags.Borders;
         }
     }
 

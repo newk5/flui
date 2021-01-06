@@ -1,5 +1,7 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,7 @@ public class Topbar extends Widget {
     protected static float height;
 
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<String, Long>();
+    private Font font;
 
     public Topbar(String id) {
         super(id);
@@ -29,13 +32,25 @@ public class Topbar extends Widget {
         return this;
     }
 
+    public Topbar font(String font) {
+        super.font = font;
+        super.fontObj = Application.fonts.get(font);
+        return this;
+    }
+
     protected void render(JImGui imgui) {
+        if (font != null) {
+            imgui.pushFont(font.getJimFont());
+        }
         if (imgui.beginMainMenuBar()) {
             if (height == 0) {
                 height = imgui.getFrameHeight();
             }
             menus.forEach(m -> m.render(imgui));
             imgui.endMainMenuBar();
+        }
+        if (font != null){
+            imgui.popFont();
         }
     }
 

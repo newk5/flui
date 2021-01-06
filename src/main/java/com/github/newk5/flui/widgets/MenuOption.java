@@ -1,5 +1,7 @@
 package com.github.newk5.flui.widgets;
 
+import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableConsumer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public class MenuOption {
     private NativeBool selected = new NativeBool();
     private boolean enabled = true;
     private JImStr shortcut = new JImStr("");
+    private Font fontObj;
+    private String font;
 
     public MenuOption(String option) {
         this.option = new JImStr(option);
@@ -29,6 +33,9 @@ public class MenuOption {
     }
 
     protected void render(JImGui imgui) {
+        if (fontObj != null) {
+            imgui.pushFont(fontObj.getJimFont());
+        }
         if (options.isEmpty()) {
             if (imgui.menuItem(option, shortcut, selected, enabled)) {
                 selected.modifyValue(false);
@@ -40,13 +47,22 @@ public class MenuOption {
         } else {
 
             options.forEach(o -> {
-                if (imgui.beginMenu(option)) {
+                if (imgui.beginMenu(option, enabled)) {
                     o.render(imgui);
 
                     imgui.endMenu();
                 }
             });
         }
+        if (fontObj != null) {
+            imgui.popFont();
+        }
+    }
+
+    public MenuOption font(String font) {
+        this.font = font;
+        fontObj = Application.fonts.get(font);
+        return this;
     }
 
     public String getOption() {
