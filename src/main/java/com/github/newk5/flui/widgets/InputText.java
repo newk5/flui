@@ -51,6 +51,7 @@ public class InputText extends SizedWidget {
 
     public InputText() {
         super();
+        value = new NativeString(50);
     }
 
     @Override
@@ -61,6 +62,11 @@ public class InputText extends SizedWidget {
         instances.add(this);
         value = new NativeString(50);
 
+    }
+
+    @Override
+    protected void setup() {
+       value = new NativeString(50);
     }
 
     public InputText sameLine(final boolean value) {

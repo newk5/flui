@@ -40,6 +40,7 @@ public class CellWrapper {
         sw.id = tableID + ":widget:" + column + ":" + System.currentTimeMillis();
         sw.child = true;
         sw.setData("rowData", o);
+        sw.setup();
         widgets.add(sw);
     }
 

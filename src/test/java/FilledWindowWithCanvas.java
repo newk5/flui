@@ -5,6 +5,7 @@ import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Canvas;
 import com.github.newk5.flui.widgets.Combobox;
+import com.github.newk5.flui.widgets.InputText;
 import com.github.newk5.flui.widgets.Label;
 import com.github.newk5.flui.widgets.Menu;
 import com.github.newk5.flui.widgets.MenuOption;

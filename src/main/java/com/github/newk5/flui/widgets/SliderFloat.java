@@ -54,12 +54,22 @@ public class SliderFloat extends SizedWidget {
 
     }
 
+    public SliderFloat() {
+        super();
+        setup();
+    }
+
     @Override
     protected void init() {
         sliderCounter++;
         this.index(sliderCounter);
         idIndex.put(id, sliderCounter);
         instances.add(this);
+        value = new NativeFloat();
+    }
+
+    @Override
+    protected void setup() {
         value = new NativeFloat();
     }
 

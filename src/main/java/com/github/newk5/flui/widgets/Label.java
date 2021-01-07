@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImVec4;
+import org.ice1000.jimgui.NativeInt;
 import vlsi.utils.CompactHashMap;
 
 public class Label extends SizedWidget {

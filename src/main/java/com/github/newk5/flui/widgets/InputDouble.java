@@ -52,7 +52,12 @@ public class InputDouble extends SizedWidget {
 
     public InputDouble() {
         super();
+        setup();
+    }
 
+    @Override
+    protected void setup() {
+        value = new NativeDouble();
     }
 
     @Override

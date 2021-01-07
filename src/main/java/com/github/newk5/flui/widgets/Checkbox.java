@@ -41,7 +41,7 @@ public class Checkbox extends SizedWidget {
     private JImVec4 borderColorV;
     SerializableConsumer<Checkbox> onChange;
     SerializableConsumer<Checkbox> onHover;
-    NativeBool value;
+    NativeBool value = new NativeBool();
     private JImStr label = new JImStr("");
 
     public Checkbox(String id) {
@@ -52,6 +52,12 @@ public class Checkbox extends SizedWidget {
 
     public Checkbox() {
         super();
+    }
+
+    @Override
+    protected void setup() {
+        value = new NativeBool();
+        value.modifyValue(false);
     }
 
     @Override

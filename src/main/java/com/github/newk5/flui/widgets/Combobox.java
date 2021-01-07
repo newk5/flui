@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
@@ -33,7 +31,7 @@ public class Combobox extends SizedWidget {
     private Color c;
     private Color hC;
     private Color activeC;
-    private byte[] b = new byte[100];
+
     private int flags;
     private boolean readOnly;
 
@@ -54,10 +52,11 @@ public class Combobox extends SizedWidget {
         this.init();
     }
 
-    public Combobox(){
+    public Combobox() {
         super();
+        setup();
     }
-    
+
     @Override
     protected void init() {
         comboCounter++;
@@ -65,6 +64,12 @@ public class Combobox extends SizedWidget {
         idIndex.put(id, comboCounter);
         instances.add(this);
         jtext = new JImStr("");
+    }
+
+    @Override
+    protected void setup() {
+        jtext = new JImStr("");
+        value = new JImStr("");
     }
 
     public void delete() {
@@ -237,9 +242,6 @@ public class Combobox extends SizedWidget {
         return readOnly;
     }
 
-    public String getText() {
-        return new String(b);
-    }
 
     public JImVec4 getColor() {
         return color;

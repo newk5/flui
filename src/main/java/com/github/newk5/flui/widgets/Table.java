@@ -222,12 +222,10 @@ public class Table extends SizedWidget {
                 imgui.tableNextRow();
                 for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
                     CellWrapper cell = row[cellIdx];
-
-                    imgui.tableSetColumnIndex(cell.getColumnIdx());
-
                     imgui.pushID(i);
+                    imgui.tableSetColumnIndex(cell.getColumnIdx());
+                    
                     if (cell.hasWidgets()) {
-                        imgui.setItemAllowOverlap();
                         cell.renderWidgets(imgui);
 
                     } else {

@@ -12,6 +12,7 @@ import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
+import org.ice1000.jimgui.NativeFloat;
 import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import vlsi.utils.CompactHashMap;
@@ -52,6 +53,12 @@ public class InputInt extends SizedWidget {
 
     public InputInt() {
         super();
+        setup();
+    }
+
+    @Override
+    protected void setup() {
+        value = new NativeInt();
     }
 
     @Override

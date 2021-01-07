@@ -28,6 +28,10 @@ public abstract class SizedWidget extends Widget {
         super(id);
     }
 
+    protected void setup() {
+
+    }
+
     public SizedWidget(String id, boolean child) {
         super(id, child);
 

@@ -57,6 +57,12 @@ public class SliderInt extends SizedWidget {
 
     public SliderInt() {
         super();
+        setup();
+    }
+
+    @Override
+    protected void setup() {
+        value = new NativeInt();
     }
 
     @Override

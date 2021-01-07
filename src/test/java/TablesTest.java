@@ -1,14 +1,10 @@
 
-import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
-import com.github.newk5.flui.Color;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;
-import com.github.newk5.flui.widgets.Table;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
-import java.io.Serializable;
 import java.util.Objects;
 
 import java.util.stream.Collectors;
