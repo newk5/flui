@@ -27,6 +27,7 @@ public class Tab extends SizedWidget {
     private JImVec4 c;
     private int flags;
     private NativeBool b;
+    protected float tabRounding = 4;
 
     public Tab(String id) {
 
@@ -47,7 +48,17 @@ public class Tab extends SizedWidget {
         instances.add(this);
         title = new JImStr(id);
         b = new NativeBool();
-        b.modifyValue(true);
+        b.deallocateNativeObject();
+    }
+
+    public Tab closeable(boolean value) {
+        if (value) {
+            b = new NativeBool();
+            b.modifyValue(value);
+        } else {
+            b.deallocateNativeObject();
+        }
+        return this;
     }
 
     public static Tab withID(String id) {
@@ -128,7 +139,8 @@ public class Tab extends SizedWidget {
                 c = color.asVec4(c);
                 imgui.pushStyleColor(JImStyleColors.ChildBg, c);
             }
-
+         
+            imgui.getStyle().setTabRounding(tabRounding);
             if (imgui.beginTabItem(title, b, JImTabItemFlags.Leading)) {
                 if (headerHeight == 0) {
                     headerHeight = (imgui.getItemRectSizeY() + (imgui.getFrameHeightWithSpacing() * 2) + 5);

@@ -10,7 +10,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
+import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
+import org.ice1000.jimgui.flag.JImTabBarFlags;
 import org.ice1000.jimgui.flag.JImWindowFlags;
 import vlsi.utils.CompactHashMap;
 
@@ -27,6 +29,8 @@ public class Tabview extends SizedWidget {
     private Color color;
     private JImVec4 c;
     private int flags;
+    protected float tabRounding = 4;
+    protected float tabSpacing= 4;
 
     protected float tabHeight;
 
@@ -160,8 +164,8 @@ public class Tabview extends SizedWidget {
                 c = color.asVec4(c);
                 imgui.pushStyleColor(JImStyleColors.ChildBg, c);
             }
-
-            if (imgui.beginTabBar(title, flags)) {
+            imgui.pushStyleVar(JImStyleVars.ItemInnerSpacing,tabSpacing,4);
+            if (imgui.beginTabBar(title,JImTabBarFlags.None)) {
                 tabs.forEach(tab -> tab.render(imgui));
                 imgui.endTabBar();
 
@@ -170,7 +174,7 @@ public class Tabview extends SizedWidget {
             if (color != null) {
                 imgui.popStyleColor();
             }
-
+            imgui.popStyleVar();
             postRender(imgui);
             if (deleteFlag) {
                 this.delete();
@@ -191,6 +195,17 @@ public class Tabview extends SizedWidget {
         return this;
     }
 
+    public Tabview tabRounding(float tabRounding) {
+        this.tabRounding = tabRounding;
+        return this;
+    }
+    
+     public Tabview tabSpacing(float tabSpacing) {
+        this.tabSpacing = tabSpacing;
+        return this;
+    }
+
+
     public Tabview alpha(final float alpha) {
         super.alpha(alpha);
         return this;
@@ -206,7 +221,7 @@ public class Tabview extends SizedWidget {
 
     public Tabview tabs(Tab... tabs) {
         for (Tab w : tabs) {
-
+            w.tabRounding = this.tabRounding;
             add(w);
         }
 
