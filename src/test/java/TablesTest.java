@@ -15,7 +15,7 @@ public class TablesTest {
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);
 
-        User us = new User("John13", 19);
+        User us = new User("John13", 19, "Scotland");
         UI.render(app, () -> {
 
             new Window("w").fill().children(
@@ -23,6 +23,7 @@ public class TablesTest {
                             .rowsPerPage(5).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
+                            new Column("Country").field("country"),
                             //instead of binding properties from your object you can also render any widget you want inside table cells
                             new Column("Options").widgets(
                                     //when creating widgets inside tables you must not specify any ID, the ID's will be generated automatically
@@ -57,18 +58,18 @@ public class TablesTest {
                             )
                     ).data(
                             Stream.of(
-                                    new User("John1", 19),
-                                    new User("John2", 29),
-                                    new User("John3", 19),
-                                    new User("John4", 19),
-                                    new User("John5", 19),
-                                    new User("John6", 19),
-                                    new User("John7", 19),
-                                    new User("John8", 19),
-                                    new User("John9", 19),
-                                    new User("John10", 19),
-                                    new User("John11", 19),
-                                    new User("John12", 19),
+                                    new User("John1", 19, "France"),
+                                    new User("John2", 29, "Portugal"),
+                                    new User("John3", 19, "USA"),
+                                    new User("John4", 19, "Spain"),
+                                    new User("John5", 19, "France"),
+                                    new User("John6", 19, "Ireland"),
+                                    new User("John7", 19, "Portugal"),
+                                    new User("John8", 19, "Spain"),
+                                    new User("John9", 19, "Japan"),
+                                    new User("John10", 19, "China"),
+                                    new User("John11", 19, "China"),
+                                    new User("John12", 19, "Russia"),
                                     us
                             ).collect(Collectors.toList())
                     ).onSelect((o) -> { //when a row is selected (clicked on)
@@ -79,14 +80,14 @@ public class TablesTest {
                     }),
                     new Button("btn").text("add").sameLine(true).onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
-                        tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19));
+                        tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19, "Germany"));
 
                     }),
                     new Button("btn2").text("remove").sameLine(true).onClick((btn) -> {
-                        Table.withID("tbl").remove(us);
+                        Table.withID("tbl").applyGlobalFilter("John4");
                     }),
                     new Button("btn3").text("clear").sameLine(true).onClick((btn) -> {
-                        Table.withID("tbl").clear();
+                        Table.withID("tbl").clearGlobalFilter();
                     }),
                     new Button("btn4").text("last page").onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
@@ -103,10 +104,12 @@ class User {
 
     private String name;
     private int age;
+    private String country;
 
-    public User(String name, int age) {
+    public User(String name, int age, String country) {
         this.name = name;
         this.age = age;
+        this.country = country;
     }
 
     public User name(final String value) {
@@ -117,6 +120,15 @@ class User {
     public User age(final int value) {
         this.age = value;
         return this;
+    }
+
+    public User country(final String value) {
+        this.country = value;
+        return this;
+    }
+
+    public String getCountry() {
+        return country;
     }
 
     public String getName() {

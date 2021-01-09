@@ -378,11 +378,6 @@ public class Window extends SizedWidget {
                 Tabview t = (Tabview) sw;
                 t.size(getWidth(), getHeight() - t.getYOffset());
 
-            } else if (sw instanceof Table) {
-                Table tbl = (Table) sw;
-                tbl.prevBtnParentIdx = this.children.size() + 1;
-                tbl.pagesLblParentIdx = this.children.size() + 2;
-                tbl.nextBtnParentIdx = this.children.size() + 3;
             }
         }
         this.children.add(w);

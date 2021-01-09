@@ -20,6 +20,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
@@ -42,6 +43,8 @@ public class Table extends SizedWidget {
     private int flags;
     private List<Column> columns = new ArrayList<>();
     private List<CellWrapper[]> simpleData = new ArrayList<>();
+    private List<CellWrapper[]> filteredData = new ArrayList<>();
+
     private List<Object> data = new ArrayList<>();
     private CompactHashMap<String, Field> fields = new CompactHashMap<>();
     private JImStr title;
@@ -49,11 +52,13 @@ public class Table extends SizedWidget {
     private int selectedIdx = -1;
 
     private Button nextBtn;
-    protected int nextBtnParentIdx = -1;
+
     private Button prevBtn;
-    protected int prevBtnParentIdx = -1;
+
     private Label pagesLbl;
-    protected int pagesLblParentIdx = -1;
+
+    private Label globalFilterLbl;
+    private InputText globalFilterInput;
 
     private int currentPage = 1;
     private int totalPages;
@@ -146,7 +151,7 @@ public class Table extends SizedWidget {
     }
 
     private void calculatePageCount() {
-        totalPages = (int) Math.ceil(Float.valueOf(this.simpleData.size() + "") / Float.valueOf(rowsPerPage + ""));
+        totalPages = (int) Math.ceil(Float.valueOf(this.getData().size() + "") / Float.valueOf(rowsPerPage + ""));
         if (totalPages == 0) {
             totalPages = 1;
         }
@@ -185,6 +190,27 @@ public class Table extends SizedWidget {
         }
     }
 
+    private List<CellWrapper[]> getData() {
+        return this.filteredData.isEmpty() ? this.simpleData : this.filteredData;
+    }
+
+    public void applyGlobalFilter(String expr) {
+        filteredData.clear();
+        filteredData = simpleData.stream().filter(row -> {
+            List<CellWrapper> cells = Arrays.stream(row)
+                    .filter(cell -> cell.getValue().toString().toLowerCase().contains(expr.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            return !cells.isEmpty();
+        }).collect(Collectors.toList());
+        updatePaginator();
+    }
+
+    public void clearGlobalFilter() {
+        filteredData.clear();
+        updatePaginator();
+    }
+
     private void updatePaginator() {
         calculatePageCount();
         if (pagesLbl != null) {
@@ -192,118 +218,157 @@ public class Table extends SizedWidget {
         }
     }
 
+    private void drawCell(JImGui imgui, CellWrapper[] row, int i) {
+        for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
+            CellWrapper cell = row[cellIdx];
+            imgui.pushID(i);
+            imgui.tableSetColumnIndex(cell.getColumnIdx());
+
+            if (cell.hasWidgets()) {
+                cell.renderWidgets(imgui);
+
+            } else {
+                if (rowFont != null) {
+                    imgui.pushFont(rowFont.getJimFont());
+                }
+                if (rowTextCol != null) {
+                    imgui.pushStyleColor(JImStyleColors.Text, rowTextCol.asVec4(rowTextColor));
+                }
+                if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
+                    cell.selected(true);
+                    if (lastSelected != null) {
+                        lastSelected.selected(false);
+                    }
+                    selectedIdx = i;
+
+                    if (onSelect != null) {
+                        onSelect.accept(this.data.get(selectedIdx));
+                    }
+                    lastSelected = cell;
+                }
+                if (rowFont != null) {
+                    imgui.popFont();
+                }
+                if (rowTextCol != null) {
+                    imgui.popStyleColor();
+                }
+
+            }
+
+            imgui.popID();
+        }
+    }
+
+    private void applyStyles(JImGui imgui) {
+        if (headerFont != null) {
+            imgui.pushFont(headerFont.getJimFont());
+        }
+        if (headerTextCol != null) {
+            imgui.pushStyleColor(JImStyleColors.Text, headerTextCol.asVec4(headerTextColor));
+        }
+        columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
+        imgui.tableHeadersRow();
+        if (headerFont != null) {
+            imgui.popFont();
+        }
+        if (headerTextCol != null) {
+            imgui.popStyleColor();
+        }
+    }
+
+    private void drawGlobalFilter() {   
+        if (globalFilterLbl == null) {
+            globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true);
+
+            UI.runLater(() -> {
+                int idx = super.getParent().getChildren().indexOf(this);
+                super.getParent().addAtIndex(globalFilterLbl, idx);
+            });
+        }
+        if (globalFilterInput == null) {
+            globalFilterInput = new InputText(id + ":GlobalFilterInput").width("20%").align(Alignment.TOP_RIGHT).onChange(i -> {
+                this.applyGlobalFilter(i.getText());
+            });
+
+            UI.runLater(() -> {
+                int idx = super.getParent().getChildren().indexOf(this);
+                super.getParent().addAtIndex(globalFilterInput, idx);
+            });
+
+        } else {
+            globalFilterLbl.posX = globalFilterInput.posX - (globalFilterLbl.width);
+        }
+    }
+
+    private void drawPaginator() {
+        if (prevBtn == null) {
+            prevBtn = new Button(id + ":PrevBtn").text("<").align(Alignment.CENTER_H).onClick((btn) -> {
+                this.prevPage();
+            });
+
+            UI.runLater(() -> {
+                int prevBtnParentIdx = super.getParent().getChildren().indexOf(this) + 1;
+                super.getParent().addAtIndex(prevBtn, prevBtnParentIdx);
+            });
+
+            prevBtn.sameLine(true);
+        } else {
+            prevBtn.posX = pagesLbl.posX - (pagesLbl.width / 2);
+        }
+
+        if (this.pagesLbl == null) {
+            this.pagesLbl = new Label(id + ":pagesLbl").align(Alignment.CENTER_H).text("Page " + currentPage + " of " + totalPages);
+
+            UI.runLater(() -> {
+                int pagesLblParentIdx = super.getParent().getChildren().indexOf(prevBtn) + 1;
+
+                super.getParent().addAtIndex(pagesLbl, pagesLblParentIdx);
+            });
+
+            this.pagesLbl.sameLine(true);
+        }
+
+        if (nextBtn == null) {
+            nextBtn = new Button(id + ":NextBtn").align(Alignment.CENTER_H).text(">").onClick((btn) -> {
+                this.nextPage();
+            });
+
+
+            
+            UI.runLater(() -> {
+                 int nextBtnParentIdx = super.getParent().getChildren().indexOf(pagesLbl) + 1;
+                super.getParent().addAtIndex(nextBtn, nextBtnParentIdx);
+
+            });
+
+        } else {
+            nextBtn.posX = pagesLbl.posX + pagesLbl.width + 20;
+
+        }
+    }
+
     @Override
     protected void render(JImGui imgui) {
         super.preRender(imgui);
-
+        drawGlobalFilter();
         if (imgui.beginTable(title, columns.size(), flags)) {
-            if (headerFont != null) {
-                imgui.pushFont(headerFont.getJimFont());
-            }
-            if (headerTextCol != null) {
-                imgui.pushStyleColor(JImStyleColors.Text, headerTextCol.asVec4(headerTextColor));
-            }
-            columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
-            imgui.tableHeadersRow();
-            if (headerFont != null) {
-                imgui.popFont();
-            }
-            if (headerTextCol != null) {
-                imgui.popStyleColor();
-            }
+            this.applyStyles(imgui);
 
             int counter = 0;
 
-            for (int i = offset; i < simpleData.size(); i++) {
+            for (int i = offset; i < getData().size(); i++) {
                 if (counter == rowsPerPage) {
                     break;
                 }
-                CellWrapper[] row = simpleData.get(i);
+                CellWrapper[] row = getData().get(i);
                 imgui.tableNextRow();
-                for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
-                    CellWrapper cell = row[cellIdx];
-                    imgui.pushID(i);
-                    imgui.tableSetColumnIndex(cell.getColumnIdx());
-                    
-                    if (cell.hasWidgets()) {
-                        cell.renderWidgets(imgui);
-
-                    } else {
-                        if (rowFont != null) {
-                            imgui.pushFont(rowFont.getJimFont());
-                        }
-                        if (rowTextCol != null) {
-                            imgui.pushStyleColor(JImStyleColors.Text, rowTextCol.asVec4(rowTextColor));
-                        }
-                        if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
-                            cell.selected(true);
-                            if (lastSelected != null) {
-                                lastSelected.selected(false);
-                            }
-                            selectedIdx = i;
-
-                            if (onSelect != null) {
-                                onSelect.accept(this.data.get(selectedIdx));
-                            }
-                            lastSelected = cell;
-                        }
-                        if (rowFont != null) {
-                            imgui.popFont();
-                        }
-                        if (rowTextCol != null) {
-                            imgui.popStyleColor();
-                        }
-
-                    }
-
-                    imgui.popID();
-                }
+                drawCell(imgui, row, i);
                 counter++;
             }
 
             imgui.endTable();
-            //draw paginator widgets
-            if (prevBtn == null) {
-                prevBtn = new Button(id + ":PrevBtn").text("<").align(Alignment.CENTER_H).onClick((btn) -> {
-                    this.prevPage();
-                });
-                if (prevBtnParentIdx > -1) {
-                    UI.runLater(() -> {
-                        super.getParent().addAtIndex(prevBtn, prevBtnParentIdx);
-                    });
-                }
 
-                prevBtn.sameLine(true);
-            } else {
-                prevBtn.posX = pagesLbl.posX - (pagesLbl.width / 2);
-            }
-
-            if (this.pagesLbl == null) {
-                this.pagesLbl = new Label(id + ":pagesLbl").align(Alignment.CENTER_H).text("Page " + currentPage + " of " + totalPages);
-
-                if (pagesLblParentIdx > -1) {
-                    UI.runLater(() -> {
-                        super.getParent().addAtIndex(pagesLbl, pagesLblParentIdx);
-                    });
-                }
-                this.pagesLbl.sameLine(true);
-            }
-
-            if (nextBtn == null) {
-                nextBtn = new Button(id + ":NextBtn").align(Alignment.CENTER_H).text(">").onClick((btn) -> {
-                    this.nextPage();
-                });
-
-                if (nextBtnParentIdx > -1) {
-                    UI.runLater(() -> {
-                        super.getParent().addAtIndex(nextBtn, nextBtnParentIdx);
-
-                    });
-                }
-            } else {
-                nextBtn.posX = pagesLbl.posX + pagesLbl.width + 20;
-
-            }
+            this.drawPaginator();
 
         }
 

@@ -232,12 +232,7 @@ public class Tab extends SizedWidget {
             } else if (sw instanceof Canvas) {
                 Canvas c = (Canvas) sw;
                 c.applyRelativeSizeToChildren();
-            } else if (sw instanceof Table) {
-                Table tbl = (Table) sw;
-                tbl.prevBtnParentIdx = this.children.size() + 1;
-                tbl.pagesLblParentIdx = this.children.size() + 2;
-                tbl.nextBtnParentIdx = this.children.size() + 3;
-            }
+            } 
         }
         this.children.add(w);
     }
