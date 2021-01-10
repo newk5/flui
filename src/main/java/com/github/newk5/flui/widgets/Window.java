@@ -33,6 +33,8 @@ public class Window extends SizedWidget {
     private boolean noBackground;
 
     private boolean appliedSizeOnce;
+    protected static float globalXPadding = -1;
+    protected static float globalYPadding = -1;
 
     private BiConsumer<Float, Float> onResize;
     int iterations = 1;
@@ -239,7 +241,6 @@ public class Window extends SizedWidget {
 
     }
 
-    private float offsetY, offsetX;
     private boolean allChildrenAdded;
 
     @Override
@@ -260,22 +261,15 @@ public class Window extends SizedWidget {
             }
 
             if (!resizable || !appliedSizeOnce) {
-                imgui.setNextWindowSize(super.getWidth() + offsetX, super.getHeight() + offsetY);
+                imgui.setNextWindowSize(super.getWidth() + imgui.getStyle().getWindowPaddingX(), super.getHeight() + imgui.getStyle().getWindowPaddingY());
                 appliedSizeOnce = true;
             }
 
             imgui.getStyle().setWindowRounding(0);
             imgui.begin(title, flags);
-
             float newY = imgui.getContentRegionMaxY();
             float newX = imgui.getContentRegionMaxX();
-            if (super.firstRenderLoop) {
-                offsetX = width - newX;
-                offsetY = height - newY;
-                super.width = newX;
-                super.height = newY;
 
-            }
             if (super.getWidth() != newX || super.getHeight() != newY) {
 
                 width(newX);
@@ -287,7 +281,7 @@ public class Window extends SizedWidget {
 
                 }
             }
-
+           
             if (super.firstRenderLoop || allChildrenAdded) {
                 applyRelativeSizeToChildren();
                 allChildrenAdded = false;
@@ -305,7 +299,7 @@ public class Window extends SizedWidget {
                 reapplyAlign = false;
                 setAlignment(super.getAlign());
             }
-
+           
             imgui.end();
 
             imgui.popID();

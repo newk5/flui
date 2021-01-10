@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import org.ice1000.jimgui.JImFontAtlas;
 import org.ice1000.jimgui.JImGui;
+import org.ice1000.jimgui.util.JImGuiUtil;
 import org.ice1000.jimgui.util.JniLoader;
 
 public class UI {
@@ -38,23 +39,25 @@ public class UI {
 
     private static void init(Application app, Runnable r) {
         JniLoader.load();
-
+        JImGuiUtil.cacheStringToBytes();
         try (JImGui jimgui = new JImGui(app.getWidth(), app.getHeight(), app.getTitle())) {
 
             UI.windowHeight = app.getHeight();
             UI.windowWidth = app.getWidth();
 
             resizeEvent = new WindowResizeEvent(windowWidth, windowHeight, windowWidth, windowHeight);
+            
+            app.setupTheme(jimgui);
+            Window.globalXPadding = jimgui.getStyle().getWindowPaddingX();
+            Window.globalYPadding = jimgui.getStyle().getWindowPaddingY();
 
             fonts = jimgui.getIO().getFonts();
             fonts.addDefaultFont();
             app.loadFonts(fonts);
             r.run();
 
-            app.setupTheme(jimgui);
-
             while (!jimgui.windowShouldClose()) {
-              
+
                 float newY = jimgui.getPlatformWindowSizeY();
                 float newX = jimgui.getPlatformWindowSizeX();
 

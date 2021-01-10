@@ -15,6 +15,8 @@ public abstract class SizedWidget extends Widget {
     protected float relativeSizeX;
     protected float relativeSizeY;
 
+    protected static boolean reapplySizing;
+
     protected boolean reapplyAlign;
     protected boolean reapplyPos;
     protected List<Widget> children = new ArrayList<>();
@@ -71,11 +73,16 @@ public abstract class SizedWidget extends Widget {
         if (super.getParent() == null) {
             if (relativeSizeX > 0) {
                 this.width = (relativeSizeX * UI.windowWidth);
+                if (this instanceof Window) {
+                    this.width -= Window.globalXPadding;
+                }
 
             }
             if (relativeSizeY > 0) {
                 this.height = (relativeSizeY * (UI.windowHeight - Topbar.height));
-
+                if (this instanceof Window) {
+                    this.height -= Window.globalYPadding;
+                }
             }
         } else {
 
@@ -104,7 +111,7 @@ public abstract class SizedWidget extends Widget {
     }
 
     protected SizedWidget fill() {
-        SizedWidget.this.width("100%");
+        SizedWidget.this.width("99.2%");
         SizedWidget.this.height("100%");
         this.applyAlignment();
         return this;

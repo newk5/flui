@@ -19,7 +19,7 @@ public class TablesTest {
         UI.render(app, () -> {
 
             new Window("w").fill().children(
-                    new Table("tbl")
+                    new Table("tbl").globalFilter(true)
                             .rowsPerPage(5).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
@@ -80,14 +80,14 @@ public class TablesTest {
                     }),
                     new Button("btn").text("add").sameLine(true).onClick((btn) -> {
                         Table tbl = Table.withID("tbl");
-                        tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19, "Germany"));
+                        tbl.add(new User("John" + (tbl.getTotalRows() + 1), 19, "Spain"));
 
                     }),
                     new Button("btn2").text("remove").sameLine(true).onClick((btn) -> {
-                        Table.withID("tbl").applyGlobalFilter("John4");
+                        Table.withID("tbl").remove(us);
                     }),
                     new Button("btn3").text("clear").sameLine(true).onClick((btn) -> {
-                        Table.withID("tbl").clearGlobalFilter();
+                        Table.withID("tbl").clear();
                     }),
                     new Button("btn4").text("last page").onClick((btn) -> {
                         Table tbl = Table.withID("tbl");

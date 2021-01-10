@@ -70,6 +70,8 @@ public class Table extends SizedWidget {
 
     private Color headerTextCol;
     private Color rowTextCol;
+    private boolean globalFilter;
+    private String globalExpr="";
 
     private int offset = 0;
     Kryo kryo;
@@ -139,6 +141,7 @@ public class Table extends SizedWidget {
     public void clear() {
         this.data.clear();
         this.simpleData.clear();
+        currentPage = 1;
         updatePaginator();
     }
 
@@ -195,14 +198,20 @@ public class Table extends SizedWidget {
     }
 
     public void applyGlobalFilter(String expr) {
+        this.globalExpr = expr;
         filteredData.clear();
-        filteredData = simpleData.stream().filter(row -> {
-            List<CellWrapper> cells = Arrays.stream(row)
-                    .filter(cell -> cell.getValue().toString().toLowerCase().contains(expr.toLowerCase()))
-                    .collect(Collectors.toList());
+        currentPage = 1;
+        this.offset = 0;
+        if (!expr.equals("")) {
 
-            return !cells.isEmpty();
-        }).collect(Collectors.toList());
+            filteredData = simpleData.stream().filter(row -> {
+                List<CellWrapper> cells = Arrays.stream(row)
+                        .filter(cell -> cell.getValue().toString().toLowerCase().contains(expr.toLowerCase()))
+                        .collect(Collectors.toList());
+
+                return !cells.isEmpty();
+            }).collect(Collectors.toList());
+        }
         updatePaginator();
     }
 
@@ -276,7 +285,7 @@ public class Table extends SizedWidget {
         }
     }
 
-    private void drawGlobalFilter() {   
+    private void drawGlobalFilter() {
         if (globalFilterLbl == null) {
             globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true);
 
@@ -286,7 +295,7 @@ public class Table extends SizedWidget {
             });
         }
         if (globalFilterInput == null) {
-            globalFilterInput = new InputText(id + ":GlobalFilterInput").width("20%").align(Alignment.TOP_RIGHT).onChange(i -> {
+            globalFilterInput = new InputText(id + ":GlobalFilterInput").width(150).align(Alignment.TOP_RIGHT).onChange(i -> {
                 this.applyGlobalFilter(i.getText());
             });
 
@@ -333,10 +342,8 @@ public class Table extends SizedWidget {
                 this.nextPage();
             });
 
-
-            
             UI.runLater(() -> {
-                 int nextBtnParentIdx = super.getParent().getChildren().indexOf(pagesLbl) + 1;
+                int nextBtnParentIdx = super.getParent().getChildren().indexOf(pagesLbl) + 1;
                 super.getParent().addAtIndex(nextBtn, nextBtnParentIdx);
 
             });
@@ -350,7 +357,9 @@ public class Table extends SizedWidget {
     @Override
     protected void render(JImGui imgui) {
         super.preRender(imgui);
-        drawGlobalFilter();
+        if (globalFilter) {
+            drawGlobalFilter();
+        }
         if (imgui.beginTable(title, columns.size(), flags)) {
             this.applyStyles(imgui);
 
@@ -367,8 +376,9 @@ public class Table extends SizedWidget {
             }
 
             imgui.endTable();
-
-            this.drawPaginator();
+            if (rowsPerPage > -1) {
+                this.drawPaginator();
+            }
 
         }
 
@@ -383,6 +393,15 @@ public class Table extends SizedWidget {
     public Table headerTextColor(Color c) {
         this.headerTextCol = c;
         return this;
+    }
+
+    public Table globalFilter(boolean value) {
+        this.globalFilter = value;
+        return this;
+    }
+
+    public boolean hasGlobalFilter() {
+        return globalFilter;
     }
 
     public Table rowsTextColor(Color c) {
@@ -469,9 +488,13 @@ public class Table extends SizedWidget {
 
             this.simpleData.add(lst.toArray(new CellWrapper[lst.size()]));
         } else {
-
-            columns.forEach(col -> {
+            boolean matchesGlobalFilter = false;
+            for (Column col : columns) {
                 String value = getValue(o, col.getField());
+                //in case there is an active filter, check if the new added row matches it
+                if (!globalExpr.equals("") && !matchesGlobalFilter) {
+                    matchesGlobalFilter = value.toLowerCase().contains(this.globalExpr.toLowerCase());
+                }
                 int idx = columns.indexOf(col);
                 CellWrapper cell = new CellWrapper("", new JImStr(value), col.getHeaderAsStr(), o);
                 cell.columnIdx(idx);
@@ -481,11 +504,14 @@ public class Table extends SizedWidget {
 
                 lst.add(cell);
 
-            });
+            }
             CellWrapper[] row = lst.toArray(new CellWrapper[lst.size()]);
 
             this.sortCells(row);
             this.simpleData.add(row);
+            if (matchesGlobalFilter){
+                this.filteredData.add(row);
+            }
         }
         this.data.add(o);
         updatePaginator();
