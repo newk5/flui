@@ -71,7 +71,7 @@ public class Table extends SizedWidget {
     private Color headerTextCol;
     private Color rowTextCol;
     private boolean globalFilter;
-    private String globalExpr="";
+    private String globalExpr = "";
 
     private int offset = 0;
     Kryo kryo;
@@ -217,6 +217,7 @@ public class Table extends SizedWidget {
 
     public void clearGlobalFilter() {
         filteredData.clear();
+        globalFilterInput.text("");
         updatePaginator();
     }
 
@@ -509,7 +510,7 @@ public class Table extends SizedWidget {
 
             this.sortCells(row);
             this.simpleData.add(row);
-            if (matchesGlobalFilter){
+            if (matchesGlobalFilter) {
                 this.filteredData.add(row);
             }
         }
@@ -524,6 +525,12 @@ public class Table extends SizedWidget {
             data.remove(idx);
             simpleData.remove(idx);
 
+        }
+        if (!globalExpr.equals("")) {
+            int fIdx = filteredData.indexOf(o);
+            if (fIdx > -1) {
+                filteredData.remove(fIdx);
+            }
         }
     }
 

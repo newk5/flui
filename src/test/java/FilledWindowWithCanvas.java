@@ -5,6 +5,7 @@ import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Canvas;
 import com.github.newk5.flui.widgets.Combobox;
+import com.github.newk5.flui.widgets.FileSelectDialog;
 import com.github.newk5.flui.widgets.InputText;
 import com.github.newk5.flui.widgets.Label;
 import com.github.newk5.flui.widgets.Menu;
@@ -23,8 +24,13 @@ public class FilledWindowWithCanvas {
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);
         UI.render(app, () -> {
+            FileSelectDialog dialog = new FileSelectDialog("fileDialog").filter(".zip").onFileSelect((f)->{
+                System.out.println(f.getAbsolutePath());
+            });
             new Topbar("top").menus(
-                    new Menu("Hello").options(new MenuOption("test")).options(new MenuOption("test1").options(new MenuOption("test2"))),
+                    new Menu("Hello").options(new MenuOption("Open...").onClick((m) -> {
+                        dialog.open();
+                    })).options(new MenuOption("test1").options(new MenuOption("test2"))),
                     new Menu("abc")
             );
 
@@ -36,9 +42,9 @@ public class FilledWindowWithCanvas {
                                                     new Button("btn")
                                                             .text("OK")
                                                             .onClick((btn) -> {
-                                                               
+
                                                                 Popup.withID("op").open();
-                                                              
+
                                                             }),
                                                     new Label("a").text("aaaaaaa"),
                                                     new RadioGroup("radio")
