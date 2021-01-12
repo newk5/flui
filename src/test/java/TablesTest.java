@@ -19,7 +19,7 @@ public class TablesTest {
         UI.render(app, () -> {
 
             new Window("w").fill().children(
-                    new Table("tbl").globalFilter(true)
+                    new Table("tbl").globalFilter(true).cellEditor(true)
                             .rowsPerPage(5).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
