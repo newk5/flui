@@ -20,14 +20,14 @@ public class TablesTest {
 
             new Window("w").fill().children(
                     new Table("tbl").globalFilter(true).cellEditor(true)
-                            .rowsPerPage(5).columns(
+                            .rowsPerPage(10).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
                             new Column("Country").field("country"),
                             //instead of binding properties from your object you can also render any widget you want inside table cells
                             new Column("Options").widgets(
                                     //when creating widgets inside tables you must not specify any ID, the ID's will be generated automatically
-                                    new Button().text("OK").onClick((btn) -> {
+                                    new Button().text("OK").sameLine(true).onClick((btn) -> {
 
                                         //get the data binded to this row
                                         User user = (User) btn.getData("rowData");
@@ -54,6 +54,10 @@ public class TablesTest {
 
                                         }
 
+                                    }),
+                                    new Button().text("Remove").onClick( (b)->{
+                                         User user = (User) b.getData("rowData");
+                                          Table.withID("tbl").remove(user);
                                     })
                             )
                     ).data(

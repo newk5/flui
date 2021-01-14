@@ -36,17 +36,19 @@ public class UI {
     private static ConcurrentLinkedQueue<String> ids = new ConcurrentLinkedQueue<>();
 
     private static SerializableConsumer<WindowResizeEvent> resizeEventSerializableConsumer;
+ 
+    private static boolean readyCalledFlag;
 
     private static void init(Application app, Runnable r) {
         JniLoader.load();
-        JImGuiUtil.cacheStringToBytes();
+       // JImGuiUtil.cacheStringToBytes();
         try (JImGui jimgui = new JImGui(app.getWidth(), app.getHeight(), app.getTitle())) {
 
             UI.windowHeight = app.getHeight();
             UI.windowWidth = app.getWidth();
 
             resizeEvent = new WindowResizeEvent(windowWidth, windowHeight, windowWidth, windowHeight);
-            
+
             app.setupTheme(jimgui);
             Window.globalXPadding = jimgui.getStyle().getWindowPaddingX();
             Window.globalYPadding = jimgui.getStyle().getWindowPaddingY();
@@ -90,6 +92,12 @@ public class UI {
                 process(jimgui);
 
                 jimgui.render();
+                if (!readyCalledFlag) {
+                    if (app.getReady() != null) {
+                        app.getReady().run();
+                    }
+                    readyCalledFlag = true;
+                }
             }
         }
     }

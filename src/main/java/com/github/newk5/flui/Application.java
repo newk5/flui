@@ -1,5 +1,16 @@
 package com.github.newk5.flui;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ice1000.jimgui.JImFontAtlas;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStyleColors;
@@ -12,6 +23,7 @@ public class Application {
     private int width;
     private int height;
     public static CompactHashMap<String, Font> fonts = new CompactHashMap<>();
+    private Runnable ready;
 
     public Application() {
     }
@@ -28,6 +40,30 @@ public class Application {
         });
     }
 
+    public Application title(final String value) {
+        this.title = value;
+        return this;
+    }
+
+    public Application width(final int value) {
+        this.width = value;
+        return this;
+    }
+
+    public Application height(final int value) {
+        this.height = value;
+        return this;
+    }
+
+    public Application ready(final Runnable value) {
+        this.ready = value;
+        return this;
+    }
+
+    public Runnable getReady() {
+        return ready;
+    }
+
     public void setupTheme(JImGui imgui) {
         buildTheme(imgui,
                 new JImVec4(236f / 255f, 240.f / 255.f, 241.f / 255.f, 1),
@@ -36,6 +72,7 @@ public class Application {
                 new JImVec4(44.f / 255.f, 62.f / 255.f, 80.f / 255.f, 1),
                 new JImVec4(33.f / 255.f, 46.f / 255.f, 60.f / 255.f, 1));
     }
+
     //from https://github.com/ocornut/imgui/issues/707#issuecomment-254424199 with some changes
     private void buildTheme(JImGui imgui, JImVec4 textColor, JImVec4 headColor, JImVec4 areaColor, JImVec4 bodyColor, JImVec4 popColor) {
 
@@ -97,6 +134,18 @@ public class Application {
 
     }
 
+    public static void copyStream(InputStream in, OutputStream out) {
+        byte[] buffer = new byte[1024];
+        int read;
+        try {
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public Application addFont(String fontName, String pathToFile, int size) {
         fonts.put(fontName, new Font(fontName, pathToFile, size));
         return this;
@@ -107,18 +156,27 @@ public class Application {
         return this;
     }
 
-    public Application title(final String value) {
-        this.title = value;
+    public Application addTTFFont(String fontName, InputStream is) {
+        try {
+            String dir = File.createTempFile(fontName, "ttf").getParentFile().getPath();
+            Files.copy(is, Paths.get(dir + File.separator + fontName + ".ttf"), StandardCopyOption.REPLACE_EXISTING);
+            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + ".ttf"));
+
+        } catch (IOException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return this;
     }
 
-    public Application width(final int value) {
-        this.width = value;
-        return this;
-    }
+    public Application addTTFFont(String fontName, InputStream is,int size) {
+        try {
+            String dir = File.createTempFile(fontName, "ttf").getParentFile().getPath();
+            Files.copy(is, Paths.get(dir + File.separator + fontName + ".ttf"), StandardCopyOption.REPLACE_EXISTING);
+            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + ".ttf",size));
 
-    public Application height(final int value) {
-        this.height = value;
+        } catch (IOException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return this;
     }
 

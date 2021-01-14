@@ -2,7 +2,6 @@ package com.github.newk5.flui;
 
 import org.ice1000.jimgui.JImVec4;
 
-
 public class Color {
 
     private float red;
@@ -24,6 +23,7 @@ public class Color {
         this.red = red / 255.0f;
         this.green = green / 255.0f;
         this.blue = blue / 255.0f;
+        this.alpha = 1;
     }
 
     public JImVec4 asVec4() {

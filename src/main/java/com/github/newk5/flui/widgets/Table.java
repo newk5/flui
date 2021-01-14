@@ -51,13 +51,15 @@ public class Table extends SizedWidget {
     private List<CellWrapper[]> simpleData = new ArrayList<>();
     private List<CellWrapper[]> filteredData = new ArrayList<>();
 
-    private List<Object> data = new ArrayList<>();
+    private List data = new ArrayList<>();
     private CompactHashMap<String, Field> fields = new CompactHashMap<>();
     private JImStr title;
     private CellWrapper lastSelected;
     private int selectedIdx = -1;
 
     private Button nextBtn;
+
+    private boolean lastPageIsEmpty;
 
     private Button prevBtn;
 
@@ -66,6 +68,7 @@ public class Table extends SizedWidget {
     private Label globalFilterLbl;
     private InputText globalFilterInput;
 
+    private int rowsDrawn;
     private int currentPage = 1;
     private int totalPages;
     private Font headerFont;
@@ -172,7 +175,12 @@ public class Table extends SizedWidget {
     public void clear() {
         this.data.clear();
         this.simpleData.clear();
+        this.filteredData.clear();
+        this.offset = 0;
         currentPage = 1;
+        if (!globalExpr.equals("")) {
+            clearGlobalFilter();
+        }
         updatePaginator();
     }
 
@@ -213,19 +221,18 @@ public class Table extends SizedWidget {
 
     private void prevPage() {
         if (currentPage > 1) {
-            if (this.currentPage + 1 >= this.totalPages) {
-                this.offset -= this.rowsPerPage;
-                if (pageChangeEvent != null) {
-                    pageChangeEvent.accept(currentPage, currentPage - 1);
-                }
-                this.currentPage--;
-                this.updatePaginator();
+            this.offset -= this.rowsPerPage;
+            if (pageChangeEvent != null) {
+                pageChangeEvent.accept(currentPage, currentPage - 1);
             }
+            this.currentPage--;
+            this.updatePaginator();
+
         }
     }
 
     private List<CellWrapper[]> getData() {
-        return this.filteredData.isEmpty() ? this.simpleData : this.filteredData;
+        return this.globalExpr.equals("") ? this.simpleData : this.filteredData;
     }
 
     public void applyGlobalFilter(String expr) {
@@ -248,6 +255,7 @@ public class Table extends SizedWidget {
 
     public void clearGlobalFilter() {
         filteredData.clear();
+        globalExpr = "";
         globalFilterInput.text("");
         updatePaginator();
     }
@@ -491,33 +499,41 @@ public class Table extends SizedWidget {
 
     @Override
     protected void render(JImGui imgui) {
-        super.preRender(imgui);
-        if (globalFilter) {
-            drawGlobalFilter();
-        }
-        if (imgui.beginTable(title, columns.size(), flags)) {
-            this.applyStyles(imgui);
+        if (!super.isHidden()) {
 
-            int counter = 0;
+            super.preRender(imgui);
+            if (globalFilter) {
+                drawGlobalFilter();
+            }
+            if (imgui.beginTable(title, columns.size(), flags)) {
+                this.applyStyles(imgui);
 
-            for (int i = offset; i < getData().size(); i++) {
-                if (counter == rowsPerPage) {
-                    break;
+                rowsDrawn = 0;
+
+                for (int i = offset; i < getData().size(); i++) {
+                    if (rowsDrawn == rowsPerPage) {
+                        break;
+                    }
+                    CellWrapper[] row = getData().get(i);
+                    imgui.tableNextRow();
+                    drawCell(imgui, row, i);
+                    rowsDrawn++;
                 }
-                CellWrapper[] row = getData().get(i);
-                imgui.tableNextRow();
-                drawCell(imgui, row, i);
-                counter++;
+
+                imgui.endTable();
+                if (rowsPerPage > -1) {
+                    this.drawPaginator();
+                }
+
             }
 
-            imgui.endTable();
-            if (rowsPerPage > -1) {
-                this.drawPaginator();
-            }
-
+            super.postRender(imgui);
         }
+    }
 
-        super.postRender(imgui);
+    public Table hidden(boolean hidden) {
+        super.hidden(hidden);
+        return this;
     }
 
     public Table selectable(boolean selectable) {
@@ -622,7 +638,7 @@ public class Table extends SizedWidget {
         return (T) data.get(idx);
     }
 
-    public void add(Object o) {
+    private void add(Object o, boolean updateData) {
         List<CellWrapper> lst = new ArrayList<>();
         if (o instanceof String[]) {
             for (int i = 0; i < ((String[]) o).length; i++) {
@@ -659,8 +675,14 @@ public class Table extends SizedWidget {
                 this.filteredData.add(row);
             }
         }
-        this.data.add(o);
+        if (updateData) {
+            this.data.add(o);
+        }
         updatePaginator();
+    }
+
+    public void add(Object o) {
+        add(o, true);
     }
 
     public void remove(Object o) {
@@ -677,25 +699,29 @@ public class Table extends SizedWidget {
                 filteredData.remove(fIdx);
             }
         }
-    }
 
-    public void remove(int rowIndex) {
-
-        if (rowIndex > -1) {
-            data.remove(rowIndex);
-            simpleData.remove(rowIndex);
-
-        }
-    }
-
-    public Table data(List<Object> data) {
-        this.simpleData.clear();
-        data.forEach(rowArray -> {
-            this.add(rowArray);
+        UI.runLater(() -> {
+            if (currentPage == totalPages && rowsDrawn == 1) {
+                calculatePageCount();
+                updatePaginator();
+                if (!globalExpr.equals("")) {
+                    clearGlobalFilter();
+                }
+            }
 
         });
 
+    }
+
+    public Table data(List<?> data) {
+        this.simpleData.clear();
+        data.forEach(rowArray -> {
+            this.add(rowArray, false);
+
+        });
+        this.data = data;
         calculatePageCount();
+        System.gc();
         return this;
     }
 

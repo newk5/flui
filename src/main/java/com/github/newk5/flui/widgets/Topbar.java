@@ -17,8 +17,8 @@ public class Topbar extends Widget {
     protected static float height;
 
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<String, Long>();
-    private Font font;
 
+    
     public Topbar(String id) {
         super(id);
         this.index(0);
@@ -39,8 +39,8 @@ public class Topbar extends Widget {
     }
 
     protected void render(JImGui imgui) {
-        if (font != null) {
-            imgui.pushFont(font.getJimFont());
+        if (fontObj != null) {
+            imgui.pushFont(fontObj.getJimFont());
         }
         if (imgui.beginMainMenuBar()) {
             if (height == 0) {

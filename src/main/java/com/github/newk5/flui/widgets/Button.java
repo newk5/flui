@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
+import org.ice1000.jimgui.JImStyleVar;
+import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
 import vlsi.utils.CompactHashMap;
 
@@ -31,6 +33,8 @@ public class Button extends SizedWidget {
 
     SerializableConsumer<Button> onHover;
     SerializableConsumer<Button> actionClick;
+
+    private float rounding;
 
     public Button() {
         super();
@@ -108,7 +112,7 @@ public class Button extends SizedWidget {
 
         if (!super.isHidden()) {
             super.preRender(imgui);
-
+            imgui.pushStyleVar(JImStyleVars.FrameRounding, rounding);
             if (c != null) {
                 color = c.asVec4(color);
                 imgui.pushStyleColor(JImStyleColors.Button, color);
@@ -157,7 +161,7 @@ public class Button extends SizedWidget {
                 height(imgui.getItemRectSizeY());
                 reapplyAlign = true;
             }
-
+            imgui.popStyleVar();
             super.postRender(imgui);
             if (deleteFlag) {
                 this.delete();
@@ -198,6 +202,12 @@ public class Button extends SizedWidget {
 
     public Button height(final String heightPercent) {
         super.height(heightPercent);
+        return this;
+    }
+
+    public Button rounding(final float rounding) {
+        this.rounding = rounding;
+
         return this;
     }
 
