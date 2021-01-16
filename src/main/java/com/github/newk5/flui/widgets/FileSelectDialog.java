@@ -146,8 +146,9 @@ public class FileSelectDialog extends SizedWidget {
                         }
 
                     }
-                    close();
+                    
                 }
+                close();
                 instance.closeDialog(jimStrID);
 
             }
