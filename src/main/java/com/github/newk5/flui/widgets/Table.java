@@ -278,7 +278,7 @@ public class Table extends SizedWidget {
                 if (cell.getCellValue() instanceof String) {
 
                     NativeString s = new NativeString();
-                    for (char ch : cell.getValue().toCharArray()) {
+                    for (char ch : cell.getValue().toString().toCharArray()) {
                         s.append(ch);
                     }
 
@@ -287,7 +287,7 @@ public class Table extends SizedWidget {
                 } else if (cell.getCellValue() instanceof Integer) {
 
                     NativeInt s = new NativeInt();
-                    int v = Integer.parseInt(cell.getValue());
+                    int v = Integer.parseInt(cell.getValue().toString().replace("\u0000", ""));
                     s.modifyValue(v);
 
                     cell.nativeInt(s);
@@ -295,21 +295,21 @@ public class Table extends SizedWidget {
                 } else if (cell.getCellValue() instanceof Double) {
 
                     NativeDouble s = new NativeDouble();
-                    s.modifyValue(Double.valueOf(cell.getValue()));
+                    s.modifyValue(Double.valueOf(cell.getValue().toString().replace("\u0000", "")));
 
                     cell.nativeDouble(s);
 
                 } else if (cell.getCellValue() instanceof Float) {
 
                     NativeFloat s = new NativeFloat();
-                    s.modifyValue(Float.valueOf(cell.getValue()));
+                    s.modifyValue(Float.valueOf(cell.getValue().toString().replace("\u0000", "")));
 
                     cell.nativeFloat(s);
 
                 } else if (cell.getCellValue() instanceof Boolean) {
 
                     NativeBool s = new NativeBool();
-                    s.modifyValue(Boolean.valueOf(cell.getValue()));
+                    s.modifyValue(Boolean.valueOf(cell.getValue().toString().replace("\u0000", "")));
 
                     cell.nativeBool(s);
 

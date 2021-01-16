@@ -41,7 +41,7 @@ public class UI {
 
     private static void init(Application app, Runnable r) {
         JniLoader.load();
-       // JImGuiUtil.cacheStringToBytes();
+        JImGuiUtil.cacheStringToBytes();
         try (JImGui jimgui = new JImGui(app.getWidth(), app.getHeight(), app.getTitle())) {
 
             UI.windowHeight = app.getHeight();

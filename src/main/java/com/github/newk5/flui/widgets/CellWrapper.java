@@ -124,8 +124,8 @@ public class CellWrapper {
         return selected;
     }
 
-    public String getValue() {
-        return new String(value.bytes, StandardCharsets.UTF_8).replace("\u0000", "").replace("\\u0000", "");
+    public JImStr getValue() {
+        return value;
     }
 
     public CellWrapper field(final String value) {
