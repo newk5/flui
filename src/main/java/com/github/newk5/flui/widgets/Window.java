@@ -266,6 +266,7 @@ public class Window extends SizedWidget {
                 imgui.setNextWindowSize(super.getWidth() + imgui.getStyle().getWindowPaddingX(), super.getHeight() + imgui.getStyle().getWindowPaddingY());
                 appliedSizeOnce = true;
                 applySize = false;
+                reapplyAlign = true;
             }
 
             imgui.getStyle().setWindowRounding(0);
@@ -277,14 +278,17 @@ public class Window extends SizedWidget {
 
                 width(newX);
                 height(newY);
-                applyRelativeSize();
+                if (!resizable) {
+                    applyRelativeSize();
+                }
                 applyRelativeSizeToChildren();
-                applySize=true;
+                applySize = true;
+
                 if (onResize != null && resizable) {
 
                     onResize.accept(newX, newY);
 
-                }
+                }           
             }
 
             if (super.firstRenderLoop || allChildrenAdded) {

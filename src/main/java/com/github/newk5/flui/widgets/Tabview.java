@@ -115,8 +115,7 @@ public class Tabview extends SizedWidget {
 
     protected void applyRelativeSizeToTabChildren() {
         this.tabs.stream().forEach(tab -> {
-            tab.width(super.getWidth());
-            tab.height(super.getHeight());
+            tab.reApplyChildrenSize=true;
             tab.getChildren().forEach(child -> {
                 if (child instanceof SizedWidget) {
                     SizedWidget w = (SizedWidget) child;

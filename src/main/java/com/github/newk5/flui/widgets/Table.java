@@ -8,6 +8,7 @@ import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableBiConsumer;
 import java.lang.invoke.SerializedLambda;
@@ -249,6 +250,8 @@ public class Table extends SizedWidget {
 
                 return !cells.isEmpty();
             }).collect(Collectors.toList());
+        }else{
+            clearGlobalFilter();
         }
         updatePaginator();
     }
@@ -287,7 +290,7 @@ public class Table extends SizedWidget {
                 } else if (cell.getCellValue() instanceof Integer) {
 
                     NativeInt s = new NativeInt();
-                    int v = Integer.parseInt(cell.getValue().toString().replace("\u0000", ""));
+                    int v = Integer.parseInt(cell.getValue().toString());
                     s.modifyValue(v);
 
                     cell.nativeInt(s);
@@ -295,21 +298,21 @@ public class Table extends SizedWidget {
                 } else if (cell.getCellValue() instanceof Double) {
 
                     NativeDouble s = new NativeDouble();
-                    s.modifyValue(Double.valueOf(cell.getValue().toString().replace("\u0000", "")));
+                    s.modifyValue(Double.valueOf(cell.getValue().toString()));
 
                     cell.nativeDouble(s);
 
                 } else if (cell.getCellValue() instanceof Float) {
 
                     NativeFloat s = new NativeFloat();
-                    s.modifyValue(Float.valueOf(cell.getValue().toString().replace("\u0000", "")));
+                    s.modifyValue(Float.valueOf(cell.getValue().toString()));
 
                     cell.nativeFloat(s);
 
                 } else if (cell.getCellValue() instanceof Boolean) {
 
                     NativeBool s = new NativeBool();
-                    s.modifyValue(Boolean.valueOf(cell.getValue().toString().replace("\u0000", "")));
+                    s.modifyValue(Boolean.valueOf(cell.getValue().toString()));
 
                     cell.nativeBool(s);
 
@@ -427,14 +430,17 @@ public class Table extends SizedWidget {
             imgui.popStyleColor();
         }
     }
+    boolean appliedMpve = false;
 
     private void drawGlobalFilter() {
         if (globalFilterLbl == null) {
-            globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true);
+            globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true).move(new Direction().left(180));
+            globalFilterLbl.applyMove = false;
 
             UI.runLater(() -> {
                 int idx = super.getParent().getChildren().indexOf(this);
                 super.getParent().addAtIndex(globalFilterLbl, idx);
+               
             });
         }
         if (globalFilterInput == null) {
@@ -448,7 +454,11 @@ public class Table extends SizedWidget {
             });
 
         } else {
-            globalFilterLbl.posX = globalFilterInput.posX - (globalFilterLbl.width);
+            if (appliedMpve == false) {
+                globalFilterLbl.applyMove = true;
+                appliedMpve = true;
+            }
+
         }
     }
 

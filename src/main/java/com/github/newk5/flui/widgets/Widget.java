@@ -39,6 +39,7 @@ public abstract class Widget {
     private Map<String, Object> data;
     protected Font fontObj;
     protected boolean disabled;
+    protected boolean applyMove=true;
 
     public Widget(String id) {
         this.id = id;
@@ -145,7 +146,7 @@ public abstract class Widget {
 
     protected void applyGeneralMove(JImGui imgui) {
 
-        if (move != null) {
+        if (move != null && applyMove) {
             if (move.getLeft() > 0) {
                 imgui.setCursorPosX(imgui.getCursorPosX() - move.getLeft());
                 posX = imgui.getCursorPosX();
@@ -195,6 +196,7 @@ public abstract class Widget {
                 }
                 posY = imgui.getCursorPosY();
             }
+            applyMove=false;
         }
     }
 

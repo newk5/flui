@@ -127,7 +127,7 @@ public abstract class SizedWidget extends Widget {
 
         Alignment a = super.getAlign();
         if (null != a) {
-
+            super.applyMove=true;
             switch (a) {
                 case TOP_LEFT:
                     super.posX(0);

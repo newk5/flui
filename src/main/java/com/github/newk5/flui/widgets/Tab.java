@@ -28,6 +28,7 @@ public class Tab extends SizedWidget {
     private int flags;
     private NativeBool b;
     protected float tabRounding = 4;
+    protected boolean reApplyChildrenSize;
 
     public Tab(String id) {
 
@@ -167,10 +168,16 @@ public class Tab extends SizedWidget {
                         applyRelativeSizeRecursivelyToParents(this);
                     }
                 }
-                imgui.beginChild0(childTitle, getWidth(), getHeight(), false);
-                children.forEach(child -> child.render(imgui));
+                if (imgui.beginChild0(childTitle, 0, 0, true)) {
+                    if (super.firstRenderLoop || reApplyChildrenSize){
+                        width= imgui.getContentRegionMaxX();
+                        height = imgui.getContentRegionMaxY();
+                        applyRelativeSizeToChildren();
+                    }
+                    children.forEach(child -> child.render(imgui));
 
-                imgui.endChild();
+                    imgui.endChild();
+                }
                 imgui.endTabItem();
             }
 
@@ -202,6 +209,7 @@ public class Tab extends SizedWidget {
             imgui.popFont();
         }
         imgui.popItemFlag();
+        super.firstRenderLoop=false;
     }
 
     public Tab alpha(final float alpha) {
