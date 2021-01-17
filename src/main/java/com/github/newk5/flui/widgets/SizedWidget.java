@@ -111,7 +111,7 @@ public abstract class SizedWidget extends Widget {
     }
 
     protected SizedWidget fill() {
-        SizedWidget.this.width("99.2%");
+        SizedWidget.this.width("100%");
         SizedWidget.this.height("100%");
         this.applyAlignment();
         return this;

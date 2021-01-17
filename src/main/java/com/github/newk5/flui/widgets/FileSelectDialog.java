@@ -34,6 +34,7 @@ public class FileSelectDialog extends SizedWidget {
     private JImStr filter;
     private JImStr jimStrID;
     private Consumer<File> onFileSelect;
+    JImFileDialog instance;
 
     public FileSelectDialog(String id) {
 
@@ -56,6 +57,7 @@ public class FileSelectDialog extends SizedWidget {
         title = new JImStr(JImFileDialog.Icons.FOLDER_OPEN + " Choose a any file");
         width = 400;
         height = 250;
+        instance = new JImFileDialog();
     }
 
     public static FileSelectDialog withID(String id) {
@@ -118,8 +120,7 @@ public class FileSelectDialog extends SizedWidget {
 
     public void close() {
         modal.modifyValue(false);
-        JImFileDialog instance = JImFileDialog.INSTANCE;
-        instance.closeDialog(jimStrID);
+        instance.close();
     }
 
     @Override
@@ -134,22 +135,24 @@ public class FileSelectDialog extends SizedWidget {
 
             imgui.getStyle().setTabRounding(rounding);
 
-            JImFileDialog instance = JImFileDialog.INSTANCE;
             if (modal.accessValue()) {
                 instance.openModal(jimStrID, title, filter, JImStr.EMPTY);
             }
-            if (instance.fileDialog(jimStrID, 0, width, height)) {
+            if (instance.display(jimStrID, 0, width, height)) {
                 if (instance.isOk()) {
+                    System.out.println(instance.currentFileName());
+                    System.out.println(instance.currentPath());
+                    System.out.println(instance.filePathName());
                     try (NativeString currentPath = instance.filePathName()) {
                         if (onFileSelect != null) {
                             onFileSelect.accept(new File(currentPath.toString()));
                         }
 
                     }
-                    
+
                 }
                 close();
-                instance.closeDialog(jimStrID);
+                instance.close();
 
             }
 

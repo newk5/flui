@@ -243,6 +243,8 @@ public class Window extends SizedWidget {
 
     private boolean allChildrenAdded;
 
+    private boolean applySize = true;
+
     @Override
     public void render(JImGui imgui) {
         if (!super.isHidden()) {
@@ -260,9 +262,10 @@ public class Window extends SizedWidget {
                 imgui.pushStyleColor(JImStyleColors.WindowBg, c);
             }
 
-            if (!resizable || !appliedSizeOnce) {
+            if ((!resizable || !appliedSizeOnce) && applySize) {
                 imgui.setNextWindowSize(super.getWidth() + imgui.getStyle().getWindowPaddingX(), super.getHeight() + imgui.getStyle().getWindowPaddingY());
                 appliedSizeOnce = true;
+                applySize = false;
             }
 
             imgui.getStyle().setWindowRounding(0);
@@ -274,14 +277,16 @@ public class Window extends SizedWidget {
 
                 width(newX);
                 height(newY);
+                applyRelativeSize();
                 applyRelativeSizeToChildren();
+                applySize=true;
                 if (onResize != null && resizable) {
 
                     onResize.accept(newX, newY);
 
                 }
             }
-           
+
             if (super.firstRenderLoop || allChildrenAdded) {
                 applyRelativeSizeToChildren();
                 allChildrenAdded = false;
@@ -299,7 +304,7 @@ public class Window extends SizedWidget {
                 reapplyAlign = false;
                 setAlignment(super.getAlign());
             }
-           
+
             imgui.end();
 
             imgui.popID();
