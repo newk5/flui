@@ -61,6 +61,20 @@ public class Tab extends SizedWidget {
         return this;
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public Tab disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     public static Tab withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {
@@ -139,7 +153,7 @@ public class Tab extends SizedWidget {
                 c = color.asVec4(c);
                 imgui.pushStyleColor(JImStyleColors.ChildBg, c);
             }
-         
+
             imgui.getStyle().setTabRounding(tabRounding);
             if (imgui.beginTabItem(title, b, JImTabItemFlags.Leading)) {
                 if (headerHeight == 0) {
@@ -153,7 +167,7 @@ public class Tab extends SizedWidget {
                         applyRelativeSizeRecursivelyToParents(this);
                     }
                 }
-                imgui.beginChild0(childTitle, getWidth(), getHeight(), true);
+                imgui.beginChild0(childTitle, getWidth(), getHeight(), false);
                 children.forEach(child -> child.render(imgui));
 
                 imgui.endChild();
@@ -187,6 +201,7 @@ public class Tab extends SizedWidget {
         if (super.font != null) {
             imgui.popFont();
         }
+        imgui.popItemFlag();
     }
 
     public Tab alpha(final float alpha) {
@@ -232,7 +247,7 @@ public class Tab extends SizedWidget {
             } else if (sw instanceof Canvas) {
                 Canvas c = (Canvas) sw;
                 c.applyRelativeSizeToChildren();
-            } 
+            }
         }
         this.children.add(w);
     }

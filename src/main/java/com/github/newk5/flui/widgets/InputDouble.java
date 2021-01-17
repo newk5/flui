@@ -84,6 +84,20 @@ public class InputDouble extends SizedWidget {
 
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public InputDouble disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     public InputDouble sameLine(final boolean value) {
         this.sameLine = value;
         return this;

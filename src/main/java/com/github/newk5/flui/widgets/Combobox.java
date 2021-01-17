@@ -86,6 +86,20 @@ public class Combobox extends SizedWidget {
 
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public Combobox disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     public Combobox sameLine(final boolean value) {
         this.sameLine = value;
         return this;
@@ -241,7 +255,6 @@ public class Combobox extends SizedWidget {
     public boolean isReadOnly() {
         return readOnly;
     }
-
 
     public JImVec4 getColor() {
         return color;

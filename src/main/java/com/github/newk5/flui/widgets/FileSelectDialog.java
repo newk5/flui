@@ -140,9 +140,6 @@ public class FileSelectDialog extends SizedWidget {
             }
             if (instance.display(jimStrID, 0, width, height)) {
                 if (instance.isOk()) {
-                    System.out.println(instance.currentFileName());
-                    System.out.println(instance.currentPath());
-                    System.out.println(instance.filePathName());
                     try (NativeString currentPath = instance.filePathName()) {
                         if (onFileSelect != null) {
                             onFileSelect.accept(new File(currentPath.toString()));

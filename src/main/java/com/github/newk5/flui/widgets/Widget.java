@@ -13,6 +13,7 @@ import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImFontAtlas;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStyleVars;
+import org.ice1000.jimgui.flag.JImItemFlags;
 
 public abstract class Widget {
 
@@ -37,6 +38,7 @@ public abstract class Widget {
     protected boolean deleteFlag;
     private Map<String, Object> data;
     protected Font fontObj;
+    protected boolean disabled;
 
     public Widget(String id) {
         this.id = id;
@@ -220,6 +222,8 @@ public abstract class Widget {
 
         imgui.pushStyleVar(JImStyleVars.Alpha, alpha);
 
+        imgui.pushItemFlag(JImItemFlags.Disabled, disabled);
+
     }
 
     protected void postRender(JImGui imgui) {
@@ -234,6 +238,8 @@ public abstract class Widget {
         if (fontObj != null) {
             imgui.popFont();
         }
+        imgui.popItemFlag();
+
     }
 
     public Alignment getAlign() {

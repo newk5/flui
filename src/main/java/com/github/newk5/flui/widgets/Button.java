@@ -14,6 +14,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVar;
 import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
+import org.ice1000.jimgui.flag.JImItemFlags;
 import vlsi.utils.CompactHashMap;
 
 public class Button extends SizedWidget {
@@ -107,6 +108,20 @@ public class Button extends SizedWidget {
         return this;
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public Button disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     @Override
     public void render(JImGui imgui) {
 
@@ -128,7 +143,7 @@ public class Button extends SizedWidget {
 
                 imgui.pushStyleColor(JImStyleColors.ButtonHovered, hoverColor);
             }
-
+          
             if (imgui.button(text)) {
                 if (actionClick != null) {
                     actionClick.accept(this);

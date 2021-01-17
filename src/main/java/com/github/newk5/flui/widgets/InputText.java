@@ -14,6 +14,7 @@ import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.NativeString;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
+import org.ice1000.jimgui.flag.JImItemFlags;
 import vlsi.utils.CompactHashMap;
 
 public class InputText extends SizedWidget {
@@ -64,9 +65,23 @@ public class InputText extends SizedWidget {
 
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public InputText disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     @Override
     protected void setup() {
-       value = new NativeString(50);
+        value = new NativeString(50);
     }
 
     public InputText sameLine(final boolean value) {

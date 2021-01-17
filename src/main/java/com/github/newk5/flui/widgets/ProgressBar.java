@@ -98,6 +98,20 @@ public class ProgressBar extends SizedWidget {
         return (ProgressBar) super.setAlignment(a);
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public ProgressBar disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     @Override
     public void render(JImGui imgui) {
 

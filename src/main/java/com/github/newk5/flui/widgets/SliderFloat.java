@@ -129,6 +129,20 @@ public class SliderFloat extends SizedWidget {
         return (SliderFloat) super.setAlignment(a);
     }
 
+    public boolean isDisabled() {
+        return super.disabled;
+    }
+
+    public SliderFloat disabled(final boolean value) {
+        super.disabled = value;
+        if (value) {
+            super.alpha(0.5f);
+        } else {
+            super.alpha(1);
+        }
+        return this;
+    }
+
     @Override
     public void render(JImGui imgui) {
 

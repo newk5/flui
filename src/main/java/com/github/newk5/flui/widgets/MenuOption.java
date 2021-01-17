@@ -86,7 +86,7 @@ public class MenuOption {
     }
 
     public MenuOption enabled(final boolean value) {
-        this.selected.modifyValue(value);
+        this.enabled=value;
         return this;
     }
 
