@@ -517,7 +517,7 @@ public class Table extends SizedWidget {
             if (globalFilter) {
                 drawGlobalFilter();
             }
-            if (imgui.beginTable(title, columns.size(), JImTableFlags.Sortable)) {
+            if (imgui.beginTable(title, columns.size(), flags)) {
                 this.applyStyles(imgui);
                //  JImSortDirection dir = JImSortDirection.Type.
                 rowsDrawn = 0;
