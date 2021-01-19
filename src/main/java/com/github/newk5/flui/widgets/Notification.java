@@ -7,17 +7,22 @@ import com.github.newk5.flui.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
+import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.flag.JImWindowFlags;
 import vlsi.utils.CompactHashMap;
 
-public class Window extends SizedWidget {
+public class Notification extends SizedWidget {
 
-    private static long windowsCounter = 0;
+    private static long counter = 0;
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<String, Long>();
 
@@ -27,11 +32,9 @@ public class Window extends SizedWidget {
     private JImVec4 c;
     private int flags;
     private boolean moveable;
-    private boolean resizable;
-    private boolean collapsible;
+
     private boolean showTitlebar;
     private boolean noBackground;
-    private boolean dontFocusOnClick = true;
 
     private boolean appliedSizeOnce;
     protected static float globalXPadding = -1;
@@ -39,23 +42,64 @@ public class Window extends SizedWidget {
 
     private BiConsumer<Float, Float> onResize;
     int iterations = 1;
+    private Button closeBtn;
+    private Label detailLbl;
+    private Label titleLbl;
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    public static Alignment ALIGN;
 
-    public Window(String id) {
+    private int timeout;
+
+    public Notification(String id) {
         super(id);
         init();
     }
 
     @Override
     protected void init() {
-        windowsCounter++;
-        this.index(windowsCounter);
-        idIndex.put(id, windowsCounter);
+        counter++;
+        this.index(counter);
+        idIndex.put(id, counter);
         instances.add(this);
         title = new JImStr(id);
+        showTitlebar = false;
+        moveable = false;
+        hidden(true);
+
+        width = 300;
+        height = 100;
+        if (ALIGN == null) {
+            ALIGN = Alignment.TOP_RIGHT;
+        }
+
+        closeBtn = new Button(id + "::CloseBtn").text("X").align(Alignment.TOP_RIGHT).rounding(10).move(new Direction().left("2%").down("5%")).onClick((btn) -> {
+            this.hide();
+        });
+        detailLbl = new Label(id + "::Detail").text("").wrap(true).align(Alignment.CENTER);
+        titleLbl = new Label(id + "::Title").wrap(true).text("").align(Alignment.TOP_LEFT).move(new Direction().right("2%").down("5%"));
+
+        align(ALIGN);
+        children(titleLbl,
+                closeBtn, detailLbl
+        );
+        applyAlignment();
         this.buildFlags();
+    }
+    private float totalHeight = 0f;
+
+    private float getTotalHeight() {
+        totalHeight = 0f;
+        instances.stream().filter(w -> !w.id.equals(id)).forEach(w -> {
+            Notification n = (Notification) w;
+            totalHeight += n.getHeight();
+            //System.out.println(f);
+
+        });
+        return totalHeight;
     }
 
     public void delete() {
+        hide();
         UI.runLater(() -> {
 
             if (deleteFlag) {
@@ -77,23 +121,78 @@ public class Window extends SizedWidget {
 
     }
 
-    public static Window withID(String id) {
+    public Notification buttonColor(Color c) {
+        this.closeBtn.color(c);
+        return this;
+    }
+
+    public Notification timeout(int ms) {
+        this.timeout = ms;
+        return this;
+    }
+
+    public Notification titleColor(Color c) {
+        this.titleLbl.color(c);
+        return this;
+    }
+
+    public Notification textFont(String f) {
+        this.detailLbl.font(f);
+        return this;
+    }
+
+    public Notification titleFont(String f) {
+        this.titleLbl.font(f);
+        return this;
+    }
+
+    public Notification textColor(Color c) {
+        this.detailLbl.color(c);
+        return this;
+    }
+
+    public Notification buttonColor(Color c, boolean generateNeighbouringColors) {
+        this.closeBtn.color(c, generateNeighbouringColors);
+        return this;
+    }
+
+    protected static void reApplyAlignmenToAll() {
+        instances.forEach(w -> {
+            Notification n = (Notification) w;
+            n.setAlignment(n.getAlign());
+        });
+    }
+
+    public Notification text(String t) {
+        this.detailLbl.text(t);
+
+        if (width < detailLbl.width * 2) {
+            width = detailLbl.width * 2;
+        }
+
+        return this;
+    }
+
+    public Notification title(String t) {
+        this.titleLbl.text(t);
+
+        if (width < titleLbl.width * 2) {
+            width = titleLbl.width * 2;
+        }
+
+        return this;
+    }
+
+    public static Notification withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {
             return null;
 
         }
-        return (Window) w;
+        return (Notification) w;
     }
 
-    public Window fill() {
-
-        super.fill();
-        this.applyRelativeSizeToChildren();
-        return this;
-    }
-
-    public Window font(String font) {
+    public Notification font(String font) {
         super.font = font;
         super.fontObj = Application.fonts.get(font);
         return this;
@@ -103,76 +202,15 @@ public class Window extends SizedWidget {
         return super.font;
     }
 
-    protected void applyRelativeSizeToChildren() {
-        this.children.stream().filter(child -> child instanceof SizedWidget).forEach(child -> {
-            SizedWidget w = (SizedWidget) child;
-            w.applyRelativeSize();
-            w.applyAlignment();
-            if (w instanceof Canvas) {
-                Canvas canvas = (Canvas) w;
-                if (!canvas.getChildren().isEmpty()) {
-                    canvas.applyRelativeSizeToChildren();
-                }
-            } else if (w instanceof Tabview) {
-                Tabview tv = (Tabview) w;
-                tv.size(getWidth(), getHeight() - tv.getYOffset());
-                tv.applyRelativeSizeToTabChildren();
-
-            }
-
-        });
-    }
-
-    public Window move(Direction d) {
+    public Notification move(Direction d) {
         super.move(d);
 
         return this;
     }
 
-    protected static void reApplyRelativeSize() {
-        instances.stream().filter(child -> child.getParent() == null)
-                .forEach(window -> {
-
-                    SizedWidget sw = (SizedWidget) window;
-                    if (sw.getRelativeSizeX() > 0 || sw.getRelativeSizeY() > 0) {
-
-                        sw.applyRelativeSize();
-                        sw.applyAlignment();
-
-                        sw.children.forEach(c -> {
-                            if (c instanceof SizedWidget) {
-                                SizedWidget sizedW = (SizedWidget) c;
-                                sizedW.applyRelativeSize();
-                                sizedW.applyAlignment();
-                            }
-                            if (c instanceof Canvas) {
-                                Canvas canvas = (Canvas) c;
-                                canvas.applyRelativeSizeToChildren();
-                            } else if (c instanceof Window) {
-                                Window w = (Window) c;
-                                w.applyRelativeSize();
-                                w.applyRelativeSizeToChildren();
-                            } else if (c instanceof Tabview) {
-                                Tabview tv = (Tabview) c;
-                                tv.size(sw.getWidth(), sw.getHeight());
-                                tv.applyRelativeSize();
-                                tv.applyRelativeSizeToTabChildren();
-                            }
-                        });
-
-                    }
-
-                });
-    }
-
-    public Window(String id, boolean child) {
-        super(id, child);
-        this.init();
-    }
-
     @Override
     public String toString() {
-        return "Window{ id= " + id + " }";
+        return "Notification{ id= " + id + " }";
     }
 
     private void applyMove(JImGui imgui) {
@@ -238,16 +276,12 @@ public class Window extends SizedWidget {
         flags = 0;
         flags |= JImWindowFlags.NoSavedSettings;
 
-        if (!moveable) {
-            flags |= JImWindowFlags.NoMove;
-        }
+        flags |= JImWindowFlags.NoMove;
 
-        if (!resizable) {
-            flags |= JImWindowFlags.NoResize;
-        }
-        if (!collapsible) {
-            flags |= JImWindowFlags.NoCollapse;
-        }
+        flags |= JImWindowFlags.NoResize;
+
+        flags |= JImWindowFlags.NoCollapse;
+
         if (!showTitlebar) {
             flags |= JImWindowFlags.NoTitleBar;
         }
@@ -255,15 +289,7 @@ public class Window extends SizedWidget {
             flags |= JImWindowFlags.NoBackground;
         }
 
-        if (dontFocusOnClick) {
-            flags |= JImWindowFlags.NoBringToFrontOnFocus;
-        }
-
     }
-
-    private boolean allChildrenAdded;
-
-    private boolean applySize = true;
 
     @Override
     public void render(JImGui imgui) {
@@ -272,49 +298,19 @@ public class Window extends SizedWidget {
                 imgui.pushFont(Application.fonts.get(font).getJimFont());
             }
             imgui.pushID(numId);
-            if (!moveable) {
-                float heightOffset = super.getParent() == null && relativeSizeY == 1 ? Topbar.height : 0f;
-                imgui.setNextWindowPos(super.getPosX(), super.getPosY() + heightOffset);
 
-            }
+            imgui.setNextWindowPos(super.getPosX(), super.getPosY());
+
             if (color != null) {
                 c = color.asVec4(c);
                 imgui.pushStyleColor(JImStyleColors.WindowBg, c);
             }
 
-            if ((!resizable || !appliedSizeOnce) && applySize) {
-                imgui.setNextWindowSize(super.getWidth() + imgui.getStyle().getWindowPaddingX(), super.getHeight() + imgui.getStyle().getWindowPaddingY());
-                appliedSizeOnce = true;
-                applySize = false;
-                reapplyAlign = true;
-            }
-
-            imgui.getStyle().setWindowRounding(0);
+            imgui.setNextWindowSize(super.getWidth(), super.getHeight());
+            imgui.pushStyleVar(JImStyleVars.WindowBorderSize, 2);
+            imgui.getStyle().setWindowRounding(4);
             imgui.begin(title, flags);
-            float newY = imgui.getContentRegionMaxY();
-            float newX = imgui.getContentRegionMaxX();
 
-            if (super.getWidth() != newX || super.getHeight() != newY) {
-
-                width(newX);
-                height(newY);
-                if (!resizable) {
-                    applyRelativeSize();
-                }
-                applyRelativeSizeToChildren();
-                applySize = true;
-
-                if (onResize != null && resizable) {
-
-                    onResize.accept(newX, newY);
-
-                }
-            }
-
-            if (super.firstRenderLoop || allChildrenAdded) {
-                applyRelativeSizeToChildren();
-                allChildrenAdded = false;
-            }
             this.applyMove(imgui);
 
             if (color != null) {
@@ -330,6 +326,8 @@ public class Window extends SizedWidget {
             }
 
             imgui.end();
+
+            imgui.popStyleVar();
 
             imgui.popID();
             firstRenderLoop = false;
@@ -358,17 +356,12 @@ public class Window extends SizedWidget {
         return super.getHeight();
     }
 
-    public Window position(float x, float y) {
+    public Notification position(float x, float y) {
         this.position(x, y);
         return this;
     }
 
-    public Window onResize(final BiConsumer<Float, Float> bc) {
-        this.onResize = bc;
-        return this;
-    }
-
-    public Window alpha(final float alpha) {
+    public Notification alpha(final float alpha) {
         super.alpha(alpha);
         return this;
     }
@@ -377,16 +370,59 @@ public class Window extends SizedWidget {
         return super.getAlpha();
     }
 
-    public Window align(Alignment a) {
-        return (Window) super.setAlignment(a);
+    private Notification align(Alignment a) {
+
+        if (null != a) {
+            applyMove = true;
+            switch (a) {
+                case TOP_LEFT:
+                    this.move(new Direction().right(10).down(15));
+                    break;
+                case TOP_CENTER:
+                    this.move(new Direction().down(15));
+                    break;
+                case TOP_RIGHT:
+                    this.move(new Direction().left(10).down(15));
+                    break;
+                case MID_LEFT:
+                    this.move(new Direction().right(15));
+                    break;
+                case CENTER:
+
+                    break;
+                case MID_RIGHT:
+                    this.move(new Direction().left(10));
+                    break;
+                case BOTTOM_LEFT:
+                    this.move(new Direction().right(10).up(45));
+
+                    break;
+                case BOTTOM_CENTER:
+                    this.move(new Direction().up(45));
+
+                    break;
+                case BOTTOM_RIGHT:
+                    this.move(new Direction().left(10).up(45));
+                    break;
+                case CENTER_H:
+
+                    break;
+                case CENTER_V:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return (Notification) super.setAlignment(a);
     }
 
-    public Window children(Widget... widgets) {
+    public Notification children(Widget... widgets) {
         for (Widget w : widgets) {
 
             add(w);
         }
-        // allChildrenAdded=true;
         return this;
     }
 
@@ -397,11 +433,7 @@ public class Window extends SizedWidget {
             SizedWidget sw = ((SizedWidget) w);
             sw.applyRelativeSize();
             sw.applyAlignment();
-            if (sw instanceof Tabview) {
-                Tabview t = (Tabview) sw;
-                t.size(getWidth(), getHeight() - t.getYOffset());
 
-            }
         }
         this.children.add(w);
     }
@@ -413,47 +445,84 @@ public class Window extends SizedWidget {
             SizedWidget sw = ((SizedWidget) w);
             sw.applyRelativeSize();
             sw.applyAlignment();
-            if (sw instanceof Tabview) {
-                Tabview t = (Tabview) sw;
-                t.size(getWidth(), getHeight() - t.getYOffset());
-
-            }
         }
         this.children.add(idx, w);
     }
 
-    public Window width(final float value) {
+    public Notification width(final float value) {
         super.width(value);
         return this;
     }
 
-    public Window height(final float value) {
+    public Notification height(final float value) {
         super.height(value);
         return this;
     }
 
-    public Window width(final String widthPercent) {
+    public Notification width(final String widthPercent) {
         super.width(widthPercent);
         return this;
     }
 
-    public Window height(final String heightPercent) {
+    public Notification height(final String heightPercent) {
         super.height(heightPercent);
         return this;
     }
 
-    public Window hidden(final boolean value) {
-        super.hidden(value);
+    public Notification show() {
+        super.hidden(false);
+
+        instances.stream().filter(w -> !w.id.equals(id)).forEach(w -> {
+            Notification n = (Notification) w;
+            if (n.getMove() != null && !n.isHidden()) {
+                if (ALIGN == Alignment.TOP_CENTER || ALIGN == Alignment.TOP_LEFT || ALIGN == Alignment.TOP_RIGHT) {
+                    n.getMove().down(n.getMove().getDown() + n.height + 15);
+                } else if (ALIGN == Alignment.BOTTOM_CENTER || ALIGN == Alignment.BOTTOM_LEFT || ALIGN == Alignment.BOTTOM_RIGHT) {
+                    n.getMove().up(n.getMove().getUp() + n.height + 15);
+                }
+                n.applyMove = true;
+            }
+
+        });
+        if (timeout > 0) {
+
+            executor.schedule(() -> {
+                if (!isHidden()) {
+                    hidden(true);
+                }
+            }, timeout, TimeUnit.MILLISECONDS);
+
+        }
 
         return this;
     }
 
-    public Window title(final String value) {
-        this.title = new JImStr(value);
+    public Notification hide() {
+        super.hidden(true);
+
+        instances.stream()
+                .filter(w -> !w.id.equals(id))
+                .filter(w -> w.numId < numId)
+                .forEach(w -> {
+
+                    Notification n = (Notification) w;
+                    if (n.getMove() != null && !n.isHidden()) {
+                        if (ALIGN == Alignment.TOP_CENTER || ALIGN == Alignment.TOP_LEFT || ALIGN == Alignment.TOP_RIGHT) {
+                            n.getMove().down(n.getMove().getDown() - (n.height + 15));
+
+                        } else if (ALIGN == Alignment.BOTTOM_CENTER || ALIGN == Alignment.BOTTOM_LEFT || ALIGN == Alignment.BOTTOM_RIGHT) {
+                            n.getMove().down(n.getMove().getDown() + (n.height - 15));
+                        }
+                        n.reapplyAlign = true;
+                        n.applyMove = true;
+                    }
+
+                });
+
         return this;
     }
 
-    public Window color(final Color value) {
+    public Notification color(final Color value) {
         this.color = value;
         return this;
     }
@@ -466,37 +535,19 @@ public class Window extends SizedWidget {
         return color;
     }
 
-    public Window size(float width, float height) {
+    public Notification sizeAndRealign(float width, float height) {
         this.width(width);
         this.height(height);
         return this;
     }
 
-    public Window moveable(final boolean value) {
-        this.moveable = value;
-        this.buildFlags();
+    public Notification size(float width, float height) {
+        this.width = width;
+        this.height = height;
         return this;
     }
 
-    public Window resizable(final boolean value) {
-        this.resizable = value;
-        this.buildFlags();
-        return this;
-    }
-
-    public Window collapsible(final boolean value) {
-        this.collapsible = value;
-        this.buildFlags();
-        return this;
-    }
-
-    public Window showTitlebar(final boolean value) {
-        this.showTitlebar = value;
-        this.buildFlags();
-        return this;
-    }
-
-    public Window noBackground(final boolean value) {
+    public Notification noBackground(final boolean value) {
         this.noBackground = value;
         this.buildFlags();
         return this;

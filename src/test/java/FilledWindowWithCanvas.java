@@ -1,6 +1,7 @@
 
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Canvas;
@@ -10,6 +11,7 @@ import com.github.newk5.flui.widgets.InputText;
 import com.github.newk5.flui.widgets.Label;
 import com.github.newk5.flui.widgets.Menu;
 import com.github.newk5.flui.widgets.MenuOption;
+import com.github.newk5.flui.widgets.Notification;
 import com.github.newk5.flui.widgets.Popup;
 import com.github.newk5.flui.widgets.RadioGroup;
 import com.github.newk5.flui.widgets.SliderFloat;

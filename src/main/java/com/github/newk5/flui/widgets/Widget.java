@@ -175,8 +175,6 @@ public abstract class Widget {
                 posY = imgui.getCursorPosY();
             } else if (move.getUpRelative() > 0) {
                 if (getParent() == null) {
-
-                    //imgui.setNextWindowPos(posX, imgui.getCursorPosY() - (UI.windowHeight * move.getUpRelative()));
                     imgui.setCursorPosY(imgui.getCursorPosY() - (UI.windowHeight * move.getUpRelative()));
                 } else {
                     imgui.setCursorPosY(imgui.getCursorPosY() - (getParent().getHeight() * move.getUpRelative()));

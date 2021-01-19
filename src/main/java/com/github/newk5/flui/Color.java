@@ -30,6 +30,20 @@ public class Color {
         return new JImVec4(red, green, blue, alpha);
     }
 
+    public Color getNeighborColor1() {
+        int r = (int) (red * 255);
+        int g = (int) (green * 255);
+        int b = (int) (blue * 255);
+        return new Color(r - 15, g - 15, b - 15);
+    }
+
+    public Color getNeighborColor2() {
+        int r = (int) (red * 255);
+        int g = (int) (green * 255);
+        int b = (int) (blue * 255);
+        return new Color(r + 15, g + 15, b + 15);
+    }
+
     public JImVec4 asVec4(JImVec4 v) {
         if (v != null) {
             return v;

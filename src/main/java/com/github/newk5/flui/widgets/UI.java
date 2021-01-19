@@ -75,6 +75,7 @@ public class UI {
                     UI.windowWidth = jimgui.getPlatformWindowSizeX();
                     Window.reApplyRelativeSize();
                     Popup.reApplyRelativeSize();
+                    Notification.reApplyAlignmenToAll();
                     if (resizeEventSerializableConsumer != null) {
 
                         resizeEventSerializableConsumer.accept(resizeEvent);

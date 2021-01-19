@@ -35,6 +35,7 @@ import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.NativeString;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
+import org.ice1000.jimgui.flag.JImSortDirection;
 import org.ice1000.jimgui.flag.JImTableFlags;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 import vlsi.utils.CompactHashMap;
@@ -250,7 +251,7 @@ public class Table extends SizedWidget {
 
                 return !cells.isEmpty();
             }).collect(Collectors.toList());
-        }else{
+        } else {
             clearGlobalFilter();
         }
         updatePaginator();
@@ -434,13 +435,13 @@ public class Table extends SizedWidget {
 
     private void drawGlobalFilter() {
         if (globalFilterLbl == null) {
-            globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true).move(new Direction().left(180));
+            globalFilterLbl = new Label(id + ":GlobalFilterLbl").text("Filter: ").align(Alignment.TOP_RIGHT).sameLine(true).move(new Direction().left(160));
             globalFilterLbl.applyMove = false;
 
             UI.runLater(() -> {
                 int idx = super.getParent().getChildren().indexOf(this);
                 super.getParent().addAtIndex(globalFilterLbl, idx);
-               
+
             });
         }
         if (globalFilterInput == null) {
@@ -511,13 +512,14 @@ public class Table extends SizedWidget {
     protected void render(JImGui imgui) {
         if (!super.isHidden()) {
 
+            long start = System.currentTimeMillis();
             super.preRender(imgui);
             if (globalFilter) {
                 drawGlobalFilter();
             }
-            if (imgui.beginTable(title, columns.size(), flags)) {
+            if (imgui.beginTable(title, columns.size(), JImTableFlags.Sortable)) {
                 this.applyStyles(imgui);
-
+               //  JImSortDirection dir = JImSortDirection.Type.
                 rowsDrawn = 0;
 
                 for (int i = offset; i < getData().size(); i++) {
@@ -536,8 +538,12 @@ public class Table extends SizedWidget {
                 }
 
             }
-
+            long end = System.currentTimeMillis();
+            if (super.firstRenderLoop) {
+                System.out.println(rowsDrawn + " rows drawn in " + (end - start) + "ms");
+            }
             super.postRender(imgui);
+
         }
     }
 

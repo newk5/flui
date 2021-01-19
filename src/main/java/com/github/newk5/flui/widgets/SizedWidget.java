@@ -127,7 +127,7 @@ public abstract class SizedWidget extends Widget {
 
         Alignment a = super.getAlign();
         if (null != a) {
-            super.applyMove=true;
+            super.applyMove = true;
             switch (a) {
                 case TOP_LEFT:
                     super.posX(0);
@@ -139,6 +139,9 @@ public abstract class SizedWidget extends Widget {
                     break;
                 case TOP_RIGHT:
                     super.posX(w - width);
+                    if (super.getParent() == null) {
+                        posX -= 16;
+                    }
                     super.posY(0);
                     break;
                 case MID_LEFT:
@@ -152,6 +155,9 @@ public abstract class SizedWidget extends Widget {
                     break;
                 case MID_RIGHT:
                     super.posX(w - width);
+                    if (super.getParent() == null) {
+                        posX -= 16;
+                    }
                     super.posY(h / 2 - height / 2);
                     break;
                 case BOTTOM_LEFT:
@@ -166,6 +172,9 @@ public abstract class SizedWidget extends Widget {
                     break;
                 case BOTTOM_RIGHT:
                     super.posX(w - width);
+                    if (super.getParent() == null) {
+                        posX -= 16;
+                    }
                     super.posY(h - height);
                     break;
                 case CENTER_H:

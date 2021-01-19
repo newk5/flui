@@ -143,7 +143,7 @@ public class Button extends SizedWidget {
 
                 imgui.pushStyleColor(JImStyleColors.ButtonHovered, hoverColor);
             }
-          
+
             if (imgui.button(text)) {
                 if (actionClick != null) {
                     actionClick.accept(this);
@@ -261,6 +261,16 @@ public class Button extends SizedWidget {
     public Button color(final Color value) {
         this.c = value;
         this.color = null;
+        return this;
+    }
+
+    public Button color(final Color value, boolean generateNeighbouringColors) {
+        this.c = value;
+        this.color = null;
+        if (generateNeighbouringColors) {
+            hoverColor(c.getNeighborColor1());
+            activeColor(c.getNeighborColor2());
+        }
         return this;
     }
 

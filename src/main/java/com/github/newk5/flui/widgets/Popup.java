@@ -14,6 +14,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.NativeBool;
+import org.ice1000.jimgui.flag.JImPopupFlags;
 import vlsi.utils.CompactHashMap;
 
 public class Popup extends SizedWidget {
@@ -30,6 +31,8 @@ public class Popup extends SizedWidget {
     private boolean border;
     private NativeBool opened = new NativeBool();
     private boolean open = false;
+    private boolean modal = true;
+    private boolean close;
 
     public Popup(String id) {
         super(id);
@@ -43,8 +46,6 @@ public class Popup extends SizedWidget {
         idIndex.put(id, popupCounter);
         instances.add(this);
         title = new JImStr(id);
-
-        move(new Direction().up("50%"));
 
     }
 
@@ -67,6 +68,11 @@ public class Popup extends SizedWidget {
 
         });
 
+    }
+
+    public Popup move(Direction m) {
+        super.move(m);
+        return this;
     }
 
     public static Popup withID(String id) {
@@ -101,20 +107,19 @@ public class Popup extends SizedWidget {
         return this;
     }
 
-    protected Popup move(Direction d) {
-        super.move(d);
-        return this;
-    }
+
 
     public void open() {
         open = true;
         opened.modifyValue(open);
         reapplyPos = true;
+        close = false;
     }
 
     public void close() {
         open = false;
         opened.modifyValue(open);
+        close = true;
     }
 
     protected static void reApplyRelativeSize() {
@@ -292,17 +297,18 @@ public class Popup extends SizedWidget {
         if (!super.isHidden()) {
             preRender(imgui);
 
+            if (reapplyPos) {
+
+                imgui.setNextWindowSize(width + offsetX, height + offsetY);
+                applyAlignment();
+                imgui.setNextWindowPos(super.getPosX(), super.getPosY());
+                this.applyMove(imgui);
+                reapplyPos = false;
+            }
             if (open) {
-                if (reapplyPos) {
 
-                    imgui.setNextWindowSize(width + offsetX, height + offsetY);
-                    applyAlignment();
-                    imgui.setNextWindowPos(super.getPosX(), super.getPosY());
-                    this.applyMove(imgui);
-                    reapplyPos = false;
-                }
                 imgui.openPopup(title);
-
+                open = false;
             }
 
             if (color != null) {
@@ -317,29 +323,47 @@ public class Popup extends SizedWidget {
 
                 }
             }
+            if (modal) {
+                if (imgui.beginPopupModal(title, opened)) {
 
-            if (imgui.beginPopupModal(title, opened)) {
+                    float newY = imgui.getContentRegionMaxY();
+                    float newX = imgui.getContentRegionMaxX();
+                    offsetX = width - newX;
+                    offsetY = height - newY;
 
-                float newY = imgui.getContentRegionMaxY();
-                float newX = imgui.getContentRegionMaxX();
-                offsetX = width - newX;
-                offsetY = height - newY;
+                    if (super.width != newX || super.height != newY) {
+                        width(newX);
+                        height(newY);
+                        applyRelativeSizeToChildren();
+                    }
 
-                if (super.width != newX || super.height != newY) {
-                    width(newX);
-                    height(newY);
-                    applyRelativeSizeToChildren();
+                    for (Widget w : children) {
+                        w.render(imgui);
+                    }
+                    if (color != null) {
+                        imgui.popStyleColor();
+                    }
+                    imgui.endPopup();
+                } else {
+                    open = false;
                 }
-
-                for (Widget w : children) {
-                    w.render(imgui);
-                }
-                if (color != null) {
-                    imgui.popStyleColor();
-                }
-                imgui.endPopup();
             } else {
-                open = false;
+                if (imgui.beginPopup(title, JImPopupFlags.NoOpenOverItems)) {
+
+                    for (Widget w : children) {
+                        w.render(imgui);
+                    }
+                    if (color != null) {
+                        imgui.popStyleColor();
+                    }
+                    if (close) {
+                        imgui.closeCurrentPopup();
+                        close = false;
+                    }
+                    imgui.endPopup();
+                } else {
+                    open = false;
+                }
             }
 
             postRender(imgui);
@@ -349,15 +373,10 @@ public class Popup extends SizedWidget {
     }
 
     protected void postRender(JImGui imgui) {
-        /*if (super.reapplyAlign && super.getAlign() != null) {
-        super.reapplyAlign = false;
-        applyAlignment();
-        reapplyPos = true;
-        }*/
         imgui.popStyleVar();
         if (super.fontObj != null && super.fontObj.getJimFont() != null) {
             imgui.popFont();
-            
+
         }
         imgui.popID();
 
@@ -429,13 +448,9 @@ public class Popup extends SizedWidget {
         return this;
     }
 
-    public Popup border(final boolean border) {
-        this.border = border;
+    public Popup modal(final boolean modal) {
+        this.modal = modal;
         return this;
-    }
-
-    public boolean hasBorder() {
-        return border;
     }
 
     public float getAlpha() {
