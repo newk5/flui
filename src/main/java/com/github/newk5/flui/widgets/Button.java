@@ -25,12 +25,9 @@ public class Button extends SizedWidget {
 
     private JImStr text = new JImStr("");
 
-    private JImVec4 color;
-    private JImVec4 hoverColor;
-    private JImVec4 activeColor;
-    private Color c;
-    private Color hC;
-    private Color activeC;
+    private Color color;
+    private Color hoverColor;
+    private Color activeColor;
 
     SerializableConsumer<Button> onHover;
     SerializableConsumer<Button> actionClick;
@@ -128,20 +125,18 @@ public class Button extends SizedWidget {
         if (!super.isHidden()) {
             super.preRender(imgui);
             imgui.pushStyleVar(JImStyleVars.FrameRounding, rounding);
-            if (c != null) {
-                color = c.asVec4(color);
-                imgui.pushStyleColor(JImStyleColors.Button, color);
+            if (color != null) {
+
+                imgui.pushStyleColor(JImStyleColors.Button, color.asVec4());
             }
 
-            if (activeC != null) {
-                activeColor = activeC.asVec4(activeColor);
+            if (activeColor != null) {
 
-                imgui.pushStyleColor(JImStyleColors.ButtonActive, activeColor);
+                imgui.pushStyleColor(JImStyleColors.ButtonActive, activeColor.asVec4());
             }
-            if (hC != null) {
-                hoverColor = hC.asVec4(hoverColor);
+            if (hoverColor != null) {
 
-                imgui.pushStyleColor(JImStyleColors.ButtonHovered, hoverColor);
+                imgui.pushStyleColor(JImStyleColors.ButtonHovered, hoverColor.asVec4());
             }
 
             if (imgui.button(text)) {
@@ -151,13 +146,13 @@ public class Button extends SizedWidget {
 
             }
 
-            if (c != null) {
+            if (color != null) {
                 imgui.popStyleColor();
             }
-            if (activeC != null) {
+            if (activeColor != null) {
                 imgui.popStyleColor();
             }
-            if (hC != null) {
+            if (activeColor != null) {
                 imgui.popStyleColor();
             }
 
@@ -198,15 +193,15 @@ public class Button extends SizedWidget {
         return new String(text.bytes);
     }
 
-    public JImVec4 getColor() {
+    public Color getColor() {
         return color;
     }
 
-    public JImVec4 getHoverColor() {
+    public Color getHoverColor() {
         return hoverColor;
     }
 
-    public JImVec4 getActiveColor() {
+    public Color getActiveColor() {
         return activeColor;
     }
 
@@ -259,30 +254,29 @@ public class Button extends SizedWidget {
     }
 
     public Button color(final Color value) {
-        this.c = value;
-        this.color = null;
+
+        this.color = value;
         return this;
     }
 
     public Button color(final Color value, boolean generateNeighbouringColors) {
-        this.c = value;
-        this.color = null;
+        this.color = value;
         if (generateNeighbouringColors) {
-            hoverColor(c.getNeighborColor1());
-            activeColor(c.getNeighborColor2());
+            hoverColor(color.getNeighborColor1());
+            activeColor(color.getNeighborColor2());
         }
         return this;
     }
 
     public Button hoverColor(final Color value) {
-        this.hC = value;
-        this.hoverColor = null;
+
+        this.hoverColor = value;
         return this;
     }
 
     public Button activeColor(final Color value) {
-        this.activeC = value;
-        this.activeColor = null;
+
+        this.activeColor = value;
         return this;
     }
 

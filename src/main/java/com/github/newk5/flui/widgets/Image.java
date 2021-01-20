@@ -29,7 +29,7 @@ public class Image extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
+
     SerializableConsumer<Image> onHover;
     private File sourceFile;
     private byte[] sourceBytes;
@@ -105,13 +105,16 @@ public class Image extends SizedWidget {
 
             }
             if (borderColor != null) {
-                imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4(borderColorV));
+                imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4());
             }
             if (img != null) {
                 imgui.image(img, super.getWidth(), super.getHeight());
 
             }
 
+            if (borderColor != null) {
+                imgui.popStyleColor();
+            }
             if (hasSetBorderSize) {
                 imgui.popStyleVar();
             }

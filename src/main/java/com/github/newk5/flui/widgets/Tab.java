@@ -24,7 +24,7 @@ public class Tab extends SizedWidget {
     private JImStr childTitle = new JImStr("child");
     //background color
     private Color color;
-    private JImVec4 c;
+
     private int flags;
     private NativeBool b;
     protected float tabRounding = 4;
@@ -151,8 +151,8 @@ public class Tab extends SizedWidget {
             super.preRender(imgui);
 
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.ChildBg, c);
+               
+                imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
 
             imgui.getStyle().setTabRounding(tabRounding);

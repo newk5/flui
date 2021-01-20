@@ -8,6 +8,7 @@ public class Color {
     private float green;
     private float blue;
     private float alpha;
+    private JImVec4 nativeInstance;
 
     public Color() {
     }
@@ -27,30 +28,26 @@ public class Color {
     }
 
     public JImVec4 asVec4() {
-        return new JImVec4(red, green, blue, alpha);
-    }
-
-    public Color getNeighborColor1() {
-        int r = (int) (red * 255);
-        int g = (int) (green * 255);
-        int b = (int) (blue * 255);
-        return new Color(r - 15, g - 15, b - 15);
+        if (nativeInstance == null) {
+            nativeInstance = new JImVec4(red, green, blue, alpha);
+        }
+       return nativeInstance;
     }
 
     public Color getNeighborColor2() {
         int r = (int) (red * 255);
         int g = (int) (green * 255);
         int b = (int) (blue * 255);
-        return new Color(r + 15, g + 15, b + 15);
+        return new Color(r - 50, g - 50, b -50);
     }
 
-    public JImVec4 asVec4(JImVec4 v) {
-        if (v != null) {
-            return v;
-        }
-        v = new JImVec4(red, green, blue, alpha);
-        return v;
+    public Color getNeighborColor1() {
+        int r = (int) (red * 255);
+        int g = (int) (green * 255);
+        int b = (int) (blue * 255);
+        return new Color(r + 50, g + 50, b + 50);
     }
+
 
     public float getRed() {
         return red;

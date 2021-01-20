@@ -26,7 +26,6 @@ public class Popup extends SizedWidget {
     private JImStr title;
     //background color
     private Color color;
-    private JImVec4 c;
 
     private boolean border;
     private NativeBool opened = new NativeBool();
@@ -106,8 +105,6 @@ public class Popup extends SizedWidget {
         });
         return this;
     }
-
-
 
     public void open() {
         open = true;
@@ -312,8 +309,8 @@ public class Popup extends SizedWidget {
             }
 
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.ChildBg, c);
+
+                imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
 
             imgui.getStyle().setWindowRounding(0);

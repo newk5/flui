@@ -27,7 +27,7 @@ public class Tabview extends SizedWidget {
     private JImStr title = new JImStr("");
     //background color
     private Color color;
-    private JImVec4 c;
+
     private int flags;
     protected float tabRounding = 4;
     protected float tabSpacing= 4;
@@ -160,8 +160,8 @@ public class Tabview extends SizedWidget {
             super.preRender(imgui);
 
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.ChildBg, c);
+
+                imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
             imgui.pushStyleVar(JImStyleVars.ItemInnerSpacing,tabSpacing,4);
             if (imgui.beginTabBar(title,JImTabBarFlags.None)) {

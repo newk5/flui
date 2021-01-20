@@ -24,7 +24,7 @@ public class Window extends SizedWidget {
     private JImStr title = new JImStr("");
     //background color
     private Color color;
-    private JImVec4 c;
+
     private int flags;
     private boolean moveable;
     private boolean resizable;
@@ -278,8 +278,8 @@ public class Window extends SizedWidget {
 
             }
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.WindowBg, c);
+              
+                imgui.pushStyleColor(JImStyleColors.WindowBg, color.asVec4());
             }
 
             if ((!resizable || !appliedSizeOnce) && applySize) {

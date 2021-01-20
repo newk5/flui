@@ -23,12 +23,9 @@ public class InputText extends SizedWidget {
     private static CopyOnWriteArrayList<Widget> instances = new CopyOnWriteArrayList<>();
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<String, Long>();
 
-    private JImVec4 color;
-    private JImVec4 hoverColor;
-    private JImVec4 activeColor;
-    private Color c;
-    private Color hC;
-    private Color activeC;
+    private Color color;
+    private Color hoverColor;
+    private Color activeColor;
 
     private int flags;
     private boolean readOnly;
@@ -39,7 +36,7 @@ public class InputText extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
+
     private SerializableConsumer<InputText> onChange;
     private SerializableConsumer<InputText> onHover;
     private JImStr label = new JImStr("");
@@ -136,8 +133,8 @@ public class InputText extends SizedWidget {
                 imgui.pushItemWidth(super.getWidth());
             }
 
-            if (c != null) {
-                imgui.pushStyleColor(JImStyleColors.FrameBg, c.asVec4(color));
+            if (color != null) {
+                imgui.pushStyleColor(JImStyleColors.FrameBg, color.asVec4());
             }
 
             if (hasSetBorderRounding) {
@@ -148,7 +145,7 @@ public class InputText extends SizedWidget {
 
             }
             if (borderColor != null) {
-                imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4(borderColorV));
+                imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4());
             }
 
             if (imgui.inputText(label, value, flags)) {
@@ -163,10 +160,13 @@ public class InputText extends SizedWidget {
             if (hasSetBorderRounding) {
                 imgui.popStyleVar();
             }
+            if (borderColor != null) {
+                imgui.popStyleColor();
+            }
             if (super.getWidth() > 0) {
                 imgui.popItemWidth();
             }
-            if (c != null) {
+            if (color != null) {
                 imgui.popStyleColor();
             }
             if (imgui.isItemHovered()) {
@@ -250,15 +250,15 @@ public class InputText extends SizedWidget {
         return value.toString();
     }
 
-    public JImVec4 getColor() {
+    public Color getColor() {
         return color;
     }
 
-    public JImVec4 getHoverColor() {
+    public Color getHoverColor() {
         return hoverColor;
     }
 
-    public JImVec4 getActiveColor() {
+    public Color getActiveColor() {
         return activeColor;
     }
 
@@ -323,20 +323,20 @@ public class InputText extends SizedWidget {
     }
 
     public InputText color(final Color value) {
-        this.c = value;
-        this.color = null;
+
+        this.color = value;
         return this;
     }
 
     public InputText hoverColor(final Color value) {
-        this.hC = value;
-        this.hoverColor = null;
+
+        this.hoverColor = value;
         return this;
     }
 
     public InputText activeColor(final Color value) {
-        this.activeC = value;
-        this.activeColor = null;
+
+        this.activeColor = value;
         return this;
     }
 

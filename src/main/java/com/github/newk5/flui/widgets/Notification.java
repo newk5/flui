@@ -29,7 +29,7 @@ public class Notification extends SizedWidget {
     private JImStr title = new JImStr("");
     //background color
     private Color color;
-    private JImVec4 c;
+
     private int flags;
     private boolean moveable;
 
@@ -302,8 +302,8 @@ public class Notification extends SizedWidget {
             imgui.setNextWindowPos(super.getPosX(), super.getPosY());
 
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.WindowBg, c);
+
+                imgui.pushStyleColor(JImStyleColors.WindowBg, color.asVec4());
             }
 
             imgui.setNextWindowSize(super.getWidth(), super.getHeight());

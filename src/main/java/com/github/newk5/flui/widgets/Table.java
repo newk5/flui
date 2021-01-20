@@ -76,11 +76,9 @@ public class Table extends SizedWidget {
     private Font headerFont;
     private Font rowFont;
 
-    private JImVec4 headerTextColor;
-    private JImVec4 rowTextColor;
+    private Color headerTextColor;
+    private Color rowTextColor;
 
-    private Color headerTextCol;
-    private Color rowTextCol;
     private boolean globalFilter;
     private String globalExpr = "";
     private boolean selectable;
@@ -381,8 +379,8 @@ public class Table extends SizedWidget {
                 if (rowFont != null) {
                     imgui.pushFont(rowFont.getJimFont());
                 }
-                if (rowTextCol != null) {
-                    imgui.pushStyleColor(JImStyleColors.Text, rowTextCol.asVec4(rowTextColor));
+                if (rowTextColor != null) {
+                    imgui.pushStyleColor(JImStyleColors.Text, rowTextColor.asVec4());
                 }
                 if (selectable) {
                     if (imgui.selectable0(cell.getValue(), cell.getSelected(), JImSelectableFlags.SpanAllColumns)) {
@@ -405,7 +403,7 @@ public class Table extends SizedWidget {
                 if (rowFont != null) {
                     imgui.popFont();
                 }
-                if (rowTextCol != null) {
+                if (rowTextColor != null) {
                     imgui.popStyleColor();
                 }
 
@@ -419,15 +417,15 @@ public class Table extends SizedWidget {
         if (headerFont != null) {
             imgui.pushFont(headerFont.getJimFont());
         }
-        if (headerTextCol != null) {
-            imgui.pushStyleColor(JImStyleColors.Text, headerTextCol.asVec4(headerTextColor));
+        if (headerTextColor != null) {
+            imgui.pushStyleColor(JImStyleColors.Text, headerTextColor.asVec4());
         }
         columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
         imgui.tableHeadersRow();
         if (headerFont != null) {
             imgui.popFont();
         }
-        if (headerTextCol != null) {
+        if (headerTextColor != null) {
             imgui.popStyleColor();
         }
     }
@@ -519,7 +517,7 @@ public class Table extends SizedWidget {
             }
             if (imgui.beginTable(title, columns.size(), flags)) {
                 this.applyStyles(imgui);
-               //  JImSortDirection dir = JImSortDirection.Type.
+                //  JImSortDirection dir = JImSortDirection.Type.
                 rowsDrawn = 0;
 
                 for (int i = offset; i < getData().size(); i++) {
@@ -568,7 +566,7 @@ public class Table extends SizedWidget {
     }
 
     public Table headerTextColor(Color c) {
-        this.headerTextCol = c;
+        this.headerTextColor = c;
         return this;
     }
 
@@ -582,7 +580,7 @@ public class Table extends SizedWidget {
     }
 
     public Table rowsTextColor(Color c) {
-        this.rowTextCol = c;
+        this.rowTextColor = c;
         return this;
     }
 

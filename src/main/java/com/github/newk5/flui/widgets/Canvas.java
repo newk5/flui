@@ -21,7 +21,6 @@ public class Canvas extends SizedWidget {
     private JImStr title;
     //background color
     private Color color;
-    private JImVec4 c;
     private boolean border;
 
     public Canvas(String id) {
@@ -197,8 +196,8 @@ public class Canvas extends SizedWidget {
             super.preRender(imgui);
 
             if (color != null) {
-                c = color.asVec4(c);
-                imgui.pushStyleColor(JImStyleColors.ChildBg, c);
+
+                imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
 
             this.applyMove(imgui);
@@ -303,7 +302,7 @@ public class Canvas extends SizedWidget {
             } else if (sw instanceof Canvas) {
                 Canvas c = (Canvas) sw;
                 c.applyRelativeSizeToChildren();
-            } 
+            }
         }
         this.children.add(w);
     }

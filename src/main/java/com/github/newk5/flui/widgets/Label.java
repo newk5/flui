@@ -24,10 +24,9 @@ public class Label extends SizedWidget {
     private SerializableConsumer<Label> onClick;
     private SerializableConsumer<Label> onHover;
 
-    private JImVec4 color;
-    private JImVec4 hoverColor;
-    private JImVec4 activeColor;
-    private Color c;
+    private Color color;
+    private Color hoverColor;
+
     private boolean wrap;
 
     public Label(String id) {
@@ -113,13 +112,10 @@ public class Label extends SizedWidget {
 
             if (text != null) {
 
-                if (c != null) {
-                    this.color = c.asVec4(color);
-                }
                 if (wrap) {
                     imgui.textWrapped(jtext);
                 } else if (color != null) {
-                    imgui.textColored(color, jtext);
+                    imgui.textColored(color.asVec4(), jtext);
                 } else {
                     imgui.text(jtext);
                 }
@@ -169,16 +165,8 @@ public class Label extends SizedWidget {
         return super.getHeight();
     }
 
-    public JImVec4 getColor() {
+    public Color getColor() {
         return color;
-    }
-
-    public JImVec4 getHoverColor() {
-        return hoverColor;
-    }
-
-    public JImVec4 getActiveColor() {
-        return activeColor;
     }
 
     public Label text(final String value) {
@@ -204,18 +192,7 @@ public class Label extends SizedWidget {
     }
 
     public Label color(final Color value) {
-        this.c = value;
-        this.color = null;
-        return this;
-    }
-
-    public Label hoverColor(final JImVec4 value) {
-        this.hoverColor = value;
-        return this;
-    }
-
-    public Label activeColor(final JImVec4 value) {
-        this.activeColor = value;
+        this.color = value;
         return this;
     }
 
