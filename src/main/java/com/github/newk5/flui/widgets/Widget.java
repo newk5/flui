@@ -2,6 +2,7 @@ package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
+import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public abstract class Widget {
     private Map<String, Object> data;
     protected Font fontObj;
     protected boolean disabled;
-    protected boolean applyMove=true;
+    protected boolean applyMove = true;
 
     public Widget(String id) {
         this.id = id;
@@ -48,6 +49,16 @@ public abstract class Widget {
     }
 
     public Widget() {
+
+    }
+
+    protected void freeColor(Color c) {
+        if (c != null) {
+            c.free();
+        }
+    }
+
+    protected void freeColors() {
 
     }
 
@@ -194,7 +205,7 @@ public abstract class Widget {
                 }
                 posY = imgui.getCursorPosY();
             }
-            applyMove=false;
+            applyMove = false;
         }
     }
 

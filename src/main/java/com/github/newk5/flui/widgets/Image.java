@@ -54,9 +54,15 @@ public class Image extends SizedWidget {
         instances.add(this);
     }
 
+    @Override
+    protected void freeColors() {
+
+        super.freeColor(borderColor);
+    }
+
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

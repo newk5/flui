@@ -23,7 +23,7 @@ public class UI {
     private static float newWindowHeight = -1;
     private static float newWindowWidth = -1;
 
-    private static CopyOnWriteArrayList<Widget> components = new CopyOnWriteArrayList<>();
+    protected static CopyOnWriteArrayList<Widget> components = new CopyOnWriteArrayList<>();
 
     private static Queue<Runnable> imguiThread = new ConcurrentLinkedQueue<>();
 

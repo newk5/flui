@@ -36,7 +36,7 @@ public class Checkbox extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
+
     SerializableConsumer<Checkbox> onChange;
     SerializableConsumer<Checkbox> onHover;
     NativeBool value = new NativeBool();
@@ -50,6 +50,14 @@ public class Checkbox extends SizedWidget {
 
     public Checkbox() {
         super();
+    }
+
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+        super.freeColor(borderColor);
     }
 
     @Override
@@ -70,7 +78,7 @@ public class Checkbox extends SizedWidget {
 
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

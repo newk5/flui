@@ -54,7 +54,7 @@ public class FileSelectDialog extends SizedWidget {
         modal = new NativeBool();
         modal.modifyValue(false);
         JImFileDialog.loadIcons(15);
-        title = new JImStr(JImFileDialog.Icons.FOLDER_OPEN + " Choose a any file");
+        title = new JImStr(JImFileDialog.Icons.FOLDER_OPEN + " Choose any file");
         width = 400;
         height = 250;
         instance = new JImFileDialog();
@@ -77,10 +77,17 @@ public class FileSelectDialog extends SizedWidget {
         return super.getHeight();
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+
+    }
+
     public void delete() {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
 
@@ -129,7 +136,7 @@ public class FileSelectDialog extends SizedWidget {
             super.preRender(imgui);
 
             if (color != null) {
-                
+
                 imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
 

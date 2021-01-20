@@ -54,6 +54,14 @@ public class InputInt extends SizedWidget {
     }
 
     @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+        super.freeColor(borderColor);
+    }
+
+    @Override
     protected void setup() {
         value = new NativeInt();
     }
@@ -70,7 +78,7 @@ public class InputInt extends SizedWidget {
 
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

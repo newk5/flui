@@ -55,21 +55,32 @@ public class Window extends SizedWidget {
         this.buildFlags();
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+    }
+
     public void delete() {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
+               
 
                 children.forEach(child -> {
-                    ((SizedWidget) child).deleteFlag = true;
+                    SizedWidget sw = ((SizedWidget) child);
+                    sw.deleteFlag = true;
+                    sw.freeColors();
+
                 });
 
                 SizedWidget sw = super.getParent();
                 if (sw != null) {
                     sw.deleteChild(this);
                 }
+                UI.components.remove(this);
             }
             deleteFlag = true;
 
@@ -278,7 +289,7 @@ public class Window extends SizedWidget {
 
             }
             if (color != null) {
-              
+
                 imgui.pushStyleColor(JImStyleColors.WindowBg, color.asVec4());
             }
 

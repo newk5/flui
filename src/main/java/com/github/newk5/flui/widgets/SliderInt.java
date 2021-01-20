@@ -28,7 +28,6 @@ public class SliderInt extends SizedWidget {
     private Color hoverColor;
     private Color activeColor;
 
-    
     private int flags;
     private boolean readOnly;
 
@@ -96,9 +95,17 @@ public class SliderInt extends SizedWidget {
         return value.accessValue();
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+        super.freeColor(borderColor);
+    }
+
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

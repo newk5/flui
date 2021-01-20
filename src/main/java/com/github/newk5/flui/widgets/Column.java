@@ -11,7 +11,6 @@ public class Column {
     private JImStr header;
     private String field;
     private List<SizedWidget> widgets = new ArrayList<>();
-    
 
     public Column(String header) {
         this.header = new JImStr(header);
@@ -35,8 +34,8 @@ public class Column {
     public boolean hasWidgets() {
         return !this.widgets.isEmpty();
     }
-    
-    public List<SizedWidget> getWidgets(){
+
+    public List<SizedWidget> getWidgets() {
         return widgets;
     }
 

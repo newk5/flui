@@ -53,9 +53,16 @@ public class Label extends SizedWidget {
         return this;
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+
+    }
+
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

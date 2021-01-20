@@ -18,7 +18,6 @@ public class Topbar extends Widget {
 
     private static CompactHashMap<String, Long> idIndex = new CompactHashMap<String, Long>();
 
-    
     public Topbar(String id) {
         super(id);
         this.index(0);
@@ -49,7 +48,7 @@ public class Topbar extends Widget {
             menus.forEach(m -> m.render(imgui));
             imgui.endMainMenuBar();
         }
-        if (font != null){
+        if (font != null) {
             imgui.popFont();
         }
     }

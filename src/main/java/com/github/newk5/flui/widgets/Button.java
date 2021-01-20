@@ -51,9 +51,16 @@ public class Button extends SizedWidget {
         instances.add(this);
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+    }
+
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

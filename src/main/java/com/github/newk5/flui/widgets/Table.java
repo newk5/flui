@@ -106,6 +106,42 @@ public class Table extends SizedWidget {
 
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(headerTextColor);
+        super.freeColor(rowTextColor);
+        if (nextBtn != null) {
+            nextBtn.freeColors();
+            prevBtn.freeColors();
+            pagesLbl.freeColors();
+        }
+        if (globalFilterInput != null) {
+            globalFilterInput.freeColors();
+            globalFilterLbl.freeColors();
+        }
+
+    }
+
+    public void delete() {
+        UI.runLater(() -> {
+
+            freeColors();
+            idIndex.remove(id);
+            instances.remove(this);
+
+            children.forEach(child -> {
+                ((SizedWidget) child).deleteFlag = true;
+            });
+
+            SizedWidget sw = super.getParent();
+            if (sw != null) {
+                sw.deleteChild(this);
+            }
+
+        });
+
+    }
+
     public static Table withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {

@@ -30,7 +30,7 @@ public class Tabview extends SizedWidget {
 
     private int flags;
     protected float tabRounding = 4;
-    protected float tabSpacing= 4;
+    protected float tabSpacing = 4;
 
     protected float tabHeight;
 
@@ -52,15 +52,24 @@ public class Tabview extends SizedWidget {
         title = new JImStr(id);
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+
+    }
+
     public void delete() {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
 
                 tabs.forEach(child -> {
-                    ((SizedWidget) child).deleteFlag = true;
+                    SizedWidget sw = ((SizedWidget) child);
+                    sw.deleteFlag = true;
+                    sw.freeColors();
                 });
 
                 SizedWidget sw = super.getParent();
@@ -115,7 +124,7 @@ public class Tabview extends SizedWidget {
 
     protected void applyRelativeSizeToTabChildren() {
         this.tabs.stream().forEach(tab -> {
-            tab.reApplyChildrenSize=true;
+            tab.reApplyChildrenSize = true;
             tab.getChildren().forEach(child -> {
                 if (child instanceof SizedWidget) {
                     SizedWidget w = (SizedWidget) child;
@@ -163,8 +172,8 @@ public class Tabview extends SizedWidget {
 
                 imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
-            imgui.pushStyleVar(JImStyleVars.ItemInnerSpacing,tabSpacing,4);
-            if (imgui.beginTabBar(title,JImTabBarFlags.None)) {
+            imgui.pushStyleVar(JImStyleVars.ItemInnerSpacing, tabSpacing, 4);
+            if (imgui.beginTabBar(title, JImTabBarFlags.None)) {
                 tabs.forEach(tab -> tab.render(imgui));
                 imgui.endTabBar();
 
@@ -198,12 +207,11 @@ public class Tabview extends SizedWidget {
         this.tabRounding = tabRounding;
         return this;
     }
-    
-     public Tabview tabSpacing(float tabSpacing) {
+
+    public Tabview tabSpacing(float tabSpacing) {
         this.tabSpacing = tabSpacing;
         return this;
     }
-
 
     public Tabview alpha(final float alpha) {
         super.alpha(alpha);

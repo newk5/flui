@@ -98,10 +98,18 @@ public class Notification extends SizedWidget {
         return totalHeight;
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        closeBtn.freeColors();
+        detailLbl.freeColors();
+        titleLbl.freeColors();
+    }
+
     public void delete() {
         hide();
         UI.runLater(() -> {
-
+            freeColors();
             if (deleteFlag) {
                 idIndex.remove(id);
                 instances.remove(this);

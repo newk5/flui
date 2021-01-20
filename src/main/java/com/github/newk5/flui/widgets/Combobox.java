@@ -64,6 +64,14 @@ public class Combobox extends SizedWidget {
     }
 
     @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+        super.freeColor(borderColor);
+    }
+
+    @Override
     protected void setup() {
         jtext = new JImStr("");
         value = new JImStr("");
@@ -71,7 +79,7 @@ public class Combobox extends SizedWidget {
 
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 

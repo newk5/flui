@@ -93,15 +93,25 @@ public class Tab extends SizedWidget {
         return super.getHeight();
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+
+    }
+
     public void delete() {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
 
                 children.forEach(child -> {
-                    ((SizedWidget) child).deleteFlag = true;
+                    SizedWidget sw = ((SizedWidget) child);
+                    sw.deleteFlag = true;
+                    sw.freeColors();
+
                 });
 
                 SizedWidget sw = super.getParent();
@@ -151,7 +161,7 @@ public class Tab extends SizedWidget {
             super.preRender(imgui);
 
             if (color != null) {
-               
+
                 imgui.pushStyleColor(JImStyleColors.ChildBg, color.asVec4());
             }
 
@@ -169,8 +179,8 @@ public class Tab extends SizedWidget {
                     }
                 }
                 if (imgui.beginChild0(childTitle, 0, 0, true)) {
-                    if (super.firstRenderLoop || reApplyChildrenSize){
-                        width= imgui.getContentRegionMaxX();
+                    if (super.firstRenderLoop || reApplyChildrenSize) {
+                        width = imgui.getContentRegionMaxX();
                         height = imgui.getContentRegionMaxY();
                         applyRelativeSizeToChildren();
                     }
@@ -209,7 +219,7 @@ public class Tab extends SizedWidget {
             imgui.popFont();
         }
         imgui.popItemFlag();
-        super.firstRenderLoop=false;
+        super.firstRenderLoop = false;
     }
 
     public Tab alpha(final float alpha) {

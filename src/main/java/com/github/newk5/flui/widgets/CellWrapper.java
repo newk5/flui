@@ -86,10 +86,6 @@ public class CellWrapper {
     public Object getRowObject() {
         return rowObject;
     }
-    
-    
-    
-    
 
     public Object getCellValue() {
         return cellValue;
@@ -102,11 +98,6 @@ public class CellWrapper {
     public NativeString getNativeString() {
         return nativeString;
     }
-
-    
-    
-    
-    
 
     public int getColumnIdx() {
         return columnIdx;

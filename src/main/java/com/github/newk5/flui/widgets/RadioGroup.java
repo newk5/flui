@@ -30,8 +30,6 @@ public class RadioGroup extends SizedWidget {
     private Color hoverColor;
     private Color activeColor;
 
-    
-
     private int flags;
     private boolean readOnly;
 
@@ -81,9 +79,17 @@ public class RadioGroup extends SizedWidget {
         return super.font;
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+        super.freeColor(hoverColor);
+        super.freeColor(activeColor);
+        super.freeColor(borderColor);
+    }
+
     public void delete() {
         UI.runLater(() -> {
-
+            freeColors();
             idIndex.remove(id);
             instances.remove(this);
 
@@ -231,7 +237,7 @@ public class RadioGroup extends SizedWidget {
             if (super.getWidth() > 0) {
                 imgui.popItemWidth();
             }
-             if (borderColor != null) {
+            if (borderColor != null) {
                 imgui.popStyleColor();
             }
             if (color != null) {

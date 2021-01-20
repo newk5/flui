@@ -31,14 +31,14 @@ public class Color {
         if (nativeInstance == null) {
             nativeInstance = new JImVec4(red, green, blue, alpha);
         }
-       return nativeInstance;
+        return nativeInstance;
     }
 
     public Color getNeighborColor2() {
         int r = (int) (red * 255);
         int g = (int) (green * 255);
         int b = (int) (blue * 255);
-        return new Color(r - 50, g - 50, b -50);
+        return new Color(r - 50, g - 50, b - 50);
     }
 
     public Color getNeighborColor1() {
@@ -48,6 +48,12 @@ public class Color {
         return new Color(r + 50, g + 50, b + 50);
     }
 
+    public void free() {
+        if (nativeInstance != null) {
+
+            nativeInstance.deallocateNativeObject();
+        }
+    }
 
     public float getRed() {
         return red;

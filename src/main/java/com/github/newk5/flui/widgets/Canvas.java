@@ -42,6 +42,12 @@ public class Canvas extends SizedWidget {
 
     }
 
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+
+    }
+
     public static Canvas withID(String id) {
         Widget w = getWidget(idIndex.get(id), instances);
         if (w == null) {
@@ -55,11 +61,14 @@ public class Canvas extends SizedWidget {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
 
                 children.forEach(child -> {
-                    ((SizedWidget) child).deleteFlag = true;
+                    SizedWidget sw = ((SizedWidget) child);
+                    sw.deleteFlag = true;
+                    sw.freeColors();
                 });
 
                 SizedWidget sw = super.getParent();

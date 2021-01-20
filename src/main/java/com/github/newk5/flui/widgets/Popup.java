@@ -52,16 +52,20 @@ public class Popup extends SizedWidget {
         UI.runLater(() -> {
 
             if (deleteFlag) {
+                freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
 
                 children.forEach(child -> {
-                    ((SizedWidget) child).deleteFlag = true;
+                    SizedWidget sw = ((SizedWidget) child);
+                    sw.deleteFlag = true;
+                    sw.freeColors();
                 });
                 SizedWidget sw = super.getParent();
                 if (sw != null) {
                     sw.deleteChild(this);
                 }
+                UI.components.remove(this);
             }
             deleteFlag = true;
 
@@ -117,6 +121,12 @@ public class Popup extends SizedWidget {
         open = false;
         opened.modifyValue(open);
         close = true;
+    }
+
+    @Override
+    protected void freeColors() {
+        super.freeColor(color);
+
     }
 
     protected static void reApplyRelativeSize() {
