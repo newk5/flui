@@ -156,6 +156,30 @@ public class Application {
         return this;
     }
 
+    public Application addFont(String fontName, String extension, InputStream is) {
+        try {
+            String dir = File.createTempFile(fontName, extension).getParentFile().getPath();
+            Files.copy(is, Paths.get(dir + File.separator + fontName + "." + extension), StandardCopyOption.REPLACE_EXISTING);
+            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + "." + extension));
+
+        } catch (IOException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return this;
+    }
+
+    public Application addFont(String fontName, String extension, InputStream is, int size) {
+        try {
+            String dir = File.createTempFile(fontName, extension).getParentFile().getPath();
+            Files.copy(is, Paths.get(dir + File.separator + fontName + "." + extension), StandardCopyOption.REPLACE_EXISTING);
+            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + "." + extension, size));
+
+        } catch (IOException ex) {
+            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return this;
+    }
+
     public Application addTTFFont(String fontName, InputStream is) {
         try {
             String dir = File.createTempFile(fontName, "ttf").getParentFile().getPath();
@@ -168,11 +192,11 @@ public class Application {
         return this;
     }
 
-    public Application addTTFFont(String fontName, InputStream is,int size) {
+    public Application addTTFFont(String fontName, InputStream is, int size) {
         try {
             String dir = File.createTempFile(fontName, "ttf").getParentFile().getPath();
             Files.copy(is, Paths.get(dir + File.separator + fontName + ".ttf"), StandardCopyOption.REPLACE_EXISTING);
-            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + ".ttf",size));
+            fonts.put(fontName, new Font(fontName, dir + File.separator + fontName + ".ttf", size));
 
         } catch (IOException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);

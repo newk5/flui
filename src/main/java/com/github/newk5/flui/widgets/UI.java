@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import org.ice1000.jimgui.JImFontAtlas;
 import org.ice1000.jimgui.JImGui;
+import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.util.JImGuiUtil;
 import org.ice1000.jimgui.util.JniLoader;
 
@@ -36,8 +37,9 @@ public class UI {
     private static ConcurrentLinkedQueue<String> ids = new ConcurrentLinkedQueue<>();
 
     private static SerializableConsumer<WindowResizeEvent> resizeEventSerializableConsumer;
- 
+
     private static boolean readyCalledFlag;
+    private static String windowTitle;
 
     private static void init(Application app, Runnable r) {
         JniLoader.load();
@@ -47,6 +49,7 @@ public class UI {
             UI.windowHeight = app.getHeight();
             UI.windowWidth = app.getWidth();
 
+            windowTitle = app.getTitle();
             resizeEvent = new WindowResizeEvent(windowWidth, windowHeight, windowWidth, windowHeight);
 
             app.setupTheme(jimgui);
@@ -59,6 +62,11 @@ public class UI {
             r.run();
 
             while (!jimgui.windowShouldClose()) {
+
+                if (!app.getTitle().equals(windowTitle)) {
+                    jimgui.setWindowTitle(new JImStr(app.getTitle()));
+                    windowTitle = app.getTitle();
+                }
 
                 float newY = jimgui.getPlatformWindowSizeY();
                 float newX = jimgui.getPlatformWindowSizeX();
