@@ -2,6 +2,7 @@ package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.SerializableConsumer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.NativeBool;
 import org.ice1000.jimgui.NativeString;
+import org.ice1000.jimgui.NativeStrings;
 import org.ice1000.jimgui.flag.JImTabItemFlags;
 import vlsi.utils.CompactHashMap;
 
@@ -33,8 +35,11 @@ public class FileSelectDialog extends SizedWidget {
     protected float rounding = 0;
     private JImStr filter;
     private JImStr jimStrID;
-    private Consumer<File> onFileSelect;
+    private SerializableConsumer<List<File>> onFilesSelect;
+    private SerializableConsumer<File> onFileSelect;
+
     JImFileDialog instance;
+    private int selectCount = 1;
 
     public FileSelectDialog(String id) {
 
@@ -99,6 +104,7 @@ public class FileSelectDialog extends SizedWidget {
                 if (sw != null) {
                     sw.deleteChild(this);
                 }
+                UI.components.remove(this);
             }
             deleteFlag = true;
 
@@ -143,15 +149,29 @@ public class FileSelectDialog extends SizedWidget {
             imgui.getStyle().setTabRounding(rounding);
 
             if (modal.accessValue()) {
-                instance.openModal(jimStrID, title, filter, JImStr.EMPTY);
+                instance.openModal(jimStrID, title, filter, JImStr.EMPTY, selectCount);
             }
             if (instance.display(jimStrID, 0, width, height)) {
                 if (instance.isOk()) {
-                    try (NativeString currentPath = instance.filePathName()) {
-                        if (onFileSelect != null) {
-                            onFileSelect.accept(new File(currentPath.toString()));
-                        }
+                    if (selectCount == 1) {
+                        try (NativeString currentPath = instance.filePathName()) {
+                            if (onFileSelect != null) {
+                                onFileSelect.accept(new File(currentPath.toString()));
+                            }
 
+                        }
+                    } else {
+                        try (NativeStrings currentPath = instance.selections()) {
+                            List<File> files = new ArrayList<>();
+                            for (int i = 0; i < currentPath.size(); i++) {
+                                files.add(new File(currentPath.get(i).toString()));
+                            }
+
+                            if (onFilesSelect != null) {
+                                onFilesSelect.accept(files);
+                            }
+
+                        }
                     }
 
                 }
@@ -182,8 +202,18 @@ public class FileSelectDialog extends SizedWidget {
         }
     }
 
-    public FileSelectDialog onFileSelect(final Consumer<File> e) {
+    public FileSelectDialog onFileSelect(final SerializableConsumer<File> e) {
         this.onFileSelect = e;
+        return this;
+    }
+
+    public FileSelectDialog onFilesSelect(final SerializableConsumer<List<File>> e) {
+        this.onFilesSelect = e;
+        return this;
+    }
+
+    public FileSelectDialog selections(final int selections) {
+        this.selectCount = selections;
         return this;
     }
 
