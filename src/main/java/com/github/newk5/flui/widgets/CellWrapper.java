@@ -1,7 +1,6 @@
 package com.github.newk5.flui.widgets;
 
-import com.esotericsoftware.kryo.Kryo;
-import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.ice1000.jimgui.JImGui;
@@ -48,8 +47,8 @@ public class CellWrapper {
         return widgets.size();
     }
 
-    public void addWidget(String tableID, SizedWidget w, Kryo k) {
-        SizedWidget sw = k.copy(w);
+    public void addWidget(String tableID, SizedWidget w) {
+        SizedWidget sw = (SizedWidget) w.clone();
         sw.id = tableID + ":widget:" + column + ":" + System.currentTimeMillis();
         sw.child = true;
         sw.setData("rowData", rowObject);

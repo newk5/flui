@@ -42,6 +42,30 @@ public class Tab extends SizedWidget {
     }
 
     @Override
+    public Tab clone() {
+        Tab t = new Tab();
+        super.copyProps(t);
+
+        t.headerHeight = headerHeight;
+        t.title = new JImStr(title.toString());
+        t.childTitle = new JImStr(childTitle.toString());
+        if (color != null) {
+            t.color = color.clone();
+        }
+        t.flags = flags;
+
+        if (b != null) {
+            t.b = new NativeBool();
+            t.b.modifyValue(b.accessValue());
+        }
+
+        t.tabRounding = tabRounding;
+        t.reApplyChildrenSize = reApplyChildrenSize;
+
+        return t;
+    }
+
+    @Override
     protected void init() {
         tabCounter++;
         this.index(tabCounter);

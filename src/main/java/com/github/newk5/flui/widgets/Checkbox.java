@@ -28,7 +28,6 @@ public class Checkbox extends SizedWidget {
     private Color hoverColor;
     private Color activeColor;
 
-    private int flags;
     private boolean readOnly;
 
     private boolean hasSetBorderSize;
@@ -58,6 +57,38 @@ public class Checkbox extends SizedWidget {
         super.freeColor(hoverColor);
         super.freeColor(activeColor);
         super.freeColor(borderColor);
+    }
+
+    @Override
+    protected Checkbox clone() {
+        Checkbox c = new Checkbox();
+
+        super.copyProps(c);
+        if (color != null) {
+            c.color = color.clone();
+        }
+        if (hoverColor != null) {
+            c.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            c.activeColor = activeColor.clone();
+        }
+        c.readOnly = readOnly;
+        c.hasSetBorderSize = hasSetBorderSize;
+        c.hasSetBorderRounding = hasSetBorderRounding;
+        c.borderRounding = borderRounding;
+        c.borderSize = borderSize;
+
+        if (borderColor != null) {
+            c.borderColor = borderColor.clone();
+        }
+        c.onChange = onChange;
+        c.onHover = onHover;
+        c.value = new NativeBool();
+        c.value.modifyValue(value.accessValue());
+        c.label = new JImStr(label.toString());
+
+        return c;
     }
 
     @Override
@@ -206,14 +237,8 @@ public class Checkbox extends SizedWidget {
 
     }
 
-    private void buildFlags() {
-        flags = 0;
 
-        if (readOnly) {
-            flags |= JImInputTextFlags.ReadOnly;
-        }
-    }
-
+    
     public Checkbox hideBorders() {
         hasSetBorderSize = false;
         return this;
@@ -224,11 +249,6 @@ public class Checkbox extends SizedWidget {
         return this;
     }
 
-    public Checkbox readOnly(boolean v) {
-        this.readOnly = v;
-        this.buildFlags();
-        return this;
-    }
 
     public boolean isReadOnly() {
         return readOnly;

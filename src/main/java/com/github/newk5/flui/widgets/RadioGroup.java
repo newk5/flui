@@ -38,7 +38,6 @@ public class RadioGroup extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
     SerializableConsumer<RadioGroup> onChange;
     SerializableConsumer<RadioGroup> onHover;
     NativeInt value;
@@ -53,6 +52,44 @@ public class RadioGroup extends SizedWidget {
 
     public RadioGroup() {
         super();
+    }
+
+    @Override
+    public RadioGroup clone() {
+        RadioGroup r = new RadioGroup();
+        super.copyProps(r);
+
+        if (color != null) {
+            r.color = color.clone();
+        }
+        if (hoverColor != null) {
+            r.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            r.activeColor = activeColor.clone();
+        }
+        r.flags = flags;
+        r.readOnly = readOnly;
+        r.hasSetBorderSize = hasSetBorderSize;
+        r.hasSetBorderRounding = hasSetBorderRounding;
+        r.borderRounding = borderSize;
+        if (borderColor != null) {
+            r.borderColor = borderColor.clone();
+        }
+        r.onChange = onChange;
+        r.onHover = onHover;
+        if (value != null) {
+            r.value = new NativeInt();
+            r.value.modifyValue(value.accessValue());
+        }
+        List<JImStr> labels = new ArrayList<>();
+        this.labels.forEach(l -> {
+            labels.add(new JImStr(l.toString()));
+        });
+        r.labels=labels;
+        r.values= Arrays.copyOf(values, values.length);
+
+        return r;
     }
 
     public String getSelectedLabel() {

@@ -28,14 +28,12 @@ public class InputFloat extends SizedWidget {
 
     private int flags;
     private boolean readOnly;
-    private boolean multiline;
-    private boolean password;
     private boolean hasSetBorderSize;
     private boolean hasSetBorderRounding;
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
+
     SerializableConsumer<InputFloat> onChange;
     SerializableConsumer<InputFloat> onHover;
     NativeFloat value;
@@ -50,6 +48,41 @@ public class InputFloat extends SizedWidget {
     public InputFloat() {
         super();
         setup();
+    }
+
+    @Override
+    public InputFloat clone() {
+        InputFloat i = new InputFloat();
+        super.copyProps(i);
+
+        if (color != null) {
+            i.color = color.clone();
+        }
+        if (hoverColor != null) {
+            i.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            i.activeColor = activeColor.clone();
+        }
+        i.flags = flags;
+        i.readOnly = readOnly;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onChange = onChange;
+        i.onHover = onHover;
+        if (value != null) {
+            i.value = new NativeFloat();
+            i.value.modifyValue(value.accessValue());
+        }
+        i.label = new JImStr(label.toString());
+
+        return i;
     }
 
     @Override
@@ -210,12 +243,6 @@ public class InputFloat extends SizedWidget {
 
     private void buildFlags() {
         flags = 0;
-        if (password) {
-            flags |= JImInputTextFlags.Password;
-        }
-        if (multiline) {
-            flags |= JImInputTextFlags.Multiline;
-        }
         if (readOnly) {
             flags |= JImInputTextFlags.ReadOnly;
         }
@@ -231,17 +258,7 @@ public class InputFloat extends SizedWidget {
         return this;
     }
 
-    public InputFloat isPassword(boolean password) {
-        this.password = password;
-        this.buildFlags();
-        return this;
-    }
-
-    public InputFloat multiline(boolean v) {
-        this.multiline = v;
-        this.buildFlags();
-        return this;
-    }
+ 
 
     public InputFloat readOnly(boolean v) {
         this.readOnly = v;
@@ -253,13 +270,6 @@ public class InputFloat extends SizedWidget {
         return readOnly;
     }
 
-    public boolean isMultiline() {
-        return multiline;
-    }
-
-    public boolean isPassword() {
-        return password;
-    }
 
     public Float getValue() {
         return value.accessValue();

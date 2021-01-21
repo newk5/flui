@@ -1,33 +1,21 @@
 package com.github.newk5.flui.widgets;
 
 import com.github.newk5.flui.util.SerializableConsumer;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serializers.ClosureSerializer;
-import com.esotericsoftware.kryo.serializers.ClosureSerializer.Closure;
-import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
 import com.github.newk5.flui.util.SerializableBiConsumer;
-import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.ice1000.jimgui.JImFont;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
-import org.ice1000.jimgui.JImStyleVar;
-import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.NativeBool;
 import org.ice1000.jimgui.NativeDouble;
 import org.ice1000.jimgui.NativeFloat;
@@ -35,9 +23,7 @@ import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.NativeString;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
-import org.ice1000.jimgui.flag.JImSortDirection;
 import org.ice1000.jimgui.flag.JImTableFlags;
-import org.objenesis.strategy.StdInstantiatorStrategy;
 import vlsi.utils.CompactHashMap;
 
 public class Table extends SizedWidget {
@@ -86,7 +72,6 @@ public class Table extends SizedWidget {
 
     private CellWrapper lastEditedCell;
     private int offset = 0;
-    Kryo kryo;
 
     private SerializableConsumer<Object> onSelect;
     private SerializableBiConsumer<Integer, Integer> pageChangeEvent;
@@ -100,9 +85,6 @@ public class Table extends SizedWidget {
         buildFlags();
         title = new JImStr(id);
 
-        kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
-        kryo.setRegistrationRequired(false);
 
     }
 
@@ -711,7 +693,7 @@ public class Table extends SizedWidget {
                 cell.cellValue(value);
                 cell.columnIdx(idx);
                 if (col.hasWidgets()) {
-                    col.getWidgets().forEach(w -> cell.addWidget(id, w, kryo));
+                    col.getWidgets().forEach(w -> cell.addWidget(id, w));
                 }
 
                 lst.add(cell);

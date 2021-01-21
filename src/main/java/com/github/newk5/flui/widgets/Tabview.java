@@ -58,6 +58,29 @@ public class Tabview extends SizedWidget {
 
     }
 
+    @Override
+    public Tabview clone() {
+        Tabview t = new Tabview();
+        super.copyProps(t);
+        List<Tab> tabs = new ArrayList<>();
+
+        this.tabs.forEach(tab -> {
+            tabs.add(tab.clone());
+
+        });
+        t.title = new JImStr(title.toString());
+        if (color != null) {
+            t.color = color.clone();
+        }
+        t.flags = flags;
+        t.tabRounding = tabRounding;
+        t.tabSpacing = tabSpacing;
+        t.tabHeight = tabHeight;
+        
+        return t;
+
+    }
+
     public void delete() {
         UI.runLater(() -> {
 

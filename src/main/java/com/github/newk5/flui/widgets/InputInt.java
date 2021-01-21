@@ -29,14 +29,12 @@ public class InputInt extends SizedWidget {
 
     private int flags;
     private boolean readOnly;
-    private boolean multiline;
-    private boolean password;
+
     private boolean hasSetBorderSize;
     private boolean hasSetBorderRounding;
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
     SerializableConsumer<InputInt> onChange;
     SerializableConsumer<InputInt> onHover;
     NativeInt value;
@@ -51,6 +49,41 @@ public class InputInt extends SizedWidget {
     public InputInt() {
         super();
         setup();
+    }
+
+    @Override
+    public InputInt clone() {
+        InputInt i = new InputInt();
+        super.copyProps(i);
+
+        if (color != null) {
+            i.color = color.clone();
+        }
+        if (hoverColor != null) {
+            i.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            i.activeColor = activeColor.clone();
+        }
+        i.flags = flags;
+        i.readOnly = readOnly;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onChange = onChange;
+        i.onHover = onHover;
+        if (value != null) {
+            i.value = new NativeInt();
+            i.value.modifyValue(value.accessValue());
+        }
+        i.label = new JImStr(label.toString());
+
+        return i;
     }
 
     @Override
@@ -208,12 +241,7 @@ public class InputInt extends SizedWidget {
 
     private void buildFlags() {
         flags = 0;
-        if (password) {
-            flags |= JImInputTextFlags.Password;
-        }
-        if (multiline) {
-            flags |= JImInputTextFlags.Multiline;
-        }
+      
         if (readOnly) {
             flags |= JImInputTextFlags.ReadOnly;
         }
@@ -229,17 +257,6 @@ public class InputInt extends SizedWidget {
         return this;
     }
 
-    public InputInt isPassword(boolean password) {
-        this.password = password;
-        this.buildFlags();
-        return this;
-    }
-
-    public InputInt multiline(boolean v) {
-        this.multiline = v;
-        this.buildFlags();
-        return this;
-    }
 
     public InputInt readOnly(boolean v) {
         this.readOnly = v;
@@ -249,14 +266,6 @@ public class InputInt extends SizedWidget {
 
     public boolean isReadOnly() {
         return readOnly;
-    }
-
-    public boolean isMultiline() {
-        return multiline;
-    }
-
-    public boolean isPassword() {
-        return password;
     }
 
     public int getValue() {

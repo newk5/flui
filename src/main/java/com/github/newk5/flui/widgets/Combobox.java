@@ -30,14 +30,12 @@ public class Combobox extends SizedWidget {
     private Color activeColor;
 
     private int flags;
-    private boolean readOnly;
 
     private boolean hasSetBorderSize;
     private boolean hasSetBorderRounding;
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
     SerializableBiConsumer<Combobox, String> onChange;
     SerializableConsumer<Combobox> onHover;
     private JImStr jtext;
@@ -52,6 +50,42 @@ public class Combobox extends SizedWidget {
     public Combobox() {
         super();
         setup();
+    }
+
+    @Override
+    protected Combobox clone() {
+        Combobox c = new Combobox();
+        super.copyProps(c);
+        if (color != null) {
+            c.color = color.clone();
+        }
+        if (hoverColor != null) {
+            c.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            c.activeColor = activeColor.clone();
+        }
+        c.flags = flags;
+        c.hasSetBorderSize = hasSetBorderSize;
+        c.hasSetBorderRounding = hasSetBorderRounding;
+        c.borderRounding = borderRounding;
+        c.borderSize = borderSize;
+        if (borderColor != null) {
+            c.borderColor = borderColor.clone();
+        }
+        c.onChange = onChange;
+        c.onHover = onHover;
+        if (jtext != null) {
+            c.jtext = new JImStr(jtext.toString());
+        }
+        c.value = new JImStr(value.toString());
+        List<JImStr> items = new ArrayList<>();
+        this.items.forEach(i -> {
+            items.add(new JImStr(i.toString()));
+        });
+
+        return c;
+
     }
 
     @Override
@@ -172,7 +206,7 @@ public class Combobox extends SizedWidget {
             if (super.getWidth() > 0) {
                 imgui.pushItemWidth(super.getWidth());
             }
-            if (imgui.beginCombo(jtext, value, 0)) {
+            if (imgui.beginCombo(jtext, value, flags)) {
 
                 for (JImStr i : items) {
 
@@ -230,9 +264,6 @@ public class Combobox extends SizedWidget {
     private void buildFlags() {
         flags = 0;
 
-        if (readOnly) {
-            flags |= JImInputTextFlags.ReadOnly;
-        }
     }
 
     public Combobox hideBorders() {
@@ -252,16 +283,6 @@ public class Combobox extends SizedWidget {
     public Combobox showBorders() {
         hasSetBorderSize = true;
         return this;
-    }
-
-    public Combobox readOnly(boolean v) {
-        this.readOnly = v;
-        this.buildFlags();
-        return this;
-    }
-
-    public boolean isReadOnly() {
-        return readOnly;
     }
 
     public Color getColor() {

@@ -12,6 +12,16 @@ public class Color {
 
     public Color() {
     }
+    
+    public Color clone(){
+        Color c = new Color();
+        c.red= red;
+        c.green= green;
+        c.blue=blue;
+        c.alpha=alpha;
+        c.nativeInstance=nativeInstance;
+        return c;
+    }
 
     public Color(int red, int green, int blue, int alpha) {
         this.red = red / 255.0f;

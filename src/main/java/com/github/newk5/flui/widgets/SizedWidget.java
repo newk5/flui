@@ -15,7 +15,7 @@ public abstract class SizedWidget extends Widget {
     protected float relativeSizeX;
     protected float relativeSizeY;
 
-    protected static boolean reapplySizing;
+    protected boolean reapplySizing;
 
     protected boolean reapplyAlign;
     protected boolean reapplyPos;
@@ -28,6 +28,25 @@ public abstract class SizedWidget extends Widget {
 
     public SizedWidget(String id) {
         super(id);
+    }
+
+    protected void copyProps(SizedWidget sw) {
+        super.copyProps(sw);
+        sw.width = width;
+        sw.height = height;
+        sw.relativeSizeX = relativeSizeX;
+        sw.relativeSizeY = relativeSizeY;
+        sw.reapplyAlign = reapplySizing;
+        sw.reapplyAlign = reapplyAlign;
+        sw.reapplyPos = reapplyPos;
+        List<Widget> children = new ArrayList<>();
+        this.children.forEach(w -> {
+            children.add(w.clone());
+        });
+        sw.children = children;
+        sw.tableAddedEventFired = tableAddedEventFired;
+        sw.onTableAdd = onTableAdd;
+
     }
 
     protected void setup() {

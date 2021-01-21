@@ -39,6 +39,27 @@ public class Label extends SizedWidget {
     }
 
     @Override
+    protected Label clone() {
+        Label l = new Label();
+        super.copyProps(l);
+        l.text = text;
+        if (jtext != null) {
+            l.jtext = new JImStr((jtext.toString()));
+        }
+        l.onClick = onClick;
+        l.onHover = onHover;
+        if (color != null) {
+            l.color = color.clone();
+        }
+        if (hoverColor != null) {
+            l.hoverColor = hoverColor.clone();
+        }
+        l.wrap = wrap;
+        return l;
+
+    }
+
+    @Override
     protected void init() {
         counter++;
         this.index(counter);

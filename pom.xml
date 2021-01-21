@@ -21,13 +21,7 @@
             <groupId>org.ice1000.jimgui</groupId>
             <artifactId>core</artifactId>
             <version>v0.17.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-            <version>5.0.3</version>
-        </dependency>
-   
+        </dependency>       
     </dependencies>
 
    

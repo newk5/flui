@@ -47,6 +47,28 @@ public class Image extends SizedWidget {
     }
 
     @Override
+    protected Image clone() {
+        Image i = new Image();
+
+        super.copyProps(i);
+        i.flags = flags;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onHover = onHover;
+        i.source(sourceFile);
+        i.source(sourceBytes);
+        i.source(sourcePath);
+
+        return i;
+
+    }
+
+    @Override
     protected void init() {
         imgCounter++;
         this.index(imgCounter);
@@ -194,19 +216,26 @@ public class Image extends SizedWidget {
 
     public Image source(final File f) {
         this.sourceFile = f;
-        img = JImTextureID.fromFile(sourceFile);
+        if (f != null) {
+            img = JImTextureID.fromFile(sourceFile);
+        }
         return this;
     }
 
     public Image source(final Path p) {
+
         this.sourcePath = p;
-        img = JImTextureID.fromPath(sourcePath);
+        if (p != null) {
+            img = JImTextureID.fromPath(sourcePath);
+        }
         return this;
     }
 
     public Image source(final byte[] b) {
         this.sourceBytes = b;
-        img = JImTextureID.fromBytes(sourceBytes);
+        if (b != null) {
+            img = JImTextureID.fromBytes(sourceBytes);
+        }
         return this;
     }
 

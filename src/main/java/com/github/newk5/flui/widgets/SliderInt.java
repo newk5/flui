@@ -36,7 +36,7 @@ public class SliderInt extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
+
     SerializableConsumer<SliderInt> onChange;
     SerializableConsumer<SliderInt> onHover;
     NativeInt value;
@@ -61,6 +61,45 @@ public class SliderInt extends SizedWidget {
     protected void setup() {
         value = new NativeInt();
     }
+    
+     @Override
+    protected SliderInt clone() {
+        SliderInt i = new SliderInt();
+        super.copyProps(i);
+
+        if (color != null) {
+            i.color = color.clone();
+        }
+        if (hoverColor != null) {
+            i.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            i.activeColor = activeColor.clone();
+        }
+        i.flags = flags;
+        i.readOnly = readOnly;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onChange = onChange;
+        i.onHover = onHover;
+        if (value != null) {
+            i.value = new NativeInt();
+            i.value.modifyValue(value.accessValue());
+        }
+        i.label = new JImStr(label.toString());
+        i.min = min;
+        i.max = max;
+
+        return i;
+
+    }
+
 
     @Override
     protected void init() {

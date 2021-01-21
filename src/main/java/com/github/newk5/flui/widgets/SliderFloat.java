@@ -13,6 +13,7 @@ import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
 import org.ice1000.jimgui.NativeFloat;
+import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImSliderFlags;
 import vlsi.utils.CompactHashMap;
@@ -35,7 +36,6 @@ public class SliderFloat extends SizedWidget {
     private float borderRounding;
     private float borderSize;
     private Color borderColor;
-    private JImVec4 borderColorV;
     SerializableConsumer<SliderFloat> onChange;
     SerializableConsumer<SliderFloat> onHover;
     NativeFloat value;
@@ -48,6 +48,44 @@ public class SliderFloat extends SizedWidget {
     public SliderFloat(String id) {
         super(id, true);
         this.init();
+
+    }
+
+    @Override
+    protected SliderFloat clone() {
+        SliderFloat i = new SliderFloat();
+        super.copyProps(i);
+
+        if (color != null) {
+            i.color = color.clone();
+        }
+        if (hoverColor != null) {
+            i.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            i.activeColor = activeColor.clone();
+        }
+        i.flags = flags;
+        i.readOnly = readOnly;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onChange = onChange;
+        i.onHover = onHover;
+        if (value != null) {
+            i.value = new NativeFloat();
+            i.value.modifyValue(value.accessValue());
+        }
+        i.label = new JImStr(label.toString());
+        i.min = min;
+        i.max = max;
+
+        return i;
 
     }
 

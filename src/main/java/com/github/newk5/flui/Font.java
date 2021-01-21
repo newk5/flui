@@ -25,6 +25,12 @@ public class Font {
         this.path = path;
     }
 
+    public Font clone() {
+        Font f = new Font(name, path, size);
+        f.jimFont = jimFont;
+        return f;
+    }
+
     public void loadFont(JImFontAtlas atlas) {
         if (size == 0) {
             jimFont = atlas.addFontFromFile(path);

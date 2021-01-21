@@ -12,6 +12,7 @@ import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
 import org.ice1000.jimgui.JImVec4;
+import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.NativeString;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImItemFlags;
@@ -50,6 +51,45 @@ public class InputText extends SizedWidget {
     public InputText() {
         super();
         value = new NativeString(50);
+    }
+
+    @Override
+    public InputText clone() {
+        InputText i = new InputText();
+        super.copyProps(i);
+
+        if (color != null) {
+            i.color = color.clone();
+        }
+        if (hoverColor != null) {
+            i.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            i.activeColor = activeColor.clone();
+        }
+        i.flags = flags;
+        i.readOnly = readOnly;
+        i.multiline = multiline;
+        i.password = password;
+        i.hasSetBorderSize = hasSetBorderSize;
+        i.hasSetBorderRounding = hasSetBorderRounding;
+        i.borderRounding = borderRounding;
+        i.borderSize = borderSize;
+
+        if (borderColor != null) {
+            i.borderColor = borderColor.clone();
+        }
+        i.onChange = onChange;
+        i.onHover = onHover;
+        if (value != null) {
+            i.value = new NativeString();
+            for (char c : value.toString().toCharArray()) {
+                i.value.append(c);
+            }
+        }
+        i.label = new JImStr(label.toString());
+
+        return i;
     }
 
     @Override

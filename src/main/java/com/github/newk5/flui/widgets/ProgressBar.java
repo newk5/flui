@@ -10,7 +10,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.JImStyleVars;
-import org.ice1000.jimgui.JImVec4;
 import vlsi.utils.CompactHashMap;
 
 public class ProgressBar extends SizedWidget {
@@ -32,7 +31,6 @@ public class ProgressBar extends SizedWidget {
     private Color borderColor;
     private float value;
 
-    private JImVec4 borderColorV;
     SerializableConsumer<ProgressBar> onChange;
     SerializableConsumer<ProgressBar> onHover;
 
@@ -43,6 +41,39 @@ public class ProgressBar extends SizedWidget {
 
     public ProgressBar() {
         super();
+    }
+
+    @Override
+    protected ProgressBar clone() {
+        ProgressBar p = new ProgressBar();
+        super.copyProps(p);
+
+        if (color != null) {
+            p.color = color.clone();
+        }
+        if (hoverColor != null) {
+            p.hoverColor = hoverColor.clone();
+        }
+        if (activeColor != null) {
+            p.activeColor = activeColor.clone();
+        }
+
+        p.flags = flags;
+        p.hasSetBorderSize = hasSetBorderSize;
+        p.hasSetBorderRounding = hasSetBorderRounding;
+        p.borderRounding = borderRounding;
+        p.borderSize = borderSize;
+
+        if (borderColor != null) {
+            p.borderColor = borderColor.clone();
+        }
+
+        p.value = value;
+        p.onChange = onChange;
+        p.onHover = onHover;
+
+        return p;
+
     }
 
     @Override

@@ -52,6 +52,40 @@ public abstract class Widget {
 
     }
 
+    protected Widget clone() {
+        return this;
+    }
+
+    protected void copyProps(Widget w2) {
+
+        w2.align = align;
+        w2.alpha = alpha;
+        w2.applyMove = applyMove;
+        w2.child = child;
+        w2.data = data;
+        w2.deleteFlag = deleteFlag;
+        w2.disabled = disabled;
+        w2.firstRenderLoop = firstRenderLoop;
+        w2.font = font;
+        if (fontObj != null) {
+            w2.fontObj = fontObj.clone();
+        }
+        w2.hasSetPos = hasSetPos;
+        w2.hasSetPosX = hasSetPosX;
+        w2.hasSetPosY = hasSetPosY;
+        w2.hidden = hidden;
+        w2.id = id;
+        w2.index = index;
+        w2.isInTab = isInTab;
+        w2.move = move;
+        w2.numId = numId;
+        w2.parent = parent;
+        w2.posX = posX;
+        w2.posY = posY;
+        w2.sameLine = sameLine;
+
+    }
+
     protected void freeColor(Color c) {
         if (c != null) {
             c.free();
