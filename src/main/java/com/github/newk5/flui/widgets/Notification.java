@@ -174,9 +174,6 @@ public class Notification extends SizedWidget {
     public Notification text(String t) {
         this.detailLbl.text(t);
 
-        if (width < detailLbl.width * 2) {
-            width = detailLbl.width * 2;
-        }
 
         return this;
     }
@@ -184,9 +181,6 @@ public class Notification extends SizedWidget {
     public Notification title(String t) {
         this.titleLbl.text(t);
 
-        if (width < titleLbl.width * 2) {
-            width = titleLbl.width * 2;
-        }
 
         return this;
     }
