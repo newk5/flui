@@ -6,6 +6,7 @@ import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.widgets.Button;
 import com.github.newk5.flui.widgets.Canvas;
 import com.github.newk5.flui.widgets.Combobox;
+import com.github.newk5.flui.widgets.DatePicker;
 import com.github.newk5.flui.widgets.FileSelectDialog;
 import com.github.newk5.flui.widgets.InputText;
 import com.github.newk5.flui.widgets.Label;
@@ -26,8 +27,10 @@ public class FilledWindowWithCanvas {
     public static void main(String[] args) {
         Application app = new Application().title("test").height(500).width(1200);
         UI.render(app, () -> {
-            FileSelectDialog dialog = new FileSelectDialog("fileDialog").filter(".zip").onFileSelect((f)->{
-                System.out.println(f.getAbsolutePath());
+            Notification n = new Notification("no").timeout(5000).title("SUCCESS");
+            FileSelectDialog dialog = new FileSelectDialog("fileDialog").filter(".zip").onFileSelect((file) -> {
+                n.text(file.getName() + " selected");
+                n.show();
             });
             new Topbar("top").menus(
                     new Menu("Hello").options(new MenuOption("Open...").onClick((m) -> {
@@ -41,10 +44,14 @@ public class FilledWindowWithCanvas {
                             new Tabview("tabs").move(new Direction().down(60)).tabs(
                                     new Tab("tab").title("Title1")
                                             .children(
+                                                    new DatePicker("dt").onChange((picker, date) -> {
+                                                        n.text(date + " selected");
+                                                        n.show();
+
+                                                    }),
                                                     new Button("btn")
                                                             .text("OK")
                                                             .onClick((btn) -> {
-
                                                                 Popup.withID("op").open();
 
                                                             }),

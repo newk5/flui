@@ -4,11 +4,13 @@ import com.github.newk5.flui.Alignment;
 import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Color;
+import com.github.newk5.flui.util.DaemonFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -45,7 +47,8 @@ public class Notification extends SizedWidget {
     private Button closeBtn;
     private Label detailLbl;
     private Label titleLbl;
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    ThreadFactory tf = new DaemonFactory();
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(tf);
     public static Alignment ALIGN;
 
     private int timeout;
@@ -174,13 +177,11 @@ public class Notification extends SizedWidget {
     public Notification text(String t) {
         this.detailLbl.text(t);
 
-
         return this;
     }
 
     public Notification title(String t) {
         this.titleLbl.text(t);
-
 
         return this;
     }
