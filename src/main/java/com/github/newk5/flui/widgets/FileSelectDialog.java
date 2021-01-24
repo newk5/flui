@@ -175,7 +175,7 @@ public class FileSelectDialog extends SizedWidget {
                                         files.add(new File(s));
                                     }
                                 } else {
-                                    if (!"".equals(jarPath)) {
+                                    if (!s.equals(jarPath) && !s.equals("")) {
                                         files.add(new File(s));
                                     }
                                 }
