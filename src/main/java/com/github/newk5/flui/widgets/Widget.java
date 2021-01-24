@@ -163,8 +163,10 @@ public abstract class Widget {
         return new ArrayList<>();
     }
 
-    protected static Widget getWidget(long index, CopyOnWriteArrayList<Widget> list) {
-
+    protected static Widget getWidget(Long index, CopyOnWriteArrayList<Widget> list) {
+        if (index == null) {
+            return null;
+        }
         return binarySearch(index, list);
     }
 

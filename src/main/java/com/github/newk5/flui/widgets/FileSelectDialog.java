@@ -4,10 +4,13 @@ import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.util.SerializableConsumer;
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ice1000.jimgui.JImFileDialog;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
@@ -17,6 +20,7 @@ import org.ice1000.jimgui.NativeBool;
 import org.ice1000.jimgui.NativeString;
 import org.ice1000.jimgui.NativeStrings;
 import org.ice1000.jimgui.flag.JImTabItemFlags;
+import org.ice1000.jimgui.util.JniLoader;
 import vlsi.utils.CompactHashMap;
 
 public class FileSelectDialog extends SizedWidget {
@@ -163,14 +167,27 @@ public class FileSelectDialog extends SizedWidget {
                     } else {
                         try (NativeStrings currentPath = instance.selections()) {
                             List<File> files = new ArrayList<>();
+                            String jarPath = new File(UI.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath().trim();
                             for (int i = 0; i < currentPath.size(); i++) {
-                                files.add(new File(currentPath.get(i).toString()));
+                                String s = currentPath.get(i).toString().trim();
+                                if (JniLoader.OsName.toLowerCase().startsWith("win")) {
+                                    if (!"".equals(s)) {
+                                        files.add(new File(s));
+                                    }
+                                } else {
+                                    if (!"".equals(jarPath)) {
+                                        files.add(new File(s));
+                                    }
+                                }
+
                             }
 
                             if (onFilesSelect != null) {
                                 onFilesSelect.accept(files);
                             }
 
+                        } catch (URISyntaxException ex) {
+                            Logger.getLogger(FileSelectDialog.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
 

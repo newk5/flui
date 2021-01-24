@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.ice1000.jimgui</groupId>
             <artifactId>core</artifactId>
-            <version>v0.17.0</version>
+            <version>v0.17.1</version>
         </dependency>       
     </dependencies>
 

@@ -6,12 +6,26 @@ import com.github.newk5.flui.Application;
 import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
+import static com.github.newk5.flui.util.ReflectUtil.getValue;
+import static com.github.newk5.flui.util.ReflectUtil.setValue;
 import com.github.newk5.flui.util.SerializableBiConsumer;
+import com.github.newk5.flui.widgets.tables.celleditors.BooleanEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.CellEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.DateEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.DoubleEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.FloatEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.IntegerEditor;
+import com.github.newk5.flui.widgets.tables.celleditors.StringEditor;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
@@ -21,6 +35,7 @@ import org.ice1000.jimgui.NativeDouble;
 import org.ice1000.jimgui.NativeFloat;
 import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.NativeString;
+import org.ice1000.jimgui.NativeTime;
 import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
 import org.ice1000.jimgui.flag.JImTableFlags;
@@ -46,8 +61,6 @@ public class Table extends SizedWidget {
     private int selectedIdx = -1;
 
     private Button nextBtn;
-
-    private boolean lastPageIsEmpty;
 
     private Button prevBtn;
 
@@ -75,6 +88,8 @@ public class Table extends SizedWidget {
 
     private SerializableConsumer<Object> onSelect;
     private SerializableBiConsumer<Integer, Integer> pageChangeEvent;
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private CompactHashMap<Class, CellEditor> cellEditors = new CompactHashMap<>();
 
     public Table(String id) {
         super(id, true);
@@ -85,7 +100,17 @@ public class Table extends SizedWidget {
         buildFlags();
         title = new JImStr(id);
 
+        this.addCellEditor(String.class, new StringEditor(this));
+        this.addCellEditor(Boolean.class, new BooleanEditor(this));
+        this.addCellEditor(Date.class, new DateEditor(this));
+        this.addCellEditor(Double.class, new DoubleEditor(this));
+        this.addCellEditor(Float.class, new FloatEditor(this));
+        this.addCellEditor(Integer.class, new IntegerEditor(this));
 
+    }
+
+    public void addCellEditor(Class c, CellEditor ce) {
+        cellEditors.put(c, ce);
     }
 
     @Override
@@ -133,6 +158,16 @@ public class Table extends SizedWidget {
         return (Table) w;
     }
 
+    private CellWrapper buildCellWrapper(Column col, boolean isDate, Object value, Object o) {
+        int colIdx = columns.indexOf(col);
+        CellWrapper cell = new CellWrapper(col.getField(), new JImStr(isDate ? sdf.format((Date) value) : value + ""), col.getHeaderAsStr(), o);
+        cell.cellEditorVisible(false);
+        cell.columnIdx(colIdx);
+        cell.cellValue(value);
+
+        return cell;
+    }
+
     private void updateRow(List<CellWrapper[]> data, Object o, int idx) {
         if (idx > -1) {
             CellWrapper[] cellW = data.get(idx);
@@ -146,20 +181,24 @@ public class Table extends SizedWidget {
             } else {
 
                 List<CellWrapper> cells = new ArrayList<>();
-                columns.forEach(col -> {
-                    Object value = getValue(o, col.getField());
+                for (Column col : columns) {
+                    Field field = getField(col.getField(), o.getClass());
+                    Object value = getValue(o, field);
+
+                    boolean isDate = value instanceof Date;
+
                     int colIdx = columns.indexOf(col);
-                    CellWrapper cell = new CellWrapper(col.getField(), new JImStr(value + ""), col.getHeaderAsStr(), o);
-                    cell.cellEditorVisible(false);
-                    cell.columnIdx(colIdx);
-                    cell.cellValue(value);
+                    CellWrapper cell = buildCellWrapper(col, isDate, value, o);
+                    if (field != null) {
+                        cell.valueType(field.getType());
+                    }
                     if (col.hasWidgets()) {
                         //avoid recreating the widgets and just copy them from the old row
                         cell = Arrays.stream(cellW).filter(c -> c.getColumnIdx() == colIdx).findFirst().get();
                     }
                     cells.add(cell);
 
-                });
+                }
                 CellWrapper[] row = cells.toArray(new CellWrapper[cells.size()]);
                 this.sortCells(row);
                 data.set(idx, row);
@@ -287,98 +326,51 @@ public class Table extends SizedWidget {
         }
     }
 
-    private void drawCellEditor(JImGui imgui, CellWrapper cell, int i) {
+    public Field getField(String name, Class klass) {
+        try {
+            if (name == null) {
+                return null;
+            }
+            Field field = fields.get(name) == null ? klass.getDeclaredField(name) : fields.get(name);
+            fields.putIfAbsent(name, field);
+            return field;
+        } catch (NoSuchFieldException ex) {
+            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    private void drawCellEditor(JImGui imgui, CellWrapper cell) {
         if (!cell.isCellEditorVisible()) {
+
             if (imgui.selectable0(cell.getValue(), cell.getSelected())) {
+
                 if (lastEditedCell != null) {
                     lastEditedCell.cellEditorVisible(false);
                 }
-                cell.cellEditorVisible(true);
 
-                if (cell.getCellValue() instanceof String) {
+                Field field = getField(cell.getField(), cell.getRowObject().getClass());
 
-                    NativeString s = new NativeString();
-                    for (char ch : cell.getValue().toString().toCharArray()) {
-                        s.append(ch);
-                    }
-
-                    cell.nativeString(s);
-
-                } else if (cell.getCellValue() instanceof Integer) {
-
-                    NativeInt s = new NativeInt();
-                    int v = Integer.parseInt(cell.getValue().toString());
-                    s.modifyValue(v);
-
-                    cell.nativeInt(s);
-
-                } else if (cell.getCellValue() instanceof Double) {
-
-                    NativeDouble s = new NativeDouble();
-                    s.modifyValue(Double.valueOf(cell.getValue().toString()));
-
-                    cell.nativeDouble(s);
-
-                } else if (cell.getCellValue() instanceof Float) {
-
-                    NativeFloat s = new NativeFloat();
-                    s.modifyValue(Float.valueOf(cell.getValue().toString()));
-
-                    cell.nativeFloat(s);
-
-                } else if (cell.getCellValue() instanceof Boolean) {
-
-                    NativeBool s = new NativeBool();
-                    s.modifyValue(Boolean.valueOf(cell.getValue().toString()));
-
-                    cell.nativeBool(s);
-
+                CellEditor editor = cellEditors.get(cell.getValueType());
+                if (editor != null) {
+                    cell.cellEditorVisible(true);
+                    editor.onClick(imgui, cell, field);
                 }
+
                 lastEditedCell = cell;
+
             }
+
         } else {
 
-            if (cell.getCellValue() instanceof String) {
+            Field field = getField(cell.getField(), cell.getRowObject().getClass());
 
-                if (imgui.inputText(JImStr.EMPTY, cell.getNativeString(), JImInputTextFlags.EnterReturnsTrue)) {
-                    cell.cellEditorVisible(false);
-                    setValue(cell.getRowObject(), cell.getField(), cell.getNativeString().toString());
-                    updateRow(cell.getRowObject());
-                }
+            CellEditor editor = cellEditors.get(cell.getValueType());
+            if (editor != null) {
 
-            } else if (cell.getCellValue() instanceof Integer) {
-
-                imgui.inputInt(JImStr.EMPTY, cell.getNativeInt(), 0);
-
-                if (imgui.isItemDeactivatedAfterEdit()) {
-                    cell.cellEditorVisible(false);
-                    setValue(cell.getRowObject(), cell.getField(), cell.getNativeInt().accessValue());
-                    updateRow(cell.getRowObject());
-                }
-
-            } else if (cell.getCellValue() instanceof Double) {
-                imgui.inputDouble(JImStr.EMPTY, cell.getNativeDouble());
-                if (imgui.isItemDeactivatedAfterEdit()) {
-                    cell.cellEditorVisible(false);
-                    setValue(cell.getRowObject(), cell.getField(), cell.getNativeDouble().accessValue());
-                    updateRow(cell.getRowObject());
-                }
-
-            } else if (cell.getCellValue() instanceof Float) {
-                imgui.inputFloat(JImStr.EMPTY, cell.getNativeFloat());
-                if (imgui.isItemDeactivatedAfterEdit()) {
-                    cell.cellEditorVisible(false);
-                    setValue(cell.getRowObject(), cell.getField(), cell.getNativeFloat().accessValue());
-                    updateRow(cell.getRowObject());
-                }
-
-            } else if (cell.getCellValue() instanceof Boolean) {
-                imgui.checkbox(JImStr.EMPTY, cell.getNativeBool());
-                if (imgui.isItemDeactivatedAfterEdit()) {
-                    cell.cellEditorVisible(false);
-                    setValue(cell.getRowObject(), cell.getField(), cell.getNativeBool().accessValue());
-                    updateRow(cell.getRowObject());
-                }
+                editor.onSubmit(imgui, cell, field);
             }
 
         }
@@ -414,7 +406,7 @@ public class Table extends SizedWidget {
                         lastSelected = cell;
                     }
                 } else if (celleditor) {
-                    drawCellEditor(imgui, cell, i);
+                    drawCellEditor(imgui, cell);
                 } else {
                     imgui.text(cell.getValue());
                 }
@@ -683,15 +675,20 @@ public class Table extends SizedWidget {
         } else {
             boolean matchesGlobalFilter = false;
             for (Column col : columns) {
-                Object value = getValue(o, col.getField());
+
+                Field field = getField(col.getField(), o.getClass());
+                Object value = field == null ? "" : getValue(o, field);
+
+                boolean isDate = value instanceof Date;
+
                 //in case there is an active filter, check if the new added row matches it
                 if (!globalExpr.equals("") && !matchesGlobalFilter) {
                     matchesGlobalFilter = value.toString().toLowerCase().contains(this.globalExpr.toLowerCase());
                 }
-                int idx = columns.indexOf(col);
-                CellWrapper cell = new CellWrapper(col.getField(), new JImStr(value.toString()), col.getHeaderAsStr(), o);
-                cell.cellValue(value);
-                cell.columnIdx(idx);
+                CellWrapper cell = buildCellWrapper(col, isDate, value, o);
+                if (field != null) {
+                    cell.valueType(field.getType());
+                }
                 if (col.hasWidgets()) {
                     col.getWidgets().forEach(w -> cell.addWidget(id, w));
                 }
@@ -738,6 +735,8 @@ public class Table extends SizedWidget {
                 updatePaginator();
                 if (!globalExpr.equals("")) {
                     clearGlobalFilter();
+                } else {
+                    prevPage();
                 }
             }
 
@@ -757,40 +756,4 @@ public class Table extends SizedWidget {
         return this;
     }
 
-    private Object getValue(Object obj, String f) {
-
-        Field field;
-        Object value = "";
-        try {
-            field = fields.get("f") == null ? obj.getClass().getDeclaredField(f) : fields.get(f);
-            fields.putIfAbsent(f, field);
-
-            field.setAccessible(true);
-            if (field != null) {
-                Object v = field.get(obj);
-                value = v != null ? v : "";
-            }
-        } catch (Exception ex) {
-            // Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return value;
-    }
-
-    private void setValue(Object obj, String f, Object val) {
-
-        Field field;
-        Object value = "";
-        try {
-            field = fields.get("f") == null ? obj.getClass().getDeclaredField(f) : fields.get(f);
-
-            field.setAccessible(true);
-            if (field != null) {
-                field.set(obj, val);
-                ;
-            }
-        } catch (Exception ex) {
-            // Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
 }

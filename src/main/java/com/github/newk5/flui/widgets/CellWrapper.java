@@ -1,6 +1,6 @@
 package com.github.newk5.flui.widgets;
 
-
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.ice1000.jimgui.JImGui;
@@ -10,8 +10,9 @@ import org.ice1000.jimgui.NativeDouble;
 import org.ice1000.jimgui.NativeFloat;
 import org.ice1000.jimgui.NativeInt;
 import org.ice1000.jimgui.NativeString;
+import org.ice1000.jimgui.NativeTime;
 
-public class CellWrapper {
+public class CellWrapper implements Serializable {
 
     private String field;
     private JImStr value;
@@ -19,6 +20,7 @@ public class CellWrapper {
     private boolean selected;
     private int columnIdx = -1;
     private boolean cellEditorVisible;
+    private Class valueType;
 
     private Object cellValue;
     private Object rowObject;
@@ -28,6 +30,7 @@ public class CellWrapper {
     private NativeFloat nativeFloat;
     private NativeDouble nativeDouble;
     private NativeBool nativeBool;
+    private NativeTime nativeTime;
 
     public CellWrapper(String field, JImStr value, String column) {
         this.field = field;
@@ -82,40 +85,8 @@ public class CellWrapper {
         return nativeBool;
     }
 
-    public Object getRowObject() {
-        return rowObject;
-    }
-
-    public Object getCellValue() {
-        return cellValue;
-    }
-
-    public boolean isCellEditorVisible() {
-        return cellEditorVisible;
-    }
-
-    public NativeString getNativeString() {
-        return nativeString;
-    }
-
-    public int getColumnIdx() {
-        return columnIdx;
-    }
-
-    public boolean hasWidgets() {
-        return !this.widgets.isEmpty();
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public boolean getSelected() {
-        return selected;
-    }
-
-    public JImStr getValue() {
-        return value;
+    public Class getValueType() {
+        return valueType;
     }
 
     public CellWrapper field(final String value) {
@@ -145,6 +116,11 @@ public class CellWrapper {
 
     public CellWrapper cellEditorVisible(final boolean value) {
         this.cellEditorVisible = value;
+        return this;
+    }
+
+    public CellWrapper valueType(final Class value) {
+        this.valueType = value;
         return this;
     }
 
@@ -186,6 +162,51 @@ public class CellWrapper {
     public CellWrapper nativeBool(final NativeBool value) {
         this.nativeBool = value;
         return this;
+    }
+
+    public CellWrapper nativeTime(final NativeTime value) {
+        this.nativeTime = value;
+        return this;
+    }
+
+    public Object getRowObject() {
+        return rowObject;
+    }
+
+    public Object getCellValue() {
+        return cellValue;
+    }
+
+    public boolean isCellEditorVisible() {
+        return cellEditorVisible;
+    }
+
+    public NativeString getNativeString() {
+        return nativeString;
+    }
+
+    public int getColumnIdx() {
+        return columnIdx;
+    }
+
+    public boolean hasWidgets() {
+        return !this.widgets.isEmpty();
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public boolean getSelected() {
+        return selected;
+    }
+
+    public JImStr getValue() {
+        return value;
+    }
+
+    public NativeTime getNativeTime() {
+        return nativeTime;
     }
 
     public String getColumn() {

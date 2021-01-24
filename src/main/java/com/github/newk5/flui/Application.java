@@ -132,6 +132,8 @@ public class Application {
 
         imgui.pushStyleColor(JImStyleColors.ModalWindowDimBg, new JImVec4(areaColor.getX(), areaColor.getY(), areaColor.getZ(), 0.73f));
 
+        imgui.pushStyleColor(JImStyleColors.TableHeaderBg, new JImVec4(43 / 255.0f, 90 / 255f, 125 / 255f, 1));
+
     }
 
     public static void copyStream(InputStream in, OutputStream out) {
