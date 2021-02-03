@@ -177,7 +177,7 @@ public class InputText extends SizedWidget {
         if (!super.isHidden()) {
             super.preRender(imgui);
 
-            if (super.getWidth() > 0) {
+            if (super.getWidth() > 0 && !multiline) {
                 imgui.pushItemWidth(super.getWidth());
             }
 
@@ -196,12 +196,22 @@ public class InputText extends SizedWidget {
                 imgui.pushStyleColor(JImStyleColors.Border, borderColor.asVec4());
             }
 
-            if (imgui.inputText(label, value, flags)) {
-                if (onChange != null) {
-                    onChange.accept(this);
+            if (multiline) {
+                if (width > 0 && height > 0) {
+                    if (imgui.inputTextMultiline(label, value, width, height, readOnly? JImInputTextFlags.ReadOnly:0)) {
+                        if (onChange != null) {
+                            onChange.accept(this);
+                        }
+                    }
+                }
+            } else {
+
+                if (imgui.inputText(label, value, flags)) {
+                    if (onChange != null) {
+                        onChange.accept(this);
+                    }
                 }
             }
-
             if (hasSetBorderSize) {
                 imgui.popStyleVar();
             }
@@ -211,7 +221,7 @@ public class InputText extends SizedWidget {
             if (borderColor != null) {
                 imgui.popStyleColor();
             }
-            if (super.getWidth() > 0) {
+            if (super.getWidth() > 0 && !multiline) {
                 imgui.popItemWidth();
             }
             if (color != null) {
@@ -222,12 +232,12 @@ public class InputText extends SizedWidget {
                     onHover.accept(this);
                 }
             }
-            if (getWidth() == 0 || (getWidth() != imgui.getItemRectSizeX())) {
+            if (getWidth() == 0 || (getWidth() != imgui.getItemRectSizeX()) && !multiline) {
                 width(imgui.getItemRectSizeX());
                 reapplyAlign = true;
 
             }
-            if (getHeight() == 0 || getHeight() != imgui.getItemRectSizeY()) {
+            if (getHeight() == 0 || getHeight() != imgui.getItemRectSizeY() && !multiline) {
                 height(imgui.getItemRectSizeY());
                 reapplyAlign = true;
             }

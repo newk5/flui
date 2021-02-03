@@ -17,28 +17,23 @@ public class FloatEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Float.class)) {
+        cell.cellEditorVisible(true);
+        NativeFloat s = new NativeFloat();
+        s.modifyValue(Float.valueOf(cell.getValue().toString()));
 
-            NativeFloat s = new NativeFloat();
-            s.modifyValue(Float.valueOf(cell.getValue().toString()));
-
-            cell.nativeFloat(s);
-
-        }
+        cell.nativeFloat(s);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Float.class)) {
-            imgui.inputFloat(JImStr.EMPTY, cell.getNativeFloat());
-            if (imgui.isItemDeactivatedAfterEdit()) {
-                cell.cellEditorVisible(false);
-                setValue(cell.getRowObject(), field, cell.getNativeFloat().accessValue());
-                super.getTable().updateRow(cell.getRowObject());
-            }
-
+        imgui.inputFloat(JImStr.EMPTY, cell.getNativeFloat());
+        if (imgui.isItemDeactivatedAfterEdit()) {
+            cell.cellEditorVisible(false);
+            setValue(cell.getRowObject(), field, cell.getNativeFloat().accessValue());
+            super.getTable().updateRow(cell.getRowObject());
         }
+
     }
 
 }

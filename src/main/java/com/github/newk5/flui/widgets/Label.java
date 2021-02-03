@@ -117,6 +117,11 @@ public class Label extends SizedWidget {
         super.posY(f);
         return this;
     }
+    
+      public Label posX(float f) {
+        super.posX(f);
+        return this;
+    }
 
     public Label move(Direction d) {
         super.move(d);

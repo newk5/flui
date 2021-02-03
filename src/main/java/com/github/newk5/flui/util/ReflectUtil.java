@@ -15,7 +15,6 @@ public abstract class ReflectUtil {
                 value = v != null ? v : "";
             }
         } catch (Exception ex) {
-            // Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
         }
         return value;
     }
@@ -30,7 +29,7 @@ public abstract class ReflectUtil {
 
             }
         } catch (Exception ex) {
-            // Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+
         }
 
     }

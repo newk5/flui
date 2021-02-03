@@ -9,7 +9,6 @@ import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.NativeDouble;
 
-import org.ice1000.jimgui.flag.JImInputTextFlags;
 
 public class DoubleEditor extends TableModifier implements CellEditor {
 
@@ -19,28 +18,23 @@ public class DoubleEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Double.class)) {
+        cell.cellEditorVisible(true);
+        NativeDouble s = new NativeDouble();
+        s.modifyValue(Double.valueOf(cell.getValue().toString()));
 
-            NativeDouble s = new NativeDouble();
-            s.modifyValue(Double.valueOf(cell.getValue().toString()));
-
-            cell.nativeDouble(s);
-
-        }
+        cell.nativeDouble(s);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Double.class)) {
-            imgui.inputDouble(JImStr.EMPTY, cell.getNativeDouble());
-            if (imgui.isItemDeactivatedAfterEdit()) {
-                cell.cellEditorVisible(false);
-                setValue(cell.getRowObject(), field, cell.getNativeDouble().accessValue());
-                super.getTable().updateRow(cell.getRowObject());
-            }
-
+        imgui.inputDouble(JImStr.EMPTY, cell.getNativeDouble());
+        if (imgui.isItemDeactivatedAfterEdit()) {
+            cell.cellEditorVisible(false);
+            setValue(cell.getRowObject(), field, cell.getNativeDouble().accessValue());
+            super.getTable().updateRow(cell.getRowObject());
         }
+
     }
 
 }

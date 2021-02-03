@@ -17,31 +17,26 @@ public class IntegerEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Integer.class)) {
+        cell.cellEditorVisible(true);
+        NativeInt s = new NativeInt();
+        int v = Integer.parseInt(cell.getValue().toString());
+        s.modifyValue(v);
 
-            NativeInt s = new NativeInt();
-            int v = Integer.parseInt(cell.getValue().toString());
-            s.modifyValue(v);
-
-            cell.nativeInt(s);
-
-        }
+        cell.nativeInt(s);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Integer.class)) {
 
-            imgui.inputInt(JImStr.EMPTY, cell.getNativeInt(), 0);
+        imgui.inputInt(JImStr.EMPTY, cell.getNativeInt(), 0);
 
-            if (imgui.isItemDeactivatedAfterEdit()) {
-                cell.cellEditorVisible(false);
-                setValue(cell.getRowObject(), field, cell.getNativeInt().accessValue());
-                super.getTable().updateRow(cell.getRowObject());
-            }
-
+        if (imgui.isItemDeactivatedAfterEdit()) {
+            cell.cellEditorVisible(false);
+            setValue(cell.getRowObject(), field, cell.getNativeInt().accessValue());
+            super.getTable().updateRow(cell.getRowObject());
         }
+
     }
 
 }

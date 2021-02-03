@@ -17,27 +17,23 @@ public class BooleanEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Boolean.class)) {
+        cell.cellEditorVisible(true);
+        NativeBool s = new NativeBool();
+        s.modifyValue(Boolean.valueOf(cell.getValue().toString()));
 
-            NativeBool s = new NativeBool();
-            s.modifyValue(Boolean.valueOf(cell.getValue().toString()));
-
-            cell.nativeBool(s);
-
-        }
+        cell.nativeBool(s);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Boolean.class)) {
-            imgui.checkbox(JImStr.EMPTY, cell.getNativeBool());
-            if (imgui.isItemDeactivatedAfterEdit()) {
-                cell.cellEditorVisible(false);
-                setValue(cell.getRowObject(), field, cell.getNativeBool().accessValue());
-                super.getTable().updateRow(cell.getRowObject());
-            }
+        imgui.checkbox(JImStr.EMPTY, cell.getNativeBool());
+        if (imgui.isItemDeactivatedAfterEdit()) {
+            cell.cellEditorVisible(false);
+            setValue(cell.getRowObject(), field, cell.getNativeBool().accessValue());
+            super.getTable().updateRow(cell.getRowObject());
         }
+
     }
 
 }

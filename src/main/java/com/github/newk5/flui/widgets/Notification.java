@@ -88,18 +88,9 @@ public class Notification extends SizedWidget {
         applyAlignment();
         this.buildFlags();
     }
-    private float totalHeight = 0f;
+ 
 
-    private float getTotalHeight() {
-        totalHeight = 0f;
-        instances.stream().filter(w -> !w.id.equals(id)).forEach(w -> {
-            Notification n = (Notification) w;
-            totalHeight += n.getHeight();
-            //System.out.println(f);
-
-        });
-        return totalHeight;
-    }
+    
 
     @Override
     protected void freeColors() {

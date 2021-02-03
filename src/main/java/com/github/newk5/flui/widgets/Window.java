@@ -67,7 +67,6 @@ public class Window extends SizedWidget {
                 freeColors();
                 idIndex.remove(id);
                 instances.remove(this);
-               
 
                 children.forEach(child -> {
                     SizedWidget sw = ((SizedWidget) child);
@@ -114,7 +113,7 @@ public class Window extends SizedWidget {
         return super.font;
     }
 
-    protected void applyRelativeSizeToChildren() {
+    public void applyRelativeSizeToChildren() {
         this.children.stream().filter(child -> child instanceof SizedWidget).forEach(child -> {
             SizedWidget w = (SizedWidget) child;
             w.applyRelativeSize();
@@ -151,11 +150,11 @@ public class Window extends SizedWidget {
                         sw.applyAlignment();
 
                         sw.children.forEach(c -> {
-                            if (c instanceof SizedWidget) {
-                                SizedWidget sizedW = (SizedWidget) c;
-                                sizedW.applyRelativeSize();
-                                sizedW.applyAlignment();
-                            }
+
+                            SizedWidget sizedW = (SizedWidget) c;
+                            sizedW.applyRelativeSize();
+                            sizedW.applyAlignment();
+
                             if (c instanceof Canvas) {
                                 Canvas canvas = (Canvas) c;
                                 canvas.applyRelativeSizeToChildren();
@@ -304,6 +303,11 @@ public class Window extends SizedWidget {
             imgui.begin(title, flags);
             float newY = imgui.getContentRegionMaxY();
             float newX = imgui.getContentRegionMaxX();
+          
+            if (allChildrenAdded){
+                applyRelativeSizeToChildren();
+                allChildrenAdded=false;
+            }
 
             if (super.getWidth() != newX || super.getHeight() != newY) {
 
@@ -397,7 +401,7 @@ public class Window extends SizedWidget {
 
             add(w);
         }
-        // allChildrenAdded=true;
+        allChildrenAdded=true;
         return this;
     }
 

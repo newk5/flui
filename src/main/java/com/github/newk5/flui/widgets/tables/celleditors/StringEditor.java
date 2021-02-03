@@ -18,30 +18,26 @@ public class StringEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(String.class)) {
 
-            NativeString s = new NativeString();
-            for (char ch : cell.getValue().toString().toCharArray()) {
-                s.append(ch);
-            }
-
-            cell.nativeString(s);
-
+        cell.cellEditorVisible(true);
+        NativeString s = new NativeString();
+        for (char ch : cell.getValue().toString().toCharArray()) {
+            s.append(ch);
         }
+
+        cell.nativeString(s);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(String.class)) {
 
-            if (imgui.inputText(JImStr.EMPTY, cell.getNativeString(), JImInputTextFlags.EnterReturnsTrue)) {
-                setValue(cell.getRowObject(), field, cell.getNativeString().toString());
-                super.getTable().updateRow(cell.getRowObject());
-                cell.cellEditorVisible(false);
-            }
-
+        if (imgui.inputText(JImStr.EMPTY, cell.getNativeString(), JImInputTextFlags.EnterReturnsTrue)) {
+            setValue(cell.getRowObject(), field, cell.getNativeString().toString());
+            super.getTable().updateRow(cell.getRowObject());
+            cell.cellEditorVisible(false);
         }
+
     }
 
 }

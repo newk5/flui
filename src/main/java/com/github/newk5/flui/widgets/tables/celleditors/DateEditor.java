@@ -19,31 +19,27 @@ public class DateEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Date.class)) {
+        cell.cellEditorVisible(true);
+        NativeTime t = new NativeTime();
+        Date d = cell.getCellValue().equals("") ? new Date() : (Date) cell.getCellValue();
+        t.modifyAbsoluteSeconds(TimeUnit.MILLISECONDS.toSeconds(d.getTime()));
 
-            NativeTime t = new NativeTime();
-            Date d = cell.getCellValue().equals("") ? new Date() : (Date) cell.getCellValue();
-            t.modifyAbsoluteSeconds(TimeUnit.MILLISECONDS.toSeconds(d.getTime()));
-
-            cell.nativeTime(t);
-
-        }
+        cell.nativeTime(t);
 
     }
 
     @Override
     public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
-        if (cell.getValueType().equals(Date.class)) {
-            if (imgui.dateChooser(JImStr.EMPTY, cell.getNativeTime())) {
+        if (imgui.dateChooser(JImStr.EMPTY, cell.getNativeTime())) {
 
-                cell.cellEditorVisible(false);
-                Date d = new Date(TimeUnit.SECONDS.toMillis(cell.getNativeTime().accessAbsoluteSeconds()));
+            cell.cellEditorVisible(false);
+            Date d = new Date(TimeUnit.SECONDS.toMillis(cell.getNativeTime().accessAbsoluteSeconds()));
 
-                setValue(cell.getRowObject(), field, d);
-                super.getTable().updateRow(cell.getRowObject());
+            setValue(cell.getRowObject(), field, d);
+            super.getTable().updateRow(cell.getRowObject());
 
-            }
         }
+
     }
 
 }

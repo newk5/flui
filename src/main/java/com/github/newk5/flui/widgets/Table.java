@@ -7,7 +7,6 @@ import com.github.newk5.flui.Color;
 import com.github.newk5.flui.Direction;
 import com.github.newk5.flui.Font;
 import static com.github.newk5.flui.util.ReflectUtil.getValue;
-import static com.github.newk5.flui.util.ReflectUtil.setValue;
 import com.github.newk5.flui.util.SerializableBiConsumer;
 import com.github.newk5.flui.widgets.tables.celleditors.BooleanEditor;
 import com.github.newk5.flui.widgets.tables.celleditors.CellEditor;
@@ -17,26 +16,22 @@ import com.github.newk5.flui.widgets.tables.celleditors.FloatEditor;
 import com.github.newk5.flui.widgets.tables.celleditors.IntegerEditor;
 import com.github.newk5.flui.widgets.tables.celleditors.StringEditor;
 import java.lang.reflect.Field;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.ice1000.jimgui.JImGui;
+import org.ice1000.jimgui.JImSortSpecs;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
-import org.ice1000.jimgui.NativeBool;
-import org.ice1000.jimgui.NativeDouble;
-import org.ice1000.jimgui.NativeFloat;
-import org.ice1000.jimgui.NativeInt;
-import org.ice1000.jimgui.NativeString;
-import org.ice1000.jimgui.NativeTime;
-import org.ice1000.jimgui.flag.JImInputTextFlags;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
 import org.ice1000.jimgui.flag.JImTableFlags;
 import vlsi.utils.CompactHashMap;
@@ -82,6 +77,7 @@ public class Table extends SizedWidget {
     private String globalExpr = "";
     private boolean selectable;
     private boolean celleditor;
+    private boolean sortable;
 
     private CellWrapper lastEditedCell;
     private int offset = 0;
@@ -90,6 +86,7 @@ public class Table extends SizedWidget {
     private SerializableBiConsumer<Integer, Integer> pageChangeEvent;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private CompactHashMap<Class, CellEditor> cellEditors = new CompactHashMap<>();
+    private CompactHashMap<Class, BiFunction<Object, Object, Integer>> cellComparators = new CompactHashMap<>();
 
     public Table(String id) {
         super(id, true);
@@ -102,11 +99,19 @@ public class Table extends SizedWidget {
 
         this.addCellEditor(String.class, new StringEditor(this));
         this.addCellEditor(Boolean.class, new BooleanEditor(this));
+        this.addCellEditor(boolean.class, new BooleanEditor(this));
         this.addCellEditor(Date.class, new DateEditor(this));
         this.addCellEditor(Double.class, new DoubleEditor(this));
+        this.addCellEditor(double.class, new DoubleEditor(this));
         this.addCellEditor(Float.class, new FloatEditor(this));
+        this.addCellEditor(float.class, new FloatEditor(this));
         this.addCellEditor(Integer.class, new IntegerEditor(this));
+        this.addCellEditor(int.class, new IntegerEditor(this));
 
+    }
+
+    public void addCellComparator(Class c, BiFunction<Object, Object, Integer> function) {
+        cellComparators.put(c, function);
     }
 
     public void addCellEditor(Class c, CellEditor ce) {
@@ -207,9 +212,9 @@ public class Table extends SizedWidget {
         }
     }
 
-    private int indexOfFilteredRow(Object o) {
-        for (int i = 0; i < this.filteredData.size(); i++) {
-            if (this.filteredData.get(i)[0].getRowObject().equals(o)) {
+    private int indexOfRowInCellWrapper(List<CellWrapper[]> list, Object o) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i)[0].getRowObject().equals(o)) {
                 return i;
             }
         }
@@ -221,9 +226,10 @@ public class Table extends SizedWidget {
     }
 
     public void updateRow(Object o) {
-        updateRow(simpleData, o, data.indexOf(o));
+        int idx = data.indexOf(o);
+        updateRow(simpleData, o, sortable ? indexOfRowInCellWrapper(this.simpleData, o) : idx);
         if (!this.globalExpr.equals("")) {
-            updateRow(filteredData, o, indexOfFilteredRow(o));
+            updateRow(filteredData, o, indexOfRowInCellWrapper(this.filteredData, o));
 
         }
 
@@ -247,6 +253,9 @@ public class Table extends SizedWidget {
             flags |= JImTableFlags.Borders;
         }
         flags |= JImTableFlags.RowBg;
+        if (sortable) {
+            flags |= JImTableFlags.Sortable;
+        }
     }
 
     private void calculatePageCount() {
@@ -355,7 +364,7 @@ public class Table extends SizedWidget {
 
                 CellEditor editor = cellEditors.get(cell.getValueType());
                 if (editor != null) {
-                    cell.cellEditorVisible(true);
+
                     editor.onClick(imgui, cell, field);
                 }
 
@@ -379,7 +388,7 @@ public class Table extends SizedWidget {
     private void drawCell(JImGui imgui, CellWrapper[] row, int i) {
         for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
             CellWrapper cell = row[cellIdx];
-            imgui.pushID(i);
+            imgui.pushID(cellIdx+i);
             imgui.tableSetColumnIndex(cell.getColumnIdx());
 
             if (cell.hasWidgets()) {
@@ -516,6 +525,87 @@ public class Table extends SizedWidget {
         }
     }
 
+    protected void sortData(int column, int direction) {
+
+        Column c = columns.get(column);
+        Comparator<CellWrapper[]> comp = (o1, o2) -> {
+            CellWrapper cell1 = Arrays.stream(o1).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+            CellWrapper cell2 = Arrays.stream(o2).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+
+            String value1 = cell1.getValue().toString();
+            String value2 = cell2.getValue().toString();
+
+            if (value1.equals("")) {
+                return -1;
+            } else if (value2.equals("")) {
+                return 1;
+            }
+            int returnValue = 0;
+            if (cell1.getValueType() == Integer.class || cell1.getValueType() == int.class) {
+
+                if (Integer.valueOf(value1) > Integer.valueOf(value2)) {
+                    returnValue = 1;
+                } else {
+                    returnValue = -1;
+                }
+            } else if (cell1.getValueType() == Double.class || cell1.getValueType() == double.class) {
+
+                if (Double.valueOf(value1) > Double.valueOf(value2)) {
+                    returnValue = 1;
+                } else {
+                    returnValue = -1;
+                }
+            } else if (cell1.getValueType() == Boolean.class || cell1.getValueType() == boolean.class) {
+
+                returnValue = Boolean.valueOf(value1).compareTo(Boolean.valueOf(value2));
+            } else if (cell1.getValueType() == Float.class || cell1.getValueType() == float.class) {
+
+                if (Float.valueOf(value1) > Float.valueOf(value2)) {
+                    returnValue = 1;
+                } else {
+                    returnValue = -1;
+                }
+            } else if (cell1.getValueType() == Long.class || cell1.getValueType() == long.class) {
+
+                if (Long.valueOf(value1) > Long.valueOf(value2)) {
+                    returnValue = 1;
+                } else {
+                    returnValue = -1;
+                }
+            } else if (cell1.getValueType() == String.class) {
+
+                returnValue = cell1.getValue().toString().compareTo(cell2.getValue().toString());
+            } else if (cell1.getValueType() == Date.class) {
+
+                try {
+                    Date d1 = sdf.parse(cell1.getValue().toString());
+                    Date d2 = sdf.parse(cell2.getValue().toString());
+
+                    if (d1.after(d2)) {
+                        returnValue = 1;
+                    } else {
+                        returnValue = -1;
+                    }
+                } catch (ParseException ex) {
+                    Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                BiFunction<Object, Object, Integer> f = cellComparators.get(cell1.getValueType());
+
+                if (f != null) {
+                    returnValue = f.apply(cell1.getCellValue(), cell2.getCellValue());
+                }
+            }
+            if (direction != 1) {
+                returnValue *= -1;
+            }
+            return returnValue;
+
+        };
+        getData().sort(comp);
+
+    }
+
     @Override
     protected void render(JImGui imgui) {
         if (!super.isHidden()) {
@@ -525,9 +615,22 @@ public class Table extends SizedWidget {
             if (globalFilter) {
                 drawGlobalFilter();
             }
+
             if (imgui.beginTable(title, columns.size(), flags)) {
+
+                if (sortable) {
+                    JImSortSpecs specs = imgui.tableGetSortSpecs();
+
+                    if (specs.isSpecsDirty() && !firstRenderLoop) {
+
+                        sortData(specs.columnSortSpecs(0).getColumnIndex(), specs.columnSortSpecs(0).getSortDirection());
+
+                        specs.setSpecsDirty(false);
+                    }
+                }
+
                 this.applyStyles(imgui);
-                //  JImSortDirection dir = JImSortDirection.Type.
+
                 rowsDrawn = 0;
 
                 for (int i = offset; i < getData().size(); i++) {
@@ -536,6 +639,7 @@ public class Table extends SizedWidget {
                     }
                     CellWrapper[] row = getData().get(i);
                     imgui.tableNextRow();
+                  
                     drawCell(imgui, row, i);
                     rowsDrawn++;
                 }
@@ -557,6 +661,12 @@ public class Table extends SizedWidget {
 
     public Table hidden(boolean hidden) {
         super.hidden(hidden);
+        return this;
+    }
+
+    public Table sortable(boolean sortable) {
+        this.sortable = sortable;
+        buildFlags();
         return this;
     }
 
@@ -723,7 +833,7 @@ public class Table extends SizedWidget {
 
         }
         if (!globalExpr.equals("")) {
-            int fIdx = indexOfFilteredRow(o);
+            int fIdx = indexOfRowInCellWrapper(filteredData, o);
             if (fIdx > -1) {
                 filteredData.remove(fIdx);
             }

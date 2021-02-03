@@ -160,7 +160,7 @@ public class Tabview extends SizedWidget {
                         }
                     } else if (w instanceof Tabview) {
                         Tabview tv = (Tabview) w;
-                        tv.size(tv.getWidth() - 3, tv.getHeight() - tv.getYOffset());
+                        tv.size(tv.getWidth(), tv.getHeight() - tv.getYOffset());
 
                         tv.applyRelativeSizeToTabChildren();
                     }
