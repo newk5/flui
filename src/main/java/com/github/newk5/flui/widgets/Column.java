@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import org.ice1000.jimgui.JImStr;
 
 public class Column {
@@ -11,6 +12,7 @@ public class Column {
     private JImStr header;
     private String field;
     private List<SizedWidget> widgets = new ArrayList<>();
+    private BiFunction<Object, Object, Integer> sorter;
 
     public Column(String header) {
         this.header = new JImStr(header);
@@ -56,5 +58,16 @@ public class Column {
     public String getField() {
         return field;
     }
+    
+  
+    public Column sorter(final BiFunction<Object,Object,Integer> value) {
+        this.sorter = value;
+        return this;
+    }
+
+    public BiFunction<Object, Object, Integer> getSorter() {
+        return sorter;
+    }
+    
 
 }

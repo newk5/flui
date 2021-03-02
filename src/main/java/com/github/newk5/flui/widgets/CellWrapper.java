@@ -1,6 +1,7 @@
 package com.github.newk5.flui.widgets;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.ice1000.jimgui.JImGui;
@@ -203,6 +204,10 @@ public class CellWrapper implements Serializable {
 
     public JImStr getValue() {
         return value;
+    }
+    
+    public String getValueAsString() {
+        return new String(value.bytes, StandardCharsets.UTF_8).replace("\u0000", "");
     }
 
     public NativeTime getNativeTime() {

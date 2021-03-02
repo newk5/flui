@@ -9,7 +9,6 @@ import org.ice1000.jimgui.JImGui;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.NativeDouble;
 
-
 public class DoubleEditor extends TableModifier implements CellEditor {
 
     public DoubleEditor(Table table) {
@@ -18,6 +17,7 @@ public class DoubleEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
+        super.focused = false;
         cell.cellEditorVisible(true);
         NativeDouble s = new NativeDouble();
         s.modifyValue(Double.valueOf(cell.getValue().toString()));
@@ -27,7 +27,12 @@ public class DoubleEditor extends TableModifier implements CellEditor {
     }
 
     @Override
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field) {
+
+        if (!super.focused) {
+            imgui.setKeyboardFocusHere(0);
+            super.focused = true;
+        }
         imgui.inputDouble(JImStr.EMPTY, cell.getNativeDouble());
         if (imgui.isItemDeactivatedAfterEdit()) {
             cell.cellEditorVisible(false);

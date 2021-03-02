@@ -293,57 +293,58 @@ public class Window extends SizedWidget {
             }
 
             if ((!resizable || !appliedSizeOnce) && applySize) {
-                imgui.setNextWindowSize(super.getWidth() + imgui.getStyle().getWindowPaddingX(), super.getHeight() + imgui.getStyle().getWindowPaddingY());
+                imgui.setNextWindowSize(super.getWidth(), super.getHeight() );
                 appliedSizeOnce = true;
                 applySize = false;
                 reapplyAlign = true;
             }
 
             imgui.getStyle().setWindowRounding(0);
-            imgui.begin(title, flags);
-            float newY = imgui.getContentRegionMaxY();
-            float newX = imgui.getContentRegionMaxX();
-          
-            if (allChildrenAdded){
-                applyRelativeSizeToChildren();
-                allChildrenAdded=false;
-            }
+            if (imgui.begin(title, flags)) {
 
-            if (super.getWidth() != newX || super.getHeight() != newY) {
+                float newY = imgui.getContentRegionMaxY();
+                float newX = imgui.getContentRegionMaxX();
 
-                width(newX);
-                height(newY);
-                if (!resizable) {
-                    applyRelativeSize();
+                if (allChildrenAdded) {
+                    applyRelativeSizeToChildren();
+                    allChildrenAdded = false;
                 }
-                applyRelativeSizeToChildren();
-                applySize = true;
 
-                if (onResize != null && resizable) {
+                if (super.getWidth() != newX || super.getHeight() != newY) {
 
-                    onResize.accept(newX, newY);
+                    width(newX);
+                    height(newY);
+                    if (!resizable) {
+                        applyRelativeSize();
+                    }
+                    applyRelativeSizeToChildren();
+                    applySize = true;
 
+                    if (onResize != null && resizable) {
+
+                        onResize.accept(newX, newY);
+
+                    }
+                }
+
+                if (super.firstRenderLoop || allChildrenAdded) {
+                    applyRelativeSizeToChildren();
+                    allChildrenAdded = false;
+                }
+                this.applyMove(imgui);
+
+                if (color != null) {
+                    imgui.popStyleColor();
+                }
+                for (Widget w : children) {
+                    w.render(imgui);
+                }
+
+                if (reapplyAlign && super.getAlign() != null) {
+                    reapplyAlign = false;
+                    setAlignment(super.getAlign());
                 }
             }
-
-            if (super.firstRenderLoop || allChildrenAdded) {
-                applyRelativeSizeToChildren();
-                allChildrenAdded = false;
-            }
-            this.applyMove(imgui);
-
-            if (color != null) {
-                imgui.popStyleColor();
-            }
-            for (Widget w : children) {
-                w.render(imgui);
-            }
-
-            if (reapplyAlign && super.getAlign() != null) {
-                reapplyAlign = false;
-                setAlignment(super.getAlign());
-            }
-
             imgui.end();
 
             imgui.popID();
@@ -401,7 +402,7 @@ public class Window extends SizedWidget {
 
             add(w);
         }
-        allChildrenAdded=true;
+        allChildrenAdded = true;
         return this;
     }
 

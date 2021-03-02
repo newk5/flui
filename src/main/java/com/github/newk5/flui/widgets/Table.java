@@ -110,7 +110,7 @@ public class Table extends SizedWidget {
 
     }
 
-    public void addCellComparator(Class c, BiFunction<Object, Object, Integer> function) {
+    public void addTypeSorter(Class c, BiFunction<Object, Object, Integer> function) {
         cellComparators.put(c, function);
     }
 
@@ -378,8 +378,7 @@ public class Table extends SizedWidget {
 
             CellEditor editor = cellEditors.get(cell.getValueType());
             if (editor != null) {
-
-                editor.onSubmit(imgui, cell, field);
+                editor.drawEditor(imgui, cell, field);
             }
 
         }
@@ -388,7 +387,8 @@ public class Table extends SizedWidget {
     private void drawCell(JImGui imgui, CellWrapper[] row, int i) {
         for (int cellIdx = 0; cellIdx < row.length; cellIdx++) {
             CellWrapper cell = row[cellIdx];
-            imgui.pushID(cellIdx+i);
+            int id = Integer.valueOf(cellIdx + "0" + i);
+            imgui.pushID(id);
             imgui.tableSetColumnIndex(cell.getColumnIdx());
 
             if (cell.hasWidgets()) {
@@ -448,7 +448,7 @@ public class Table extends SizedWidget {
             imgui.popStyleColor();
         }
     }
-    boolean appliedMpve = false;
+    boolean appliedMove = false;
 
     private void drawGlobalFilter() {
         if (globalFilterLbl == null) {
@@ -472,9 +472,9 @@ public class Table extends SizedWidget {
             });
 
         } else {
-            if (appliedMpve == false) {
+            if (appliedMove == false) {
                 globalFilterLbl.applyMove = true;
-                appliedMpve = true;
+                appliedMove = true;
             }
 
         }
@@ -528,81 +528,96 @@ public class Table extends SizedWidget {
     protected void sortData(int column, int direction) {
 
         Column c = columns.get(column);
-        Comparator<CellWrapper[]> comp = (o1, o2) -> {
-            CellWrapper cell1 = Arrays.stream(o1).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
-            CellWrapper cell2 = Arrays.stream(o2).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
 
-            String value1 = cell1.getValue().toString();
-            String value2 = cell2.getValue().toString();
-
-            if (value1.equals("")) {
-                return -1;
-            } else if (value2.equals("")) {
-                return 1;
-            }
-            int returnValue = 0;
-            if (cell1.getValueType() == Integer.class || cell1.getValueType() == int.class) {
-
-                if (Integer.valueOf(value1) > Integer.valueOf(value2)) {
-                    returnValue = 1;
-                } else {
-                    returnValue = -1;
+        if (c.getSorter() != null) {
+            getData().sort((o1, o2) -> {
+                CellWrapper cell1 = Arrays.stream(o1).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+                CellWrapper cell2 = Arrays.stream(o2).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+                int v = c.getSorter().apply(cell1.getRowObject(), cell2.getRowObject());
+                if (direction != 1) {
+                    v *= -1;
                 }
-            } else if (cell1.getValueType() == Double.class || cell1.getValueType() == double.class) {
+                return v;
+            });
 
-                if (Double.valueOf(value1) > Double.valueOf(value2)) {
-                    returnValue = 1;
-                } else {
-                    returnValue = -1;
+        } else {
+
+            Comparator<CellWrapper[]> comp = (o1, o2) -> {
+                CellWrapper cell1 = Arrays.stream(o1).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+                CellWrapper cell2 = Arrays.stream(o2).filter(ce -> ce.getColumn().equals(c.getHeaderAsStr())).findFirst().get();
+
+                String value1 = cell1.getValue().toString();
+                String value2 = cell2.getValue().toString();
+
+                if (value1.equals("")) {
+                    return -1;
+                } else if (value2.equals("")) {
+                    return 1;
                 }
-            } else if (cell1.getValueType() == Boolean.class || cell1.getValueType() == boolean.class) {
+                int returnValue = 0;
+                if (cell1.getValueType() == Integer.class || cell1.getValueType() == int.class) {
 
-                returnValue = Boolean.valueOf(value1).compareTo(Boolean.valueOf(value2));
-            } else if (cell1.getValueType() == Float.class || cell1.getValueType() == float.class) {
-
-                if (Float.valueOf(value1) > Float.valueOf(value2)) {
-                    returnValue = 1;
-                } else {
-                    returnValue = -1;
-                }
-            } else if (cell1.getValueType() == Long.class || cell1.getValueType() == long.class) {
-
-                if (Long.valueOf(value1) > Long.valueOf(value2)) {
-                    returnValue = 1;
-                } else {
-                    returnValue = -1;
-                }
-            } else if (cell1.getValueType() == String.class) {
-
-                returnValue = cell1.getValue().toString().compareTo(cell2.getValue().toString());
-            } else if (cell1.getValueType() == Date.class) {
-
-                try {
-                    Date d1 = sdf.parse(cell1.getValue().toString());
-                    Date d2 = sdf.parse(cell2.getValue().toString());
-
-                    if (d1.after(d2)) {
+                    if (Integer.valueOf(value1) > Integer.valueOf(value2)) {
                         returnValue = 1;
                     } else {
                         returnValue = -1;
                     }
-                } catch (ParseException ex) {
-                    Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else {
-                BiFunction<Object, Object, Integer> f = cellComparators.get(cell1.getValueType());
+                } else if (cell1.getValueType() == Double.class || cell1.getValueType() == double.class) {
 
-                if (f != null) {
-                    returnValue = f.apply(cell1.getCellValue(), cell2.getCellValue());
-                }
-            }
-            if (direction != 1) {
-                returnValue *= -1;
-            }
-            return returnValue;
+                    if (Double.valueOf(value1) > Double.valueOf(value2)) {
+                        returnValue = 1;
+                    } else {
+                        returnValue = -1;
+                    }
+                } else if (cell1.getValueType() == Boolean.class || cell1.getValueType() == boolean.class) {
 
-        };
-        getData().sort(comp);
+                    returnValue = Boolean.valueOf(value1).compareTo(Boolean.valueOf(value2));
+                } else if (cell1.getValueType() == Float.class || cell1.getValueType() == float.class) {
+
+                    if (Float.valueOf(value1) > Float.valueOf(value2)) {
+                        returnValue = 1;
+                    } else {
+                        returnValue = -1;
+                    }
+                } else if (cell1.getValueType() == Long.class || cell1.getValueType() == long.class) {
+
+                    if (Long.valueOf(value1) > Long.valueOf(value2)) {
+                        returnValue = 1;
+                    } else {
+                        returnValue = -1;
+                    }
+                } else if (cell1.getValueType() == String.class) {
+
+                    returnValue = cell1.getValue().toString().compareTo(cell2.getValue().toString());
+                } else if (cell1.getValueType() == Date.class) {
+
+                    try {
+                        Date d1 = sdf.parse(cell1.getValue().toString());
+                        Date d2 = sdf.parse(cell2.getValue().toString());
+
+                        if (d1.after(d2)) {
+                            returnValue = 1;
+                        } else {
+                            returnValue = -1;
+                        }
+                    } catch (ParseException ex) {
+                        Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    BiFunction<Object, Object, Integer> f = cellComparators.get(cell1.getValueType());
+
+                    if (f != null) {
+                        returnValue = f.apply(cell1.getCellValue(), cell2.getCellValue());
+                    }
+                }
+                if (direction != 1) {
+                    returnValue *= -1;
+                }
+                return returnValue;
+
+            };
+            getData().sort(comp);
+        }
 
     }
 
@@ -639,7 +654,7 @@ public class Table extends SizedWidget {
                     }
                     CellWrapper[] row = getData().get(i);
                     imgui.tableNextRow();
-                  
+
                     drawCell(imgui, row, i);
                     rowsDrawn++;
                 }

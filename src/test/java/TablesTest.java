@@ -5,7 +5,11 @@ import com.github.newk5.flui.widgets.Column;
 import com.github.newk5.flui.widgets.Table;
 import com.github.newk5.flui.widgets.UI;
 import com.github.newk5.flui.widgets.Window;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,11 +23,13 @@ public class TablesTest {
         UI.render(app, () -> {
 
             new Window("w").fill().children(
-                    new Table("tbl").globalFilter(true).cellEditor(true)
+                    new Table("tbl").globalFilter(true).cellEditor(true).sortable(true)
                             .rowsPerPage(10).columns(
                             new Column("Name").field("name"),
                             new Column("Age").field("age"),
+                            new Column("Deleted").field("deleted"),
                             new Column("Country").field("country"),
+                            new Column("Dob").field("dob"),
                             //instead of binding properties from your object you can also render any widget you want inside table cells
                             new Column("Options").widgets(
                                     //when creating widgets inside tables you must not specify any ID, the ID's will be generated automatically
@@ -55,25 +61,25 @@ public class TablesTest {
                                         }
 
                                     }),
-                                    new Button().text("Remove").onClick( (b)->{
-                                         User user = (User) b.getData("rowData");
-                                          Table.withID("tbl").remove(user);
+                                    new Button().text("Remove").onClick((b) -> {
+                                        User user = (User) b.getData("rowData");
+                                        Table.withID("tbl").remove(user);
                                     })
                             )
                     ).data(
                             Stream.of(
-                                    new User("John1", 19, "France"),
-                                    new User("John2", 29, "Portugal"),
-                                    new User("John3", 19, "USA"),
-                                    new User("John4", 19, "Spain"),
-                                    new User("John5", 19, "France"),
-                                    new User("John6", 19, "Ireland"),
-                                    new User("John7", 19, "Portugal"),
-                                    new User("John8", 19, "Spain"),
-                                    new User("John9", 19, "Japan"),
-                                    new User("John10", 19, "China"),
-                                    new User("John11", 19, "China"),
-                                    new User("John12", 19, "Russia"),
+                                    new User("John1", 19, "France", new Date()),
+                                    new User("John2", 29, "Portugal", new Date()),
+                                    new User("John3", 19, "USA", new Date()),
+                                    new User("John4", 19, "Spain", new Date()),
+                                    new User("John5", 19, "France", new Date()),
+                                    new User("John6", 19, "Ireland", new Date()),
+                                    new User("John7", 19, "Portugal", new Date()),
+                                    new User("John8", 19, "Spain", new Date()),
+                                    new User("John9", 19, "Japan", new Date()),
+                                    new User("John10", 19, "China", new Date()),
+                                    new User("John11", 19, "China", new Date()),
+                                    new User("John12", 19, "Russia", new Date()),
                                     us
                             ).collect(Collectors.toList())
                     ).onSelect((o) -> { //when a row is selected (clicked on)
@@ -109,10 +115,19 @@ class User {
     private String name;
     private int age;
     private String country;
+    private boolean deleted;
+    private Date dob;
 
     public User(String name, int age, String country) {
         this.name = name;
         this.age = age;
+        this.country = country;
+    }
+
+    public User(String name, int age, String country, Date d) {
+        this.name = name;
+        this.age = age;
+        this.dob = d;
         this.country = country;
     }
 
@@ -129,6 +144,24 @@ class User {
     public User country(final String value) {
         this.country = value;
         return this;
+    }
+
+    public User deleted(final boolean value) {
+        this.deleted = value;
+        return this;
+    }
+
+    public User dob(final Date value) {
+        this.dob = value;
+        return this;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public Date getDob() {
+        return dob;
     }
 
     public String getCountry() {

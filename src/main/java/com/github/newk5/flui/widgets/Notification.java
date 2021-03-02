@@ -364,7 +364,7 @@ public class Notification extends SizedWidget {
         return super.getAlpha();
     }
 
-    private Notification align(Alignment a) {
+    public Notification align(Alignment a) {
 
         if (null != a) {
             applyMove = true;

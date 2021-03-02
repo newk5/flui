@@ -26,7 +26,7 @@ public class BooleanEditor extends TableModifier implements CellEditor {
     }
 
     @Override
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field) {
         imgui.checkbox(JImStr.EMPTY, cell.getNativeBool());
         if (imgui.isItemDeactivatedAfterEdit()) {
             cell.cellEditorVisible(false);

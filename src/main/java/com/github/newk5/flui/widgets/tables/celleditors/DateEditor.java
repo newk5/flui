@@ -29,7 +29,7 @@ public class DateEditor extends TableModifier implements CellEditor {
     }
 
     @Override
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field) {
         if (imgui.dateChooser(JImStr.EMPTY, cell.getNativeTime())) {
 
             cell.cellEditorVisible(false);

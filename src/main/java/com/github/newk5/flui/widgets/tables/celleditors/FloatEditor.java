@@ -17,6 +17,7 @@ public class FloatEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
+        super.focused=false;
         cell.cellEditorVisible(true);
         NativeFloat s = new NativeFloat();
         s.modifyValue(Float.valueOf(cell.getValue().toString()));
@@ -26,7 +27,11 @@ public class FloatEditor extends TableModifier implements CellEditor {
     }
 
     @Override
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field) {
+        if (!super.focused) {
+            imgui.setKeyboardFocusHere(0);
+            super.focused = true;
+        }
         imgui.inputFloat(JImStr.EMPTY, cell.getNativeFloat());
         if (imgui.isItemDeactivatedAfterEdit()) {
             cell.cellEditorVisible(false);

@@ -17,6 +17,7 @@ public class IntegerEditor extends TableModifier implements CellEditor {
 
     @Override
     public void onClick(JImGui imgui, CellWrapper cell, Field field) {
+        super.focused=false;
         cell.cellEditorVisible(true);
         NativeInt s = new NativeInt();
         int v = Integer.parseInt(cell.getValue().toString());
@@ -27,8 +28,12 @@ public class IntegerEditor extends TableModifier implements CellEditor {
     }
 
     @Override
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field) {
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field) {
 
+        if (!super.focused) {
+            imgui.setKeyboardFocusHere(0);
+            super.focused = true;
+        }
         imgui.inputInt(JImStr.EMPTY, cell.getNativeInt(), 0);
 
         if (imgui.isItemDeactivatedAfterEdit()) {

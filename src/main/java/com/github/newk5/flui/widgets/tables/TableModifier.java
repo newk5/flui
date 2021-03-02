@@ -4,6 +4,8 @@ import com.github.newk5.flui.widgets.Table;
 
 public abstract class TableModifier {
 
+    public boolean focused;
+
     private Table table;
 
     public TableModifier(Table table) {

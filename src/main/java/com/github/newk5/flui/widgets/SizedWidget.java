@@ -90,19 +90,12 @@ public abstract class SizedWidget extends Widget {
      protected void applyRelativeSize() {
         
         if (super.getParent() == null) {
-            //this is not working correctly for some OS's, need to have a better way to detect each platform windows frame sizing
             if (relativeSizeX > 0) {
                 this.width = (relativeSizeX * UI.windowWidth);
-                if (this instanceof Window) {
-                    this.width -= Window.globalXPadding*3;
-                }
-
+              
             }
             if (relativeSizeY > 0) {
                 this.height = (relativeSizeY * (UI.windowHeight - Topbar.height));
-                if (this instanceof Window) {
-                    this.height -= (Window.globalYPadding*6)-1;
-                }
             }
         } else {
 

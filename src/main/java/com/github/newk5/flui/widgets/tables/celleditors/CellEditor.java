@@ -16,13 +16,13 @@ public interface CellEditor {
     public void onClick(JImGui imgui, CellWrapper cell, Field field);
 
     /**
-     * Defines behaviour that specifies how the value should be submitted after
-     * being edited
+     * Draws the editor and defines behaviour that specifies how the value
+     * should be submitted after being edited
      *
      * @param imgui
      * @param cell
      * @param field
      */
-    public void onSubmit(JImGui imgui, CellWrapper cell, Field field);
+    public void drawEditor(JImGui imgui, CellWrapper cell, Field field);
 
 }

@@ -198,6 +198,7 @@ public class Canvas extends SizedWidget {
     }
 
     private float offsetY, offsetX;
+    private boolean scrollToBottom;
 
     @Override
     public void render(JImGui imgui) {
@@ -212,27 +213,32 @@ public class Canvas extends SizedWidget {
             this.applyMove(imgui);
 
             imgui.getStyle().setWindowRounding(0);
-            imgui.beginChild0(title, super.getWidth() + offsetX, super.getHeight() + offsetY, border);
+            if (imgui.beginChild0(title, super.getWidth(), super.getHeight(), border)) {
 
-            //set the real dimensions
-            if (super.firstRenderLoop && getWidth() > 0 && getHeight() > 0) {
-                float newY = imgui.getContentRegionMaxY();
-                float newX = imgui.getContentRegionMaxX();
+                if (scrollToBottom) {
+                    imgui.setScrollY(height);
+                    scrollToBottom = false;
+                }
 
-                offsetX = width - newX;
-                offsetY = height - newY;
+                //set the real dimensions
+                 if (super.firstRenderLoop && getWidth() > 0 && getHeight() > 0) {
+                    float newY = imgui.getContentRegionMaxY();
+                    float newX = imgui.getContentRegionMaxX();
 
-                super.width = newX;
-                super.height = newY;
+                    offsetX = width - newX;
+                    offsetY = height - newY;
+
+                    super.width = newX;
+                    super.height = newY;
+                }
+                if (color != null) {
+                    imgui.popStyleColor();
+                }
+                for (Widget w : children) {
+                    w.render(imgui);
+                }
+
             }
-
-            if (color != null) {
-                imgui.popStyleColor();
-            }
-            for (Widget w : children) {
-                w.render(imgui);
-            }
-
             imgui.endChild();
 
             super.postRender(imgui);
@@ -242,6 +248,11 @@ public class Canvas extends SizedWidget {
             }
         }
 
+    }
+
+    public Canvas scrollToBottom() {
+        scrollToBottom = true;
+        return this;
     }
 
     protected void postRender(JImGui imgui) {

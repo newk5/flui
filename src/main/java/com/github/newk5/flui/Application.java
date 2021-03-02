@@ -136,18 +136,6 @@ public class Application {
         
     }
 
-    public static void copyStream(InputStream in, OutputStream out) {
-        byte[] buffer = new byte[1024];
-        int read;
-        try {
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     public Application addFont(String fontName, String pathToFile, int size) {
         fonts.put(fontName, new Font(fontName, pathToFile, size));
         return this;
