@@ -26,7 +26,7 @@ public class TablesTest {
                     new Table("tbl").globalFilter(true).cellEditor(true).sortable(true)
                             .rowsPerPage(10).columns(
                             new Column("Name").field("name"),
-                            new Column("Age").field("age"),
+                            new Column("Age").field("age").witdh(50),
                             new Column("Deleted").field("deleted"),
                             new Column("Country").field("country"),
                             new Column("Dob").field("dob"),

@@ -33,6 +33,7 @@ import org.ice1000.jimgui.JImSortSpecs;
 import org.ice1000.jimgui.JImStr;
 import org.ice1000.jimgui.JImStyleColors;
 import org.ice1000.jimgui.flag.JImSelectableFlags;
+import org.ice1000.jimgui.flag.JImTableColumnFlags;
 import org.ice1000.jimgui.flag.JImTableFlags;
 import vlsi.utils.CompactHashMap;
 
@@ -256,6 +257,9 @@ public class Table extends SizedWidget {
         if (sortable) {
             flags |= JImTableFlags.Sortable;
         }
+        // flags |= JImTableFlags.SizingFixedFit;
+        flags |= JImTableFlags.Resizable;
+        //  flags |= JImTableFlags.SizingStretchProp;
     }
 
     private void calculatePageCount() {
@@ -439,8 +443,29 @@ public class Table extends SizedWidget {
         if (headerTextColor != null) {
             imgui.pushStyleColor(JImStyleColors.Text, headerTextColor.asVec4());
         }
-        columns.forEach(c -> imgui.tableSetupColumn(c.getHeader()));
+        columns.forEach(c -> {
+            int flags = 0;
+            flags = JImTableColumnFlags.WidthFixed;
+            if (c.getWidth()!=0) {
+                //  flags = JImTableColumnFlags.WidthFixed;
+                imgui.tableSetupColumn(c.getHeader(), JImTableColumnFlags.WidthFixed, c.getWidth());
+            } else {
+                imgui.tableSetupColumn(c.getHeader(), JImTableColumnFlags.WidthStretch);
+            }
+        });
         imgui.tableHeadersRow();
+
+        if (sortable) {
+            JImSortSpecs specs = imgui.tableGetSortSpecs();
+
+            if (specs.isSpecsDirty() && !firstRenderLoop) {
+
+                sortData(specs.columnSortSpecs(0).getColumnIndex(), specs.columnSortSpecs(0).getSortDirection());
+
+                specs.setSpecsDirty(false);
+            }
+        }
+
         if (headerFont != null) {
             imgui.popFont();
         }
@@ -632,17 +657,6 @@ public class Table extends SizedWidget {
             }
 
             if (imgui.beginTable(title, columns.size(), flags)) {
-
-                if (sortable) {
-                    JImSortSpecs specs = imgui.tableGetSortSpecs();
-
-                    if (specs.isSpecsDirty() && !firstRenderLoop) {
-
-                        sortData(specs.columnSortSpecs(0).getColumnIndex(), specs.columnSortSpecs(0).getSortDirection());
-
-                        specs.setSpecsDirty(false);
-                    }
-                }
 
                 this.applyStyles(imgui);
 

@@ -13,6 +13,7 @@ public class Column {
     private String field;
     private List<SizedWidget> widgets = new ArrayList<>();
     private BiFunction<Object, Object, Integer> sorter;
+    private float witdh;
 
     public Column(String header) {
         this.header = new JImStr(header);
@@ -58,9 +59,17 @@ public class Column {
     public String getField() {
         return field;
     }
-    
-  
-    public Column sorter(final BiFunction<Object,Object,Integer> value) {
+
+    public float getWidth() {
+        return witdh;
+    }
+
+    public Column witdh(int witdh) {
+        this.witdh = witdh;
+        return this;
+    }
+
+    public Column sorter(final BiFunction<Object, Object, Integer> value) {
         this.sorter = value;
         return this;
     }
@@ -68,6 +77,5 @@ public class Column {
     public BiFunction<Object, Object, Integer> getSorter() {
         return sorter;
     }
-    
 
 }
